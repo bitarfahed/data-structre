@@ -1,0 +1,31 @@
+# Local Python environments
+.venv/
+venv/
+
+# Python bytecode and cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test, type-checking, and coverage caches
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Build and distribution artifacts
+build/
+dist/
+*.egg-info/
+
+# IDE/editor local settings
+.idea/
+.vscode/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+desktop.ini
