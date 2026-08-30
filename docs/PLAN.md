@@ -31,12 +31,12 @@ Each data structure should have its own module containing its own operations. Si
 
 Round 1 will add:
 
-- Stack
-- Queue
+- Stack: implemented
+- Queue: implemented
 - Singly Linked List implemented with OOP
 - Dynamic Array
 
-Round 1 should focus on clear, testable domain logic before visualization and GUI work are added.
+Round 1 should focus on clear, testable domain logic before visualization and GUI work are added. Stack and Queue are now available as integer-only domain models with safe empty operations.
 
 ## Planned User Flow
 

@@ -16,12 +16,12 @@ The planned workflow is:
 
 Round 1 will focus on these structures:
 
-- Stack
-- Queue
+- Stack: implemented
+- Queue: implemented
 - Singly Linked List implemented with OOP
 - Dynamic Array
 
-These structures are not implemented yet. This repository currently contains only the foundation for adding them cleanly.
+Stack and Queue currently provide domain logic only. Singly Linked List and Dynamic Array are still planned.
 
 ## Architecture
 
@@ -42,8 +42,9 @@ The project foundation is in place:
 
 - Python package structure under `src/`
 - Reserved areas for data structures, algorithms, step/event infrastructure, visualization, and GUI code
+- Stack and Queue domain implementations
 - Pytest configuration
-- Initial smoke test for package imports
+- Unit tests for package imports, Stack, and Queue
 - Planning and development-process documentation
 
-No data structures, algorithms, GUI, visualization behavior, or step events have been implemented yet.
+No algorithms, GUI, visualization behavior, or step events have been implemented yet.
