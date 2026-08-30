@@ -25,6 +25,8 @@ class VisualizationState:
     message: str
     size: int
     capacity: int | None = None
+    event_type: EventType | None = None
+    metadata: dict[str, object] | None = None
 
 
 def build_visualization_state(
@@ -54,6 +56,8 @@ def build_visualization_state(
             message=message,
             size=structure.size,
             capacity=structure.capacity,
+            event_type=step.event_type if step is not None else None,
+            metadata=metadata,
         )
 
     values = structure.to_list()
@@ -71,6 +75,8 @@ def build_visualization_state(
         values=elements,
         message=message,
         size=len(values),
+        event_type=step.event_type if step is not None else None,
+        metadata=metadata,
     )
 
 

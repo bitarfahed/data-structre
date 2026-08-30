@@ -12,6 +12,8 @@ def test_stack_visualization_state_marks_highlighted_index() -> None:
     state = build_visualization_state("Stack", stack, step)
 
     assert state.message == "Visit top."
+    assert state.event_type is EventType.VISIT
+    assert state.metadata == {"index": 1}
     assert [element.value for element in state.values] == [4, 5]
     assert not state.values[0].highlighted
     assert state.values[1].highlighted

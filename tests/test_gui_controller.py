@@ -14,11 +14,23 @@ def test_controller_lists_round_1_structures_and_operations() -> None:
     assert [operation.key for operation in controller.operations_for(StructureKey.STACK)] == [
         "push",
         "pop",
+        "display",
+    ]
+    assert [operation.key for operation in controller.operations_for(StructureKey.QUEUE)] == [
+        "enqueue",
+        "dequeue",
+        "display",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.LINKED_LIST)] == [
         "push",
         "pop",
         "change_value",
+        "display",
+    ]
+    assert [operation.key for operation in controller.operations_for(StructureKey.DYNAMIC_ARRAY)] == [
+        "add",
+        "delete",
+        "display",
     ]
 
 
@@ -87,3 +99,49 @@ def test_controller_requires_index_when_operation_needs_it() -> None:
 
     assert not result.ok
     assert result.message == "Enter an integer index."
+
+
+def test_controller_exposes_display_operation_for_each_structure() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.STACK, "push", value_text="1")
+    controller.run_operation(StructureKey.QUEUE, "enqueue", value_text="2")
+    controller.run_operation(StructureKey.LINKED_LIST, "push", value_text="3")
+    controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="4")
+
+    stack = controller.run_operation(StructureKey.STACK, "display")
+    queue = controller.run_operation(StructureKey.QUEUE, "display")
+    linked_list = controller.run_operation(StructureKey.LINKED_LIST, "display")
+    dynamic_array = controller.run_operation(StructureKey.DYNAMIC_ARRAY, "display")
+
+    assert stack.ok
+    assert stack.steps[0].message == "Stack(bottom -> top): [1]"
+    assert queue.steps[0].message == "Queue(front -> back): [2]"
+    assert linked_list.steps[0].message == "LinkedList(head -> tail): 3"
+    assert dynamic_array.steps[0].message == "DynamicArray(size=1, capacity=4): [4]"
+
+
+def test_controller_supports_multiple_operations_without_resetting_structure() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.QUEUE, "enqueue", value_text="1")
+    controller.run_operation(StructureKey.QUEUE, "enqueue", value_text="2")
+    first = controller.run_operation(StructureKey.QUEUE, "dequeue")
+    controller.run_operation(StructureKey.QUEUE, "enqueue", value_text="3")
+
+    assert first.ok
+    assert [element.value for element in controller.snapshot(StructureKey.QUEUE).values] == [2, 3]
+
+
+def test_dynamic_array_resize_steps_include_capacity_change_metadata() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="1")
+    controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="2")
+    controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="3")
+    controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="4")
+    result = controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="5")
+
+    resize_steps = [step for step in result.steps if step.event_type is EventType.RESIZE]
+    assert resize_steps
+    assert resize_steps[0].metadata == {"old_capacity": 4, "new_capacity": 8}

@@ -171,3 +171,27 @@ Deferred intentionally:
 - Visual polish and animations beyond basic playback
 - Previous Step playback
 - Additional data structures and algorithms
+
+## Round 1 GUI Connection Pass
+
+Prompt goal: fully connect Stack, Queue, Linked List, and Dynamic Array operations to the GUI and Step/Event system while preserving the existing architecture.
+
+Work completed:
+
+- Inspected the current GUI, controller, visualization state, Step/Event infrastructure, and tests.
+- Added `display` operations for Stack, Queue, Linked List, and Dynamic Array to the GUI controller.
+- Kept all GUI operations routed through the existing domain implementations and step-aware domain methods.
+- Added a step-sequence list to the Tkinter shell so the current operation's events are visible during Next Step and Play/Pause playback.
+- Improved visual cues for Stack top position, Queue front/back order, and Dynamic Array resize messages.
+- Preserved live structure state across multiple operations without restarting the application.
+- Added controller and GUI integration tests for display operations, repeated operations, resize metadata, and structure switching.
+
+Bugs fixed:
+
+- Switching structures after selecting an operation from another structure could leave an unsupported operation selected. The GUI now resets to the selected structure's first supported operation when needed.
+
+Deferred intentionally:
+
+- Previous Step playback
+- Undo/replay of already-applied domain mutations
+- Rich animation and visual polish

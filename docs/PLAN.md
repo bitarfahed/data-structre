@@ -55,3 +55,4 @@ Future expansion may include trees, hash tables, heaps, and graph algorithms. Th
 The project should avoid adding AI, databases, authentication, networking, backend services, cloud infrastructure, or unrelated technologies.
 
 The current Tkinter GUI is a first shell for the planned flow and playback controls. Richer rendering polish remains deferred.
+All current Round 1 operations are connected through the GUI, including each structure's display operation. The GUI consumes Step/Event sequences from the domain layer and keeps the domain structures alive across multiple operations on the same selected structure.

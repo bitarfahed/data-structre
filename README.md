@@ -52,6 +52,8 @@ The project foundation is in place:
 - Stack, Queue, Singly Linked List, and Dynamic Array domain implementations
 - Simple Tkinter desktop GUI shell
 - GUI-independent visualization state support
+- GUI operation controls for all Round 1 structure operations, including display
+- Step/Event sequence display with Next Step and Play/Pause controls
 - Pytest configuration
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation

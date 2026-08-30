@@ -5,7 +5,7 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import ttk
 
-from dsa_visual_lab.events import Step
+from dsa_visual_lab.events import EventType, Step
 from dsa_visual_lab.gui.controller import OperationSpec, StructureKey, VisualLabController
 from dsa_visual_lab.visualization.state import VisualizationState, build_visualization_state
 
@@ -48,6 +48,7 @@ class VisualLabApp(tk.Tk):
         self.main.grid(row=0, column=1, sticky="nsew")
         self.main.columnconfigure(0, weight=1)
         self.main.rowconfigure(2, weight=1)
+        self.main.rowconfigure(3, weight=0)
 
         ttk.Label(self.sidebar, text="Structures").grid(row=0, column=0, sticky="w")
         for row, structure_key in enumerate(self.controller.structure_keys(), start=1):
@@ -71,8 +72,11 @@ class VisualLabApp(tk.Tk):
         self.canvas = tk.Canvas(self.main, background="white", height=330)
         self.canvas.grid(row=2, column=0, sticky="nsew")
 
+        self.steps_list = tk.Listbox(self.main, height=5)
+        self.steps_list.grid(row=3, column=0, sticky="ew", pady=(8, 0))
+
         self.status_label = ttk.Label(self.main, textvariable=self.status_text, wraplength=700)
-        self.status_label.grid(row=3, column=0, sticky="ew", pady=(8, 0))
+        self.status_label.grid(row=4, column=0, sticky="ew", pady=(8, 0))
 
     def _show_structure_selection(self) -> None:
         self._stop_playback()
@@ -81,6 +85,7 @@ class VisualLabApp(tk.Tk):
         self.current_steps = []
         self.current_step_index = -1
         self.last_operation = None
+        self._update_step_sequence()
         self.explanation_label.config(text=self.controller.explanation_for(structure_key))
         self._render_continue_controls()
         self._draw_state(self.controller.snapshot(structure_key))
@@ -99,7 +104,8 @@ class VisualLabApp(tk.Tk):
         self._clear_controls()
         structure_key = self._current_structure_key()
         operations = self.controller.operations_for(structure_key)
-        if not self.selected_operation.get():
+        operation_keys = [operation.key for operation in operations]
+        if self.selected_operation.get() not in operation_keys:
             self.selected_operation.set(operations[0].key)
 
         ttk.Label(self.controls, text="Operation").grid(row=0, column=0, padx=(0, 6))
@@ -108,7 +114,7 @@ class VisualLabApp(tk.Tk):
             state="readonly",
             width=24,
             textvariable=self.selected_operation,
-            values=[operation.key for operation in operations],
+            values=operation_keys,
         )
         operation_menu.grid(row=0, column=1, padx=(0, 10))
         operation_menu.bind("<<ComboboxSelected>>", lambda _event: self._refresh_operation_fields())
@@ -166,6 +172,7 @@ class VisualLabApp(tk.Tk):
             self.current_steps = []
             self.current_step_index = -1
             self.status_text.set(result.message)
+            self._update_step_sequence()
             self._draw_state(self.controller.snapshot(structure_key))
             return
 
@@ -173,6 +180,7 @@ class VisualLabApp(tk.Tk):
         self.current_step_index = 0
         self.last_operation = (structure_key, operation_key, value_text, index_text)
         self.status_text.set(result.steps[0].message)
+        self._update_step_sequence()
         self._draw_state(self.controller.snapshot(structure_key, result.steps[0]))
 
     def _next_step(self) -> None:
@@ -186,6 +194,7 @@ class VisualLabApp(tk.Tk):
         structure_key = self._current_structure_key()
         step = self.current_steps[self.current_step_index]
         self.status_text.set(step.message)
+        self._update_step_sequence()
         self._draw_state(self.controller.snapshot(structure_key, step))
 
     def _toggle_playback(self) -> None:
@@ -224,6 +233,7 @@ class VisualLabApp(tk.Tk):
         structure_key = self.last_operation[0]
         step = self.current_steps[0]
         self.status_text.set(step.message)
+        self._update_step_sequence()
         self._draw_state(self.controller.snapshot(structure_key, step))
 
     def _draw_state(self, state: VisualizationState) -> None:
@@ -255,6 +265,8 @@ class VisualLabApp(tk.Tk):
             self.canvas.create_rectangle(x, y, x + cell_width, y + cell_height, fill=fill, outline="#2b4c7e")
             self.canvas.create_text(x + cell_width // 2, y + cell_height // 2, text=str(element.value))
             self.canvas.create_text(x - 20, y + cell_height // 2, text=str(element.index), fill="#555")
+            if element.index == len(state.values) - 1:
+                self.canvas.create_text(x + cell_width + 46, y + cell_height // 2, text="top", fill="#333")
             y -= cell_height
 
     def _draw_linear(
@@ -274,6 +286,10 @@ class VisualLabApp(tk.Tk):
             self.canvas.create_rectangle(x, y, x + cell_width, y + cell_height, fill=fill, outline="#2b4c7e")
             self.canvas.create_text(x + cell_width // 2, y + cell_height // 2, text=str(element.value))
             self.canvas.create_text(x + cell_width // 2, y + cell_height + 16, text=str(element.index), fill="#555")
+            if not show_arrows and element.index == 0:
+                self.canvas.create_text(x + cell_width // 2, y - 16, text="front", fill="#333")
+            if not show_arrows and element.index == len(state.values) - 1:
+                self.canvas.create_text(x + cell_width // 2, y + cell_height + 34, text="back", fill="#333")
             if show_arrows and element.index < len(state.values) - 1:
                 self.canvas.create_line(x + cell_width, y + cell_height // 2, x + cell_width + 36, y + cell_height // 2, arrow=tk.LAST)
                 x += cell_width + 46
@@ -288,6 +304,17 @@ class VisualLabApp(tk.Tk):
             text=f"size: {state.size}    capacity: {state.capacity}",
             fill="#333",
         )
+        if state.event_type is not None and state.event_type is EventType.RESIZE:
+            old_capacity = state.metadata.get("old_capacity") if state.metadata else None
+            new_capacity = state.metadata.get("new_capacity") if state.metadata else None
+            if old_capacity is not None and new_capacity is not None:
+                self.canvas.create_text(
+                    x,
+                    y - 14,
+                    anchor="w",
+                    text=f"resize: capacity {old_capacity} -> {new_capacity}",
+                    fill="#7a4a00",
+                )
         cell_width = 62
         cell_height = 44
         for element in state.values:
@@ -302,6 +329,16 @@ class VisualLabApp(tk.Tk):
             )
             self.canvas.create_text(x + cell_width // 2, y + cell_height + 16, text=str(element.index), fill="#555")
             x += cell_width + 6
+
+    def _update_step_sequence(self) -> None:
+        self.steps_list.delete(0, tk.END)
+        for index, step in enumerate(self.current_steps):
+            marker = ">" if index == self.current_step_index else " "
+            self.steps_list.insert(tk.END, f"{marker} {index + 1}. {step.event_type.value}: {step.message}")
+        if self.current_step_index >= 0:
+            self.steps_list.selection_clear(0, tk.END)
+            self.steps_list.selection_set(self.current_step_index)
+            self.steps_list.see(self.current_step_index)
 
     def _clear_controls(self) -> None:
         for child in self.controls.winfo_children():
