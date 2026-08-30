@@ -2,7 +2,7 @@ from data_structures_visual_lab.events import EventType
 from data_structures_visual_lab.gui.controller import StructureKey, VisualLabController
 
 
-def test_controller_lists_round_1_structures_and_operations() -> None:
+def test_controller_lists_structures_and_operations() -> None:
     controller = VisualLabController()
 
     assert controller.structure_keys() == (
@@ -10,6 +10,7 @@ def test_controller_lists_round_1_structures_and_operations() -> None:
         StructureKey.QUEUE,
         StructureKey.LINKED_LIST,
         StructureKey.DYNAMIC_ARRAY,
+        StructureKey.AVL_TREE,
     )
     assert [operation.key for operation in controller.operations_for(StructureKey.STACK)] == [
         "push",
@@ -27,6 +28,14 @@ def test_controller_lists_round_1_structures_and_operations() -> None:
     assert [operation.key for operation in controller.operations_for(StructureKey.DYNAMIC_ARRAY)] == [
         "add",
         "delete",
+    ]
+    assert [operation.key for operation in controller.operations_for(StructureKey.AVL_TREE)] == [
+        "insert",
+        "balance",
+        "search",
+        "delete",
+        "min",
+        "max",
     ]
 
 
@@ -152,9 +161,107 @@ def test_controller_reset_clears_each_round_1_structure() -> None:
     controller.run_operation(StructureKey.QUEUE, "enqueue", value_text="2")
     controller.run_operation(StructureKey.LINKED_LIST, "push", value_text="3")
     controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="4")
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="5")
 
     for structure_key in controller.structure_keys():
         controller.reset_structure(structure_key)
         snapshot = controller.snapshot(structure_key)
         assert snapshot.size == 0
         assert all(element.value is None for element in snapshot.values)
+        assert snapshot.tree_nodes == ()
+
+
+def test_controller_runs_avl_insert_and_marks_pending_rebalance() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="30")
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="20")
+    result = controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="10")
+    snapshot = controller.snapshot(StructureKey.AVL_TREE, result.steps[-1])
+
+    assert result.ok
+    assert snapshot.rebalance_pending
+    assert not snapshot.balanced
+    assert [node.value for node in snapshot.tree_nodes] == [10, 20, 30]
+    assert [node.value for node in snapshot.tree_nodes if node.unbalanced] == [30]
+
+
+def test_controller_blocks_avl_insert_while_rebalance_is_pending() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="30")
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="20")
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="10")
+    result = controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="5")
+
+    assert not result.ok
+    assert result.message == "AVL insert blocked because rebalance is pending."
+    assert [node.value for node in controller.snapshot(StructureKey.AVL_TREE).tree_nodes] == [10, 20, 30]
+
+
+def test_controller_runs_avl_balance_and_reenables_insertion() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="30")
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="20")
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="10")
+    balance_result = controller.run_operation(StructureKey.AVL_TREE, "balance")
+    insert_result = controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="5")
+
+    assert balance_result.ok
+    assert insert_result.ok
+    snapshot = controller.snapshot(StructureKey.AVL_TREE)
+    assert snapshot.balanced
+    assert not snapshot.rebalance_pending
+    assert [node.value for node in snapshot.tree_nodes] == [5, 10, 20, 30]
+
+
+def test_controller_runs_avl_search_min_max_and_delete() -> None:
+    controller = VisualLabController()
+
+    for value in ("20", "10", "30"):
+        controller.run_operation(StructureKey.AVL_TREE, "insert", value_text=value)
+
+    found = controller.run_operation(StructureKey.AVL_TREE, "search", value_text="10")
+    missing = controller.run_operation(StructureKey.AVL_TREE, "search", value_text="99")
+    minimum = controller.run_operation(StructureKey.AVL_TREE, "min")
+    maximum = controller.run_operation(StructureKey.AVL_TREE, "max")
+    deleted = controller.run_operation(StructureKey.AVL_TREE, "delete", value_text="20")
+
+    assert found.ok
+    assert found.message == "AVL search found 10."
+    assert not missing.ok
+    assert missing.message == "AVL search did not find 99."
+    assert minimum.ok
+    assert minimum.message == "AVL minimum is 10."
+    assert maximum.ok
+    assert maximum.message == "AVL maximum is 30."
+    assert deleted.ok
+    assert [node.value for node in controller.snapshot(StructureKey.AVL_TREE).tree_nodes] == [10, 30]
+
+
+def test_controller_rejects_invalid_avl_value_input() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="abc")
+
+    assert not result.ok
+    assert result.message == "Value must be an integer."
+    assert controller.snapshot(StructureKey.AVL_TREE).size == 0
+
+
+def test_controller_reset_clears_avl_pending_rebalance_state() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="30")
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="20")
+    controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="10")
+    assert controller.snapshot(StructureKey.AVL_TREE).rebalance_pending
+
+    controller.reset_structure(StructureKey.AVL_TREE)
+    snapshot = controller.snapshot(StructureKey.AVL_TREE)
+
+    assert snapshot.size == 0
+    assert snapshot.tree_nodes == ()
+    assert snapshot.balanced
+    assert not snapshot.rebalance_pending

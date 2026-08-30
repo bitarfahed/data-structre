@@ -13,7 +13,7 @@ def create_app_or_skip() -> VisualLabApp:
         pytest.skip(f"Tkinter is not available: {error}")
 
 
-def test_gui_main_flows_for_all_round_1_structures() -> None:
+def test_gui_main_flows_for_supported_structures() -> None:
     app = create_app_or_skip()
     flows = [
         (StructureKey.STACK, "push", "10", ""),
@@ -32,6 +32,14 @@ def test_gui_main_flows_for_all_round_1_structures() -> None:
         (StructureKey.DYNAMIC_ARRAY, "add", "4", ""),
         (StructureKey.DYNAMIC_ARRAY, "add", "5", ""),
         (StructureKey.DYNAMIC_ARRAY, "delete", "", "0"),
+        (StructureKey.AVL_TREE, "insert", "30", ""),
+        (StructureKey.AVL_TREE, "insert", "20", ""),
+        (StructureKey.AVL_TREE, "insert", "10", ""),
+        (StructureKey.AVL_TREE, "balance", "", ""),
+        (StructureKey.AVL_TREE, "search", "20", ""),
+        (StructureKey.AVL_TREE, "min", "", ""),
+        (StructureKey.AVL_TREE, "max", "", ""),
+        (StructureKey.AVL_TREE, "delete", "20", ""),
     ]
 
     try:
@@ -66,6 +74,23 @@ def test_gui_main_flows_for_all_round_1_structures() -> None:
         assert app.status_text.get() == "Choose an operation and enter the required integer inputs."
         assert app.controller.snapshot(StructureKey.DYNAMIC_ARRAY).size == 0
         assert app.controller.snapshot(StructureKey.DYNAMIC_ARRAY).capacity == 1
+
+        app.selected_structure.set(StructureKey.AVL_TREE.value)
+        app._show_operations()
+        for value in ("30", "20", "10"):
+            app.selected_operation.set("insert")
+            app._refresh_operation_fields()
+            app.value_input.set(value)
+            app._run_current_operation()
+        assert str(app.run_button.cget("state")) == tk.DISABLED
+        assert app.controller.snapshot(StructureKey.AVL_TREE).rebalance_pending
+        app.selected_operation.set("balance")
+        app._refresh_operation_fields()
+        assert str(app.run_button.cget("state")) == tk.NORMAL
+        app._run_current_operation()
+        assert not app.controller.snapshot(StructureKey.AVL_TREE).rebalance_pending
+        app._restart_structure()
+        assert app.controller.snapshot(StructureKey.AVL_TREE).size == 0
 
         app.selected_structure.set(StructureKey.STACK.value)
         app._show_operations()

@@ -78,7 +78,7 @@ Remaining limitations are intentionally deferred:
 
 - Step playback controls
 - Richer animation and visual polish
-- Round 2 data structures and algorithms
+- Additional Round 2 data structures and algorithms
 
 ## Round 2 Scope
 
@@ -96,7 +96,10 @@ Implemented:
 - `min()`
 - `max()`
 - Height and balance-factor inspection
+- GUI structure selection and educational explanation
+- GUI operations for Insert, Balance, Search, Delete, Min, Max, and Restart
+- Simple visualization with tree nodes, parent-child edges, balance factors, and unbalanced-node highlighting
 
 Duplicate values are rejected. This keeps search, deletion, and educational tree diagrams unambiguous.
 
-AVL GUI and visualization support remain deferred.
+Richer AVL animation, step playback, and additional Round 2 structures remain deferred.

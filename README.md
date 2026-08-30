@@ -52,12 +52,12 @@ The project foundation is in place:
 - Stack, Queue, Singly Linked List, and Dynamic Array domain implementations
 - Simple Tkinter desktop GUI shell
 - GUI-independent visualization state support
-- GUI operation controls for the mutating Round 1 operations
+- GUI operation controls for the mutating Round 1 operations and AVL Tree operations
 - Pytest configuration
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
 
-Round 2 domain work has started with AVL Tree logic. The GUI and visualization are intentionally simple shells for the Round 1 structures.
+Round 2 has started with AVL Tree domain logic, GUI controls, and simple tree visualization.
 
 ## Round 1 Status
 
@@ -81,7 +81,7 @@ Known limitations:
 
 ## Round 2 Status
 
-Round 2 has started with AVL Tree domain logic.
+Round 2 has started with AVL Tree support.
 
 Implemented:
 
@@ -91,5 +91,9 @@ Implemented:
 - Search, delete, root delete, min, max
 - Left, right, left-right, and right-left rotation behavior
 - Height and balance-factor inspection
+- GUI selection, explanation, operation controls, and Restart support
+- Simple tree visualization with node values, balance factors, parent-child edges, and unbalanced-node highlighting
 
-The AVL Tree is not connected to the GUI or visualization shell yet.
+Known limitations:
+
+- AVL visualization is simple and immediate; it does not animate rotations or provide step playback controls.

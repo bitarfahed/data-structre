@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from data_structures_visual_lab.events import EventType, Step
+
 
 @dataclass
 class AVLNode:
@@ -46,6 +48,59 @@ class AVLTree:
         self._rebalance_pending = not self.is_balanced()
         return True
 
+    def insert_with_steps(self, value: int) -> tuple[bool, list[Step]]:
+        """Insert a value and return observable steps for visualization."""
+        self._validate_integer(value, "AVLTree values must be integers.")
+        if self._rebalance_pending:
+            return False, [
+                self._step(
+                    EventType.COMPLETE,
+                    "AVL insert blocked because rebalance is pending.",
+                    {"value": value},
+                )
+            ]
+
+        path = self._search_path(value)
+        inserted = self.insert(value)
+        if not inserted:
+            return False, [
+                self._step(
+                    EventType.COMPLETE,
+                    f"AVL insert skipped because {value} already exists.",
+                    {"value": value, "highlight_values": [value]},
+                )
+            ]
+
+        steps = [
+            self._step(
+                EventType.VISIT,
+                f"Traversed BST path for {value}.",
+                {"highlight_values": path},
+            ),
+            self._step(
+                EventType.ADD,
+                f"Inserted {value} using BST rules.",
+                {"inserted_value": value, "highlight_values": [value]},
+            ),
+        ]
+        if self._rebalance_pending:
+            steps.append(
+                self._step(
+                    EventType.COMPLETE,
+                    "AVL insert complete. Rebalance required before another insert.",
+                    {"inserted_value": value, "highlight_values": [value]},
+                )
+            )
+        else:
+            steps.append(
+                self._step(
+                    EventType.COMPLETE,
+                    "AVL insert complete. Tree remains balanced.",
+                    {"inserted_value": value, "highlight_values": [value]},
+                )
+            )
+        return True, steps
+
     def balance(self) -> bool:
         """Restore AVL validity when a rebalance is pending."""
         if self.root is None:
@@ -58,6 +113,37 @@ class AVLTree:
         self._refresh_heights()
         self._rebalance_pending = False
         return True
+
+    def balance_with_steps(self) -> tuple[bool, list[Step]]:
+        """Balance the tree and return observable steps for visualization."""
+        old_root_value = self.root.value if self.root is not None else None
+        balanced = self.balance()
+        if not balanced:
+            return False, [
+                self._step(
+                    EventType.COMPLETE,
+                    "AVL balance skipped because no rebalance is required.",
+                    {"highlight_values": []},
+                )
+            ]
+
+        new_root_value = self.root.value if self.root is not None else None
+        return True, [
+            self._step(
+                EventType.UPDATE,
+                "Applied AVL rotations to restore balance.",
+                {
+                    "old_root_value": old_root_value,
+                    "new_root_value": new_root_value,
+                    "highlight_values": [new_root_value] if type(new_root_value) is int else [],
+                },
+            ),
+            self._step(
+                EventType.COMPLETE,
+                "AVL balance complete. Tree is balanced.",
+                {"highlight_values": [new_root_value] if type(new_root_value) is int else []},
+            ),
+        ]
 
     def search(self, value: int) -> bool:
         """Return True when value exists in the tree."""
@@ -74,6 +160,23 @@ class AVLTree:
 
         return False
 
+    def search_with_steps(self, value: int) -> tuple[bool, list[Step]]:
+        """Search for a value and return observable steps for visualization."""
+        self._validate_integer(value, "AVLTree values must be integers.")
+        path = self._search_path(value)
+        found = bool(path and path[-1] == value)
+        if found:
+            message = f"AVL search found {value}."
+            metadata = {"value": value, "highlight_values": [value]}
+        else:
+            message = f"AVL search did not find {value}."
+            metadata = {"value": value, "highlight_values": path}
+
+        return found, [
+            self._step(EventType.VISIT, f"Searched BST path for {value}.", {"highlight_values": path}),
+            self._step(EventType.COMPLETE, message, metadata),
+        ]
+
     def delete(self, value: int) -> bool:
         """Delete a value and restore AVL validity immediately."""
         self._validate_integer(value, "AVLTree values must be integers.")
@@ -89,6 +192,34 @@ class AVLTree:
         self._rebalance_pending = False
         return True
 
+    def delete_with_steps(self, value: int) -> tuple[bool, list[Step]]:
+        """Delete a value and return observable steps for visualization."""
+        self._validate_integer(value, "AVLTree values must be integers.")
+        path = self._search_path(value)
+        deleted = self.delete(value)
+        if not deleted:
+            return False, [
+                self._step(EventType.VISIT, f"Searched BST path for {value}.", {"highlight_values": path}),
+                self._step(
+                    EventType.COMPLETE,
+                    f"AVL delete skipped because {value} was not found.",
+                    {"value": value, "highlight_values": path},
+                ),
+            ]
+
+        return True, [
+            self._step(
+                EventType.REMOVE,
+                f"Deleted {value} and restored AVL balance.",
+                {"deleted_value": value, "highlight_values": path},
+            ),
+            self._step(
+                EventType.COMPLETE,
+                "AVL delete complete. Tree is balanced.",
+                {"highlight_values": []},
+            ),
+        ]
+
     def min(self) -> int | None:
         """Return the smallest value, or None for an empty tree."""
         current = self.root
@@ -99,6 +230,17 @@ class AVLTree:
             current = current.left
         return current.value
 
+    def min_with_steps(self) -> tuple[int | None, list[Step]]:
+        """Return the minimum value and observable traversal steps."""
+        path = self._extreme_path(go_left=True)
+        result = self.min()
+        if result is None:
+            return None, [self._step(EventType.COMPLETE, "AVL min skipped because the tree is empty.")]
+        return result, [
+            self._step(EventType.VISIT, "Followed left references to find the minimum.", {"highlight_values": path}),
+            self._step(EventType.COMPLETE, f"AVL minimum is {result}.", {"result_value": result, "highlight_values": [result]}),
+        ]
+
     def max(self) -> int | None:
         """Return the largest value, or None for an empty tree."""
         current = self.root
@@ -108,6 +250,17 @@ class AVLTree:
         while current.right is not None:
             current = current.right
         return current.value
+
+    def max_with_steps(self) -> tuple[int | None, list[Step]]:
+        """Return the maximum value and observable traversal steps."""
+        path = self._extreme_path(go_left=False)
+        result = self.max()
+        if result is None:
+            return None, [self._step(EventType.COMPLETE, "AVL max skipped because the tree is empty.")]
+        return result, [
+            self._step(EventType.VISIT, "Followed right references to find the maximum.", {"highlight_values": path}),
+            self._step(EventType.COMPLETE, f"AVL maximum is {result}.", {"result_value": result, "highlight_values": [result]}),
+        ]
 
     def is_balanced(self) -> bool:
         """Return True when every node satisfies the AVL balance rule."""
@@ -142,6 +295,12 @@ class AVLTree:
         """Return values in sorted order."""
         values: list[int] = []
         self._in_order(self.root, values)
+        return values
+
+    def unbalanced_values(self) -> list[int]:
+        """Return values for nodes that do not currently satisfy AVL balance."""
+        values: list[int] = []
+        self._collect_unbalanced_values(self.root, values)
         return values
 
     def display(self) -> str:
@@ -263,6 +422,52 @@ class AVLTree:
         self._in_order(node.left, values)
         values.append(node.value)
         self._in_order(node.right, values)
+
+    def _search_path(self, value: int) -> list[int]:
+        path: list[int] = []
+        current = self.root
+        while current is not None:
+            path.append(current.value)
+            if value == current.value:
+                break
+            if value < current.value:
+                current = current.left
+            else:
+                current = current.right
+        return path
+
+    def _extreme_path(self, go_left: bool) -> list[int]:
+        path: list[int] = []
+        current = self.root
+        while current is not None:
+            path.append(current.value)
+            current = current.left if go_left else current.right
+        return path
+
+    def _collect_unbalanced_values(self, node: AVLNode | None, values: list[int]) -> None:
+        if node is None:
+            return
+        if abs(node.balance_factor) > 1:
+            values.append(node.value)
+        self._collect_unbalanced_values(node.left, values)
+        self._collect_unbalanced_values(node.right, values)
+
+    def _step(
+        self,
+        event_type: EventType,
+        message: str,
+        metadata: dict[str, object] | None = None,
+    ) -> Step:
+        step_metadata = {
+            "state": self.to_list(),
+            "height": self.height(),
+            "balanced": self.is_balanced(),
+            "rebalance_pending": self.rebalance_pending,
+            "unbalanced_values": self.unbalanced_values(),
+        }
+        if metadata:
+            step_metadata.update(metadata)
+        return Step(event_type, message, step_metadata)
 
     @staticmethod
     def _minimum_node(node: AVLNode) -> AVLNode:

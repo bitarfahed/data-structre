@@ -295,3 +295,32 @@ Important notes:
 - `pyproject.toml` uses the requested project name `data_structures_visual_lab`.
 - `uv.lock` normalizes the package distribution name as `data-structures-visual-lab`, which is expected Python packaging behavior.
 - The outer workspace directory remains `Data_Structure` because renaming the current repository folder from inside the running workspace is not safe.
+
+## Round 2 AVL Tree GUI and Visualization
+
+Prompt goal: connect the AVL Tree to the existing GUI and visualization architecture without adding other Round 2 data structures.
+
+Work completed:
+
+- Added AVL Tree to the structure-selection flow.
+- Added an educational AVL explanation before the operation workspace.
+- Added GUI operations for Insert, Balance, Search, Delete, Min, Max, and Restart.
+- Added AVL step-emitting companion methods in the domain module for operation messages and visualization metadata.
+- Extended GUI-independent visualization state with tree nodes, parent-child edges, node heights, balance factors, highlighted nodes, unbalanced nodes, and rebalance status.
+- Added simple Tkinter tree rendering for values, balance factors, parent-child edges, balanced status, pending-rebalance status, and highlighted results.
+- Updated controller, visualization-state, and GUI smoke tests for AVL flows.
+
+Important implementation direction:
+
+- AVL algorithms remain in the domain layer.
+- The GUI calls the controller, and the controller calls existing AVL domain methods.
+- Insert still performs BST-style insertion only.
+- While `rebalance_pending` is true, further inserts are blocked and the GUI disables the Run button when Insert is selected.
+- Balance uses existing AVL rotation logic and redraws the rotated tree immediately.
+- Search, Min, and Max highlight the resulting path or node through visualization metadata.
+
+Deferred intentionally:
+
+- Animated AVL rotations
+- Play, Next Step, and previous-step playback controls
+- Additional Round 2 structures

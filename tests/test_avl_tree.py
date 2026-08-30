@@ -48,6 +48,7 @@ def test_insert_marks_pending_rebalance_when_tree_becomes_unbalanced() -> None:
 
     assert not tree.is_balanced()
     assert tree.rebalance_pending
+    assert tree.unbalanced_values() == [30]
 
 
 def test_insert_is_blocked_while_rebalance_is_pending() -> None:

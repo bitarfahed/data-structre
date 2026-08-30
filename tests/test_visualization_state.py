@@ -1,4 +1,4 @@
-from data_structures_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.domain.data_structures import AVLTree, DynamicArray, LinkedList, Queue, Stack
 from data_structures_visual_lab.events import EventType, Step
 from data_structures_visual_lab.visualization import build_visualization_state
 
@@ -65,3 +65,21 @@ def test_dynamic_array_visualization_state_includes_empty_capacity_cells() -> No
     assert [element.value for element in state.values] == [8, None, None, None]
     assert state.values[0].moved
     assert state.values[1].moved
+
+
+def test_avl_visualization_state_includes_nodes_edges_and_balance_data() -> None:
+    tree = AVLTree()
+    tree.insert(30)
+    tree.insert(20)
+    _ok, steps = tree.insert_with_steps(10)
+
+    state = build_visualization_state("AVL Tree", tree, steps[-1])
+
+    assert state.values == ()
+    assert state.size == 3
+    assert not state.balanced
+    assert state.rebalance_pending
+    assert [node.value for node in state.tree_nodes] == [10, 20, 30]
+    assert [(parent, child) for parent, child in state.tree_edges] == [(1, 0), (2, 1)]
+    assert [node.value for node in state.tree_nodes if node.unbalanced] == [30]
+    assert [node.value for node in state.tree_nodes if node.highlighted] == [10]

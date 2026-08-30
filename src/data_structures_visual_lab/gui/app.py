@@ -11,7 +11,7 @@ from data_structures_visual_lab.visualization.state import VisualizationState, b
 
 
 class VisualLabApp(tk.Tk):
-    """Small desktop GUI for Round 1 structures."""
+    """Small desktop GUI for supported structures."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -130,6 +130,13 @@ class VisualLabApp(tk.Tk):
             self.index_label.grid(row=0, column=column, padx=(0, 4))
             self.index_entry.grid(row=0, column=column + 1, padx=(0, 10))
 
+        can_run = not (
+            self._current_structure_key() is StructureKey.AVL_TREE
+            and operation.key == "insert"
+            and self.controller.snapshot(StructureKey.AVL_TREE).rebalance_pending
+        )
+        self.run_button.configure(state=tk.NORMAL if can_run else tk.DISABLED)
+
     def _run_current_operation(self) -> None:
         structure_key = self._current_structure_key()
         operation_key = self.selected_operation.get()
@@ -147,6 +154,7 @@ class VisualLabApp(tk.Tk):
 
         self.status_text.set(_summarize_steps(result.steps))
         self._draw_state(self.controller.snapshot(structure_key, result.steps[-1]))
+        self._refresh_operation_fields()
 
     def _restart_structure(self) -> None:
         structure_key = self._current_structure_key()
@@ -171,8 +179,10 @@ class VisualLabApp(tk.Tk):
             self._draw_linear(state, x=40, y=145, show_arrows=False)
         elif state.structure_name == StructureKey.LINKED_LIST.value:
             self._draw_linear(state, x=40, y=145, show_arrows=True)
-        else:
+        elif state.structure_name == StructureKey.DYNAMIC_ARRAY.value:
             self._draw_dynamic_array(state, x=40, y=130)
+        else:
+            self._draw_avl_tree(state, width)
 
     def _draw_stack(self, state: VisualizationState, width: int) -> None:
         cell_width = 96
@@ -251,6 +261,50 @@ class VisualLabApp(tk.Tk):
             )
             self.canvas.create_text(x + cell_width // 2, y + cell_height + 16, text=str(element.index), fill="#555")
             x += cell_width + 6
+
+    def _draw_avl_tree(self, state: VisualizationState, width: int) -> None:
+        status = "BALANCED" if state.balanced else "REBALANCE REQUIRED"
+        fill = "#1f6f43" if state.balanced else "#9f2d20"
+        self.canvas.create_text(20, 76, anchor="w", text=status, fill=fill, font=("Segoe UI", 11, "bold"))
+        if state.rebalance_pending:
+            self.canvas.create_text(
+                20,
+                98,
+                anchor="w",
+                text="Run Balance before inserting another value.",
+                fill="#9f2d20",
+            )
+
+        if not state.tree_nodes:
+            self.canvas.create_text(width // 2, 185, text="empty", fill="#666")
+            return
+
+        max_order = max(node.order for node in state.tree_nodes)
+        max_depth = max(node.depth for node in state.tree_nodes)
+        horizontal_span = max(width - 140, 1)
+        vertical_gap = max(54, min(76, 210 // max(max_depth, 1)))
+        positions = {
+            node.id: (
+                70 + int((node.order / max(max_order, 1)) * horizontal_span),
+                130 + node.depth * vertical_gap,
+            )
+            for node in state.tree_nodes
+        }
+
+        for parent_id, child_id in state.tree_edges:
+            parent_x, parent_y = positions[parent_id]
+            child_x, child_y = positions[child_id]
+            self.canvas.create_line(parent_x, parent_y + 24, child_x, child_y - 24, fill="#555")
+
+        for node in state.tree_nodes:
+            x, y = positions[node.id]
+            node_fill = "#ffd1cc" if node.unbalanced else "#e8f1ff"
+            if node.highlighted:
+                node_fill = "#ffe08a"
+            self.canvas.create_oval(x - 24, y - 24, x + 24, y + 24, fill=node_fill, outline="#2b4c7e")
+            self.canvas.create_text(x, y - 3, text=str(node.value), font=("Segoe UI", 10, "bold"))
+            self.canvas.create_text(x, y + 13, text=f"bf {node.balance_factor}", fill="#333", font=("Segoe UI", 8))
+            self.canvas.create_text(x, y + 34, text=f"h {node.height}", fill="#666", font=("Segoe UI", 8))
 
     def _clear_controls(self) -> None:
         for child in self.controls.winfo_children():

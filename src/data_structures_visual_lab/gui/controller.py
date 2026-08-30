@@ -1,20 +1,21 @@
-"""Non-visual controller logic for the Round 1 GUI."""
+"""Non-visual controller logic for the visual lab GUI."""
 
 from dataclasses import dataclass
 from enum import Enum
 
-from data_structures_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.domain.data_structures import AVLTree, DynamicArray, LinkedList, Queue, Stack
 from data_structures_visual_lab.events import Step
 from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
 
 
 class StructureKey(str, Enum):
-    """Supported Round 1 structures."""
+    """Supported structures."""
 
     STACK = "Stack"
     QUEUE = "Queue"
     LINKED_LIST = "Linked List"
     DYNAMIC_ARRAY = "Dynamic Array"
+    AVL_TREE = "AVL Tree"
 
 
 @dataclass(frozen=True)
@@ -42,6 +43,10 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     StructureKey.QUEUE: "A queue stores values in first-in, first-out order. The oldest value is removed first.",
     StructureKey.LINKED_LIST: "A singly linked list stores values in nodes. Each node points to the next node.",
     StructureKey.DYNAMIC_ARRAY: "A dynamic array stores values in indexed cells and resizes when it needs more or less space.",
+    StructureKey.AVL_TREE: (
+        "An AVL tree is a binary search tree that tracks height and balance factor. "
+        "Here, insert first behaves like a normal BST insert, then Balance restores AVL validity."
+    ),
 }
 
 OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
@@ -68,6 +73,14 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
         OperationSpec("add", "add(value)", needs_value=True),
         OperationSpec("delete", "delete(index)", needs_index=True, index_required=True),
     ),
+    StructureKey.AVL_TREE: (
+        OperationSpec("insert", "insert(value)", needs_value=True),
+        OperationSpec("balance", "balance()"),
+        OperationSpec("search", "search(value)", needs_value=True),
+        OperationSpec("delete", "delete(value)", needs_value=True),
+        OperationSpec("min", "min()"),
+        OperationSpec("max", "max()"),
+    ),
 }
 
 
@@ -80,6 +93,7 @@ class VisualLabController:
             StructureKey.QUEUE: Queue(),
             StructureKey.LINKED_LIST: LinkedList(),
             StructureKey.DYNAMIC_ARRAY: DynamicArray(),
+            StructureKey.AVL_TREE: AVLTree(),
         }
 
     def structure_keys(self) -> tuple[StructureKey, ...]:
@@ -116,8 +130,10 @@ class VisualLabController:
             self._structures[structure_key] = Queue()
         elif structure_key is StructureKey.LINKED_LIST:
             self._structures[structure_key] = LinkedList()
-        else:
+        elif structure_key is StructureKey.DYNAMIC_ARRAY:
             self._structures[structure_key] = DynamicArray()
+        else:
+            self._structures[structure_key] = AVLTree()
 
     def run_operation(
         self,
@@ -172,6 +188,25 @@ class VisualLabController:
                 return OperationResult(result is not None, steps[-1].message, steps)
             ok, steps = structure.change_value_with_steps(_require_int(index), _require_int(value))
             return OperationResult(ok, steps[-1].message, steps)
+
+        if isinstance(structure, AVLTree):
+            if operation_key == "insert":
+                ok, steps = structure.insert_with_steps(_require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "balance":
+                ok, steps = structure.balance_with_steps()
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "search":
+                ok, steps = structure.search_with_steps(_require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "delete":
+                ok, steps = structure.delete_with_steps(_require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "min":
+                result, steps = structure.min_with_steps()
+                return OperationResult(result is not None, steps[-1].message, steps)
+            result, steps = structure.max_with_steps()
+            return OperationResult(result is not None, steps[-1].message, steps)
 
         if operation_key == "add":
             steps = structure.add_with_steps(_require_int(value))
