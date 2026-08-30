@@ -324,3 +324,33 @@ Deferred intentionally:
 - Animated AVL rotations
 - Play, Next Step, and previous-step playback controls
 - Additional Round 2 structures
+
+## Round 2 Min-Heap Domain Logic
+
+Prompt goal: implement Min-Heap domain logic while preserving the existing architecture and keeping Min-Heap GUI/visualization work deferred.
+
+Work completed:
+
+- Inspected the current project structure, existing data-structure modules, tests, and documentation.
+- Added `MinHeap` in a dedicated data-structure module.
+- Exported `MinHeap` from the data-structures package.
+- Added package smoke-test coverage for the Min-Heap module.
+- Added pytest coverage for raw insertion, sift-up repair, raw extraction, heapify-down repair, pending repair state, blocked mutations while repair is pending, duplicate values, empty heap behavior, invalid input, repeated add/repair cycles, repeated extract/repair cycles, minimum value behavior, display strings, and heap invariants after repair.
+
+Important implementation direction:
+
+- `add_raw(value)` appends without restoring heap order.
+- If append violates heap order, `repair_pending` becomes `True` and `repair_index` points at the appended value.
+- While repair is pending, additional add and extract operations are blocked.
+- `sift_up()` repairs a pending raw insertion.
+- `extract_raw()` removes the root and replaces it with the last value without heapifying.
+- If extraction violates heap order, `repair_pending` becomes `True` and `repair_index` points at the root.
+- `heapify_down()` repairs a pending raw extraction.
+- Duplicate integer values are allowed.
+- The implementation does not use Python's `heapq`.
+
+Deferred intentionally:
+
+- Min-Heap GUI controls
+- Min-Heap visualization rendering
+- Step/Event integration for Min-Heap operations

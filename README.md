@@ -57,7 +57,7 @@ The project foundation is in place:
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
 
-Round 2 has started with AVL Tree domain logic, GUI controls, and simple tree visualization.
+Round 2 has started with AVL Tree support and Min-Heap domain logic.
 
 ## Round 1 Status
 
@@ -81,7 +81,7 @@ Known limitations:
 
 ## Round 2 Status
 
-Round 2 has started with AVL Tree support.
+Round 2 has started with AVL Tree support and Min-Heap domain logic.
 
 Implemented:
 
@@ -93,7 +93,10 @@ Implemented:
 - Height and balance-factor inspection
 - GUI selection, explanation, operation controls, and Restart support
 - Simple tree visualization with node values, balance factors, parent-child edges, and unbalanced-node highlighting
+- Min-Heap domain logic with raw add/extract operations and explicit repair operations
+- Min-Heap repair-pending state, heap validity checks, size, values, and repair index/value inspection
 
 Known limitations:
 
 - AVL visualization is simple and immediate; it does not animate rotations or provide step playback controls.
+- Min-Heap is not connected to the GUI or visualization shell yet.

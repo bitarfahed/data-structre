@@ -82,7 +82,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 2 Scope
 
-Round 2 begins with AVL Tree domain logic.
+Round 2 begins with AVL Tree support and Min-Heap domain logic.
 
 Implemented:
 
@@ -99,7 +99,15 @@ Implemented:
 - GUI structure selection and educational explanation
 - GUI operations for Insert, Balance, Search, Delete, Min, Max, and Restart
 - Simple visualization with tree nodes, parent-child edges, balance factors, and unbalanced-node highlighting
+- `MinHeap`
+- `add_raw(value)` as append-only insertion
+- `sift_up()` as explicit post-insert heap repair
+- `extract_raw()` as root removal with last-element replacement only
+- `heapify_down()` as explicit post-extraction heap repair
+- `peek_min()`
+- Heap validity, repair-pending state, current size, heap values, and repair index/value inspection
 
 Duplicate values are rejected. This keeps search, deletion, and educational tree diagrams unambiguous.
+Min-Heap duplicate values are allowed.
 
-Richer AVL animation, step playback, and additional Round 2 structures remain deferred.
+Min-Heap GUI/visualization, richer AVL animation, step playback, and additional Round 2 structures remain deferred.
