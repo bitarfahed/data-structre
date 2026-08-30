@@ -1,6 +1,6 @@
 """GUI-independent visualization support."""
 
-from dsa_visual_lab.visualization.state import (
+from data_structures_visual_lab.visualization.state import (
     VisualElement,
     VisualizationState,
     build_visualization_state,

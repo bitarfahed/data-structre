@@ -1,6 +1,6 @@
 """Stack domain model."""
 
-from dsa_visual_lab.events import EventType, Step
+from data_structures_visual_lab.events import EventType, Step
 
 
 class Stack:

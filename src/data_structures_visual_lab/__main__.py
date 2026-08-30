@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import argparse
 
-from dsa_visual_lab.gui.app import check_runtime, launch
+from data_structures_visual_lab.gui.app import check_runtime, launch
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Interactive Data Structures & Algorithms Visual Lab",
+        description="data_structures_visual_lab",
     )
     parser.add_argument(
         "--check",

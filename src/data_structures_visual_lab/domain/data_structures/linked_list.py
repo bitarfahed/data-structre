@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from dsa_visual_lab.events import EventType, Step
+from data_structures_visual_lab.events import EventType, Step
 
 
 @dataclass

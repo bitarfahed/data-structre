@@ -1,6 +1,6 @@
 import pytest
 
-from dsa_visual_lab.domain.data_structures.stack import Stack
+from data_structures_visual_lab.domain.data_structures.stack import Stack
 
 
 def test_stack_push_stores_integer_values() -> None:

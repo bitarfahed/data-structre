@@ -1,5 +1,5 @@
-from dsa_visual_lab.events import EventType
-from dsa_visual_lab.gui.controller import StructureKey, VisualLabController
+from data_structures_visual_lab.events import EventType
+from data_structures_visual_lab.gui.controller import StructureKey, VisualLabController
 
 
 def test_controller_lists_round_1_structures_and_operations() -> None:

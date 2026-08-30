@@ -1,7 +1,7 @@
 [project]
-name = "data-structure"
+name = "data_structures_visual_lab"
 version = "0.1.0"
-description = "Interactive Data Structures & Algorithms Visual Lab"
+description = "data_structures_visual_lab"
 requires-python = ">=3.11"
 dependencies = []
 

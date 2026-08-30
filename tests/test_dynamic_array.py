@@ -1,6 +1,6 @@
 import pytest
 
-from dsa_visual_lab.domain.data_structures.dynamic_array import DynamicArray
+from data_structures_visual_lab.domain.data_structures.dynamic_array import DynamicArray
 
 
 def test_add_stores_integer_values_in_order() -> None:

@@ -1,6 +1,6 @@
 # Prompts Book
 
-This document records the Codex-assisted development process for Interactive Data Structures & Algorithms Visual Lab.
+This document records the Codex-assisted development process for data_structures_visual_lab.
 
 ## Foundation Step
 
@@ -153,7 +153,7 @@ Work completed:
 
 - Inspected the current data-structure modules, step/event infrastructure, tests, and documentation.
 - Selected Tkinter because it is included with Python and provides basic desktop controls plus a canvas without adding runtime dependencies.
-- Added a no-window module entry point check and terminal launch path through `python -m dsa_visual_lab`.
+- Added a no-window module entry point check and terminal launch path through `python -m data_structures_visual_lab`.
 - Added non-visual GUI controller logic for selecting structures, showing explanations, validating inputs, and invoking existing domain operations.
 - Added GUI-independent visualization state objects that consume `Step` metadata and expose values, highlights, messages, size, and capacity.
 - Added a simple Tkinter shell with structure selection, explanation screen, operation controls, integer input fields, a canvas visualization area, and Next Step, Play/Pause, and Restart controls.
@@ -225,3 +225,20 @@ Remaining limitations:
 - Playback is forward-only.
 - Restart replays the current operation's step sequence view; it does not undo and rerun the domain mutation.
 - Visualization remains intentionally simple and lightly styled.
+
+## Project Rename
+
+Prompt goal: rename the project and Python package consistently to `data_structures_visual_lab`.
+
+Work completed:
+
+- Renamed the Python package directory from `dsa_visual_lab` to `data_structures_visual_lab`.
+- Updated source imports, tests, package import smoke tests, README run instructions, CLI entry point imports, and project metadata.
+- Updated the intended terminal command to `uv run python -m data_structures_visual_lab`.
+- Regenerated `uv.lock` through `uv sync`.
+
+Important notes:
+
+- `pyproject.toml` uses the requested project name `data_structures_visual_lab`.
+- `uv.lock` normalizes the package distribution name as `data-structures-visual-lab`, which is expected Python packaging behavior.
+- The outer workspace directory remains `Data_Structure` because renaming the current repository folder from inside the running workspace is not safe.

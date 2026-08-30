@@ -1,6 +1,6 @@
 import pytest
 
-from dsa_visual_lab.domain.data_structures.linked_list import LinkedList, Node
+from data_structures_visual_lab.domain.data_structures.linked_list import LinkedList, Node
 
 
 def test_node_accepts_integer_value_and_reference() -> None:

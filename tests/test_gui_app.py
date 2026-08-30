@@ -2,8 +2,8 @@ import tkinter as tk
 
 import pytest
 
-from dsa_visual_lab.gui.app import VisualLabApp
-from dsa_visual_lab.gui.controller import StructureKey
+from data_structures_visual_lab.gui.app import VisualLabApp
+from data_structures_visual_lab.gui.controller import StructureKey
 
 
 def create_app_or_skip() -> VisualLabApp:

@@ -1,6 +1,6 @@
 import pytest
 
-from dsa_visual_lab.domain.data_structures.queue import Queue
+from data_structures_visual_lab.domain.data_structures.queue import Queue
 
 
 def test_queue_enqueue_stores_integer_values() -> None:

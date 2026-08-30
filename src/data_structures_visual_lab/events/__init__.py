@@ -1,5 +1,5 @@
 """Shared step/event infrastructure."""
 
-from dsa_visual_lab.events.steps import EventType, Step
+from data_structures_visual_lab.events.steps import EventType, Step
 
 __all__ = ["EventType", "Step"]

@@ -12,7 +12,7 @@ wheels = [
 ]
 
 [[package]]
-name = "data-structure"
+name = "data-structures-visual-lab"
 version = "0.1.0"
 source = { editable = "." }
 

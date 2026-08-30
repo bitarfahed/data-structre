@@ -1,6 +1,6 @@
-from dsa_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
-from dsa_visual_lab.events import EventType, Step
-from dsa_visual_lab.visualization import build_visualization_state
+from data_structures_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.events import EventType, Step
+from data_structures_visual_lab.visualization import build_visualization_state
 
 
 def test_stack_visualization_state_marks_highlighted_index() -> None:

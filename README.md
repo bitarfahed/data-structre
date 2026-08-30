@@ -1,6 +1,6 @@
-# Interactive Data Structures & Algorithms Visual Lab
+# data_structures_visual_lab
 
-Interactive Data Structures & Algorithms Visual Lab is a Python educational project for exploring how common data structures and algorithms change step by step.
+data_structures_visual_lab is a Python educational project for exploring how common data structures and algorithms change step by step.
 
 The planned workflow is:
 
@@ -15,7 +15,7 @@ The planned workflow is:
 Run the desktop shell from the terminal:
 
 ```powershell
-uv run python -m dsa_visual_lab
+uv run python -m data_structures_visual_lab
 ```
 
 ## Round 1 Scope

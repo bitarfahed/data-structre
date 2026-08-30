@@ -1,6 +1,6 @@
 """Desktop GUI shell."""
 
-from dsa_visual_lab.gui.controller import (
+from data_structures_visual_lab.gui.controller import (
     OperationResult,
     OperationSpec,
     StructureKey,

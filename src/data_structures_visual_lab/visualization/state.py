@@ -2,8 +2,8 @@
 
 from dataclasses import dataclass
 
-from dsa_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
-from dsa_visual_lab.events import EventType, Step
+from data_structures_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.events import EventType, Step
 
 
 @dataclass(frozen=True)

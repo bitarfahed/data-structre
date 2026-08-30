@@ -3,9 +3,9 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from dsa_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
-from dsa_visual_lab.events import EventType, Step
-from dsa_visual_lab.visualization.state import VisualizationState, build_visualization_state
+from data_structures_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.events import EventType, Step
+from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
 
 
 class StructureKey(str, Enum):

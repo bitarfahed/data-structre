@@ -2,7 +2,7 @@
 
 ## Goals
 
-Interactive Data Structures & Algorithms Visual Lab will help learners see how data structures and algorithms behave as operations run. The project should make each operation understandable through a short explanation, controlled user input, and visual state changes.
+data_structures_visual_lab will help learners see how data structures and algorithms behave as operations run. The project should make each operation understandable through a short explanation, controlled user input, and visual state changes.
 
 The long-term goal is an educational visualizer that is easy to extend without mixing algorithm behavior, rendering, and GUI concerns.
 

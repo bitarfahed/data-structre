@@ -1,5 +1,5 @@
-from dsa_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
-from dsa_visual_lab.events import EventType, Step
+from data_structures_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.events import EventType, Step
 
 
 def event_types(steps: list[Step]) -> list[EventType]:

@@ -5,9 +5,9 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import ttk
 
-from dsa_visual_lab.events import EventType, Step
-from dsa_visual_lab.gui.controller import OperationSpec, StructureKey, VisualLabController
-from dsa_visual_lab.visualization.state import VisualizationState, build_visualization_state
+from data_structures_visual_lab.events import EventType, Step
+from data_structures_visual_lab.gui.controller import OperationSpec, StructureKey, VisualLabController
+from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
 
 
 class VisualLabApp(tk.Tk):
@@ -15,7 +15,7 @@ class VisualLabApp(tk.Tk):
 
     def __init__(self) -> None:
         super().__init__()
-        self.title("Interactive Data Structures & Algorithms Visual Lab")
+        self.title("data_structures_visual_lab")
         self.geometry("980x620")
         self.minsize(820, 520)
 
