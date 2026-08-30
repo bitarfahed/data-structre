@@ -60,3 +60,32 @@ Deferred intentionally:
 - Step/event implementation
 - Visualization implementation
 - GUI implementation
+
+## Round 1 Singly Linked List
+
+Prompt goal: implement only the Round 1 Singly Linked List domain logic while preserving the existing architecture and keeping GUI, visualization, and step/event work deferred.
+
+Work completed:
+
+- Inspected the current project structure, Stack and Queue modules, tests, and documentation.
+- Added `Node` and `LinkedList` in a dedicated linked-list data-structure module.
+- Exported `Node` and `LinkedList` from the data-structures package.
+- Added pytest coverage for insertion, removal, default index behavior, value changes, empty operations, invalid indices, non-integer values, duplicate values, and node reference integrity.
+- Updated the smoke test to include the linked-list module.
+- Kept the implementation independent from GUI, visualization, and step/event code.
+
+Important implementation direction:
+
+- `LinkedList` uses actual `Node.next` references rather than Python list storage.
+- `push(value, index=0)` inserts at the beginning by default and returns `True` when insertion succeeds.
+- `pop(index=0)` removes from the beginning by default and returns the removed integer, or `None` when removal is invalid.
+- `change_value(index, value)` returns `True` when mutation succeeds and `False` for invalid indices.
+- Negative and out-of-range indices are rejected safely without changing the list.
+- Values must be integers, and `bool` is rejected even though it subclasses `int` in Python.
+
+Deferred intentionally:
+
+- Dynamic Array implementation
+- Step/event implementation
+- Visualization implementation
+- GUI implementation

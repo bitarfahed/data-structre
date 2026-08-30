@@ -18,10 +18,10 @@ Round 1 will focus on these structures:
 
 - Stack: implemented
 - Queue: implemented
-- Singly Linked List implemented with OOP
+- Singly Linked List implemented with OOP: implemented
 - Dynamic Array
 
-Stack and Queue currently provide domain logic only. Singly Linked List and Dynamic Array are still planned.
+Stack, Queue, and Singly Linked List currently provide domain logic only. Dynamic Array is still planned.
 
 ## Architecture
 
@@ -42,9 +42,9 @@ The project foundation is in place:
 
 - Python package structure under `src/`
 - Reserved areas for data structures, algorithms, step/event infrastructure, visualization, and GUI code
-- Stack and Queue domain implementations
+- Stack, Queue, and Singly Linked List domain implementations
 - Pytest configuration
-- Unit tests for package imports, Stack, and Queue
+- Unit tests for package imports, Stack, Queue, and Singly Linked List
 - Planning and development-process documentation
 
 No algorithms, GUI, visualization behavior, or step events have been implemented yet.

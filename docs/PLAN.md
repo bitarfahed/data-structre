@@ -33,10 +33,10 @@ Round 1 will add:
 
 - Stack: implemented
 - Queue: implemented
-- Singly Linked List implemented with OOP
+- Singly Linked List implemented with OOP: implemented
 - Dynamic Array
 
-Round 1 should focus on clear, testable domain logic before visualization and GUI work are added. Stack and Queue are now available as integer-only domain models with safe empty operations.
+Round 1 should focus on clear, testable domain logic before visualization and GUI work are added. Stack, Queue, and Singly Linked List are now available as integer-only domain models with safe empty operations.
 
 ## Planned User Flow
 
