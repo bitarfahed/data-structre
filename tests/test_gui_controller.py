@@ -144,4 +144,6 @@ def test_dynamic_array_resize_steps_include_capacity_change_metadata() -> None:
 
     resize_steps = [step for step in result.steps if step.event_type is EventType.RESIZE]
     assert resize_steps
-    assert resize_steps[0].metadata == {"old_capacity": 4, "new_capacity": 8}
+    assert resize_steps[0].metadata["old_capacity"] == 4
+    assert resize_steps[0].metadata["new_capacity"] == 8
+    assert resize_steps[0].metadata["state"] == [1, 2, 3, 4]

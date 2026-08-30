@@ -56,3 +56,27 @@ The project should avoid adding AI, databases, authentication, networking, backe
 
 The current Tkinter GUI is a first shell for the planned flow and playback controls. Richer rendering polish remains deferred.
 All current Round 1 operations are connected through the GUI, including each structure's display operation. The GUI consumes Step/Event sequences from the domain layer and keeps the domain structures alive across multiple operations on the same selected structure.
+
+## Round 1 QA Result
+
+Round 1 is stable enough to proceed to Round 2.
+
+The final QA pass verified:
+
+- Stack LIFO behavior
+- Queue FIFO behavior
+- Linked List insertion, removal, and value changes at valid indices
+- Linked List invalid and negative index handling
+- Dynamic Array growth, shrinking, minimum capacity protection, and value preservation across resize
+- Empty-structure operations
+- Invalid non-integer GUI input
+- Step/Event consistency
+- GUI visualization state reflecting domain state and step snapshots
+- Domain and event layers remaining independent from GUI code
+
+Remaining limitations are intentionally deferred:
+
+- Previous Step playback
+- Undo/replay of already-applied domain mutations
+- Richer animation and visual polish
+- Round 2 data structures and algorithms

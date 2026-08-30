@@ -125,7 +125,9 @@ def test_dynamic_array_add_exposes_growth_resize_step() -> None:
         EventType.ADD,
         EventType.COMPLETE,
     ]
-    assert steps[0].metadata == {"old_capacity": 2, "new_capacity": 4}
+    assert steps[0].metadata["old_capacity"] == 2
+    assert steps[0].metadata["new_capacity"] == 4
+    assert steps[0].metadata["state"] == [1, 2]
     assert steps[-1].metadata["state"] == [1, 2, 3]
     assert array.capacity == 4
 

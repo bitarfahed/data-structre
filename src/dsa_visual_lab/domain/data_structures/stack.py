@@ -51,17 +51,18 @@ class Stack:
             ]
 
         index = len(self._items) - 1
+        state_before = self.to_list()
         value = self._items.pop()
         return value, [
             Step(
                 EventType.VISIT,
                 f"Visited top stack value {value}.",
-                {"value": value, "index": index},
+                {"value": value, "index": index, "state": state_before},
             ),
             Step(
                 EventType.REMOVE,
                 f"Popped {value} from the stack.",
-                {"value": value, "index": index},
+                {"value": value, "index": index, "state": state_before},
             ),
             Step(
                 EventType.COMPLETE,

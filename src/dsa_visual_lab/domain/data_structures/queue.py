@@ -53,17 +53,18 @@ class Queue:
                 )
             ]
 
+        state_before = self.to_list()
         value = self._items.popleft()
         return value, [
             Step(
                 EventType.VISIT,
                 f"Visited front queue value {value}.",
-                {"value": value, "index": 0},
+                {"value": value, "index": 0, "state": state_before},
             ),
             Step(
                 EventType.REMOVE,
                 f"Dequeued {value} from the front of the queue.",
-                {"value": value, "index": 0},
+                {"value": value, "index": 0, "state": state_before},
             ),
             Step(
                 EventType.COMPLETE,

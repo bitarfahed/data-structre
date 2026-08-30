@@ -58,7 +58,12 @@ class DynamicArray:
                 Step(
                     EventType.RESIZE,
                     f"Grew capacity from {old_capacity} to {self._capacity}.",
-                    {"old_capacity": old_capacity, "new_capacity": self._capacity},
+                    {
+                        "old_capacity": old_capacity,
+                        "new_capacity": self._capacity,
+                        "capacity": self._capacity,
+                        "state": self.to_list(),
+                    },
                 )
             )
 
@@ -101,12 +106,18 @@ class DynamicArray:
             )
             return None, steps
 
+        state_before = self.to_list()
         removed = self._storage[index]
         steps.append(
             Step(
                 EventType.REMOVE,
                 f"Removed {removed} from index {index}.",
-                {"index": index, "value": removed},
+                {
+                    "index": index,
+                    "value": removed,
+                    "state": state_before,
+                    "capacity": self._capacity,
+                },
             )
         )
 
@@ -116,7 +127,12 @@ class DynamicArray:
                 Step(
                     EventType.MOVE,
                     f"Moved value from index {position + 1} to index {position}.",
-                    {"from_index": position + 1, "to_index": position},
+                    {
+                        "from_index": position + 1,
+                        "to_index": position,
+                        "state": self.to_list(),
+                        "capacity": self._capacity,
+                    },
                 )
             )
 
@@ -129,7 +145,12 @@ class DynamicArray:
                 Step(
                     EventType.RESIZE,
                     f"Shrank capacity from {old_capacity} to {self._capacity}.",
-                    {"old_capacity": old_capacity, "new_capacity": self._capacity},
+                    {
+                        "old_capacity": old_capacity,
+                        "new_capacity": self._capacity,
+                        "capacity": self._capacity,
+                        "state": self.to_list(),
+                    },
                 )
             )
 

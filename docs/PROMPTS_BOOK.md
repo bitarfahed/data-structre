@@ -195,3 +195,33 @@ Deferred intentionally:
 - Previous Step playback
 - Undo/replay of already-applied domain mutations
 - Rich animation and visual polish
+
+## Round 1 Final QA and Stabilization
+
+Prompt goal: perform the final QA and stabilization pass for Round 1 across Stack, Queue, Linked List, Dynamic Array, Step/Event infrastructure, and GUI/visualization integration.
+
+Work completed:
+
+- Inspected the current repository, tests, GUI/controller code, visualization state code, and documentation.
+- Ran the full automated test suite before and after stabilization changes.
+- Verified domain ordering and edge cases for Stack, Queue, Linked List, and Dynamic Array.
+- Verified GUI/controller invalid input handling.
+- Verified the Tkinter shell flow for all Round 1 structures through a launched GUI integration check.
+- Checked that domain and event layers do not import GUI or Tkinter code.
+- Checked that the GUI app does not directly call data-structure operation methods; operation routing stays in the controller.
+- Removed an unused visualization helper.
+
+Bugs fixed:
+
+- Step playback for removal operations could show only the already-mutated structure state. Step metadata now carries state snapshots where needed, and visualization state consumes those snapshots so pre-removal and resize moments are visible.
+- GUI app tests could create multiple Tk roots and become flaky on the local Tcl/Tk install. The GUI integration coverage now uses a single launched app instance.
+
+Round 1 readiness:
+
+- Round 1 is stable enough to proceed to Round 2.
+
+Remaining limitations:
+
+- Playback is forward-only.
+- Restart replays the current operation's step sequence view; it does not undo and rerun the domain mutation.
+- Visualization remains intentionally simple and lightly styled.

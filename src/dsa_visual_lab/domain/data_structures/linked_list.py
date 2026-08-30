@@ -132,7 +132,11 @@ class LinkedList:
                     Step(
                         EventType.VISIT,
                         f"Visited node at index {current_index}.",
-                        {"index": current_index, "value": previous.value},
+                        {
+                            "index": current_index,
+                            "value": previous.value,
+                            "state": self.to_list(),
+                        },
                     )
                 )
                 previous = previous.next
@@ -156,9 +160,9 @@ class LinkedList:
 
             steps.append(
                 Step(
-                    EventType.VISIT,
-                    f"Visited node before insertion at index {index - 1}.",
-                    {"index": index - 1, "value": previous.value},
+                        EventType.VISIT,
+                        f"Visited node before insertion at index {index - 1}.",
+                    {"index": index - 1, "value": previous.value, "state": self.to_list()},
                 )
             )
             new_node.next = previous.next
@@ -167,7 +171,11 @@ class LinkedList:
                 Step(
                     EventType.UPDATE,
                     f"Linked node {index - 1} to the new node.",
-                    {"previous_index": index - 1, "inserted_index": index},
+                    {
+                        "previous_index": index - 1,
+                        "inserted_index": index,
+                        "state": self.to_list(),
+                    },
                 )
             )
 
@@ -204,20 +212,24 @@ class LinkedList:
             return None, steps
 
         if index == 0:
+            state_before = self.to_list()
             removed = self.head
             self.head = removed.next
             steps.append(
                 Step(
                     EventType.REMOVE,
                     f"Removed head node holding {removed.value}.",
-                    {"index": 0, "value": removed.value},
+                    {"index": 0, "value": removed.value, "state": state_before},
                 )
             )
             steps.append(
                 Step(
                     EventType.UPDATE,
                     "Updated the head reference.",
-                    {"new_head": self.head.value if self.head is not None else None},
+                    {
+                        "new_head": self.head.value if self.head is not None else None,
+                        "state": self.to_list(),
+                    },
                 )
             )
         else:
@@ -229,7 +241,11 @@ class LinkedList:
                     Step(
                         EventType.VISIT,
                         f"Visited node at index {current_index}.",
-                        {"index": current_index, "value": previous.value},
+                        {
+                            "index": current_index,
+                            "value": previous.value,
+                            "state": self.to_list(),
+                        },
                     )
                 )
                 previous = previous.next
@@ -255,23 +271,28 @@ class LinkedList:
                 Step(
                     EventType.VISIT,
                     f"Visited node before removal at index {index - 1}.",
-                    {"index": index - 1, "value": previous.value},
+                    {"index": index - 1, "value": previous.value, "state": self.to_list()},
                 )
             )
             removed = previous.next
+            state_before = self.to_list()
             previous.next = removed.next
             steps.append(
                 Step(
                     EventType.REMOVE,
                     f"Removed node at index {index} holding {removed.value}.",
-                    {"index": index, "value": removed.value},
+                    {"index": index, "value": removed.value, "state": state_before},
                 )
             )
             steps.append(
                 Step(
                     EventType.UPDATE,
                     f"Linked node {index - 1} to the removed node's next reference.",
-                    {"previous_index": index - 1, "removed_index": index},
+                    {
+                        "previous_index": index - 1,
+                        "removed_index": index,
+                        "state": self.to_list(),
+                    },
                 )
             )
 
@@ -317,7 +338,11 @@ class LinkedList:
                 Step(
                     EventType.VISIT,
                     f"Visited node at index {current_index}.",
-                    {"index": current_index, "value": current.value},
+                    {
+                        "index": current_index,
+                        "value": current.value,
+                        "state": self.to_list(),
+                    },
                 )
             )
             current = current.next

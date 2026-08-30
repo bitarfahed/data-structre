@@ -59,3 +59,23 @@ The project foundation is in place:
 - Planning and development-process documentation
 
 No algorithms beyond the Round 1 structures have been implemented yet. The GUI and visualization are intentionally simple shells.
+
+## Round 1 Status
+
+Round 1 is stable enough to proceed to Round 2.
+
+Verified coverage includes:
+
+- Stack LIFO behavior
+- Queue FIFO behavior
+- Linked List insertion, removal, value changes, and invalid indices
+- Dynamic Array growth, shrinking, minimum capacity protection, and value preservation
+- Empty-structure operations
+- Invalid integer input through the GUI controller
+- Step/Event playback snapshots and GUI visualization state
+
+Known limitations:
+
+- Playback is forward-only.
+- Restart replays the current operation's step sequence view; it does not undo and rerun the domain mutation.
+- The visualization is intentionally simple and not yet animated beyond timed step playback.

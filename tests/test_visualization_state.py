@@ -19,6 +19,18 @@ def test_stack_visualization_state_marks_highlighted_index() -> None:
     assert state.values[1].highlighted
 
 
+def test_stack_pop_step_visualization_uses_step_snapshot() -> None:
+    stack = Stack()
+    stack.push(1)
+    stack.push(2)
+    _value, steps = stack.pop_with_steps()
+
+    state = build_visualization_state("Stack", stack, steps[0])
+
+    assert [element.value for element in state.values] == [1, 2]
+    assert state.values[1].highlighted
+
+
 def test_queue_visualization_state_uses_front_to_back_values() -> None:
     queue = Queue()
     queue.enqueue(1)
