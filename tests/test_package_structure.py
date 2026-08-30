@@ -6,6 +6,7 @@ def test_package_layers_import() -> None:
         "dsa_visual_lab",
         "dsa_visual_lab.domain",
         "dsa_visual_lab.domain.data_structures",
+        "dsa_visual_lab.domain.data_structures.dynamic_array",
         "dsa_visual_lab.domain.data_structures.linked_list",
         "dsa_visual_lab.domain.algorithms",
         "dsa_visual_lab.events",

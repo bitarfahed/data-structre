@@ -34,9 +34,9 @@ Round 1 will add:
 - Stack: implemented
 - Queue: implemented
 - Singly Linked List implemented with OOP: implemented
-- Dynamic Array
+- Dynamic Array: implemented
 
-Round 1 should focus on clear, testable domain logic before visualization and GUI work are added. Stack, Queue, and Singly Linked List are now available as integer-only domain models with safe empty operations.
+Round 1 should focus on clear, testable domain logic before visualization and GUI work are added. Stack, Queue, Singly Linked List, and Dynamic Array are now available as integer-only domain models with safe empty operations.
 
 ## Planned User Flow
 
@@ -53,3 +53,5 @@ Round 1 should focus on clear, testable domain logic before visualization and GU
 Future expansion may include trees, hash tables, heaps, and graph algorithms. Those areas are intentionally deferred until the early architecture has been validated by Round 1.
 
 The project should avoid adding AI, databases, authentication, networking, backend services, cloud infrastructure, or unrelated technologies.
+
+Step/event infrastructure, visualization, and GUI implementation remain deferred until after the Round 1 domain logic.

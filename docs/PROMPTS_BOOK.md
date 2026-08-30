@@ -89,3 +89,32 @@ Deferred intentionally:
 - Step/event implementation
 - Visualization implementation
 - GUI implementation
+
+## Round 1 Dynamic Array
+
+Prompt goal: implement only the Round 1 Dynamic Array domain logic while preserving the existing architecture and keeping step/event, visualization, and GUI work deferred.
+
+Work completed:
+
+- Inspected the current project structure, existing data-structure modules, tests, and documentation.
+- Added `DynamicArray` in a dedicated data-structure module.
+- Exported `DynamicArray` from the data-structures package.
+- Added pytest coverage for add/delete behavior, growth, shrinking, minimum capacity, value preservation, invalid indices, empty deletion, non-integer values, duplicate values, and repeated operations.
+- Updated the smoke test to include the dynamic-array module.
+- Kept the implementation independent from GUI, visualization, and step/event code.
+
+Important implementation direction:
+
+- `DynamicArray` explicitly tracks `size`, `capacity`, minimum capacity, and internal storage.
+- Internal storage uses a ctypes object array so the class is not backed by a Python list as its final storage abstraction.
+- `add(value)` appends integer values and doubles capacity when size reaches capacity.
+- `delete(index)` removes by index, shifts later values left, returns the removed integer, and returns `None` for invalid indices.
+- Capacity shrinks by half when size is less than or equal to one quarter of capacity after deletion.
+- Capacity never shrinks below the initial minimum capacity.
+- Values must be integers, and `bool` is rejected even though it subclasses `int` in Python.
+
+Deferred intentionally:
+
+- Step/event implementation
+- Visualization implementation
+- GUI implementation
