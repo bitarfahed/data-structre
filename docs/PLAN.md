@@ -19,7 +19,7 @@ Data Structures / Algorithms
 
 The data-structure and algorithm layers should contain the actual domain behavior. They should not know about GUI widgets, screens, drawing canvases, colors, or layout.
 
-The step/event layer will eventually translate domain operations into a sequence of events that a visualizer can consume. It is reserved now but intentionally not implemented yet.
+The step/event layer translates domain operations into small event records that a visualizer can consume later. It stays independent from GUI framework choices and renderer details.
 
 The visualization layer will eventually convert events and states into visual representations. It should not own the core rules of a structure or algorithm.
 
@@ -54,4 +54,4 @@ Future expansion may include trees, hash tables, heaps, and graph algorithms. Th
 
 The project should avoid adding AI, databases, authentication, networking, backend services, cloud infrastructure, or unrelated technologies.
 
-Step/event infrastructure, visualization, and GUI implementation remain deferred until after the Round 1 domain logic.
+Visualization and GUI implementation remain deferred until after the Round 1 domain logic and event infrastructure.

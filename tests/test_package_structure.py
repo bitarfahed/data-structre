@@ -10,6 +10,7 @@ def test_package_layers_import() -> None:
         "dsa_visual_lab.domain.data_structures.linked_list",
         "dsa_visual_lab.domain.algorithms",
         "dsa_visual_lab.events",
+        "dsa_visual_lab.events.steps",
         "dsa_visual_lab.visualization",
         "dsa_visual_lab.gui",
     ]

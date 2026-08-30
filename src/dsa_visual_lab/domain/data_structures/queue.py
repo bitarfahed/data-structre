@@ -3,6 +3,8 @@
 from collections import deque
 from typing import Deque
 
+from dsa_visual_lab.events import EventType, Step
+
 
 class Queue:
     """A simple integer-only queue with FIFO behavior."""
@@ -21,6 +23,54 @@ class Queue:
             return None
 
         return self._items.popleft()
+
+    def enqueue_with_steps(self, value: int) -> list[Step]:
+        """Add an integer value and return observable steps for visualization."""
+        self._validate_integer(value)
+        self._items.append(value)
+
+        return [
+            Step(
+                EventType.ADD,
+                f"Enqueued {value} at the back of the queue.",
+                {"value": value, "index": len(self._items) - 1},
+            ),
+            Step(
+                EventType.COMPLETE,
+                "Queue enqueue complete.",
+                {"size": len(self._items), "state": self.to_list()},
+            ),
+        ]
+
+    def dequeue_with_steps(self) -> tuple[int | None, list[Step]]:
+        """Remove the front value and return it with observable steps."""
+        if not self._items:
+            return None, [
+                Step(
+                    EventType.COMPLETE,
+                    "Queue dequeue skipped because the queue is empty.",
+                    {"size": 0, "state": []},
+                )
+            ]
+
+        value = self._items.popleft()
+        return value, [
+            Step(
+                EventType.VISIT,
+                f"Visited front queue value {value}.",
+                {"value": value, "index": 0},
+            ),
+            Step(
+                EventType.REMOVE,
+                f"Dequeued {value} from the front of the queue.",
+                {"value": value, "index": 0},
+            ),
+            Step(
+                EventType.COMPLETE,
+                "Queue dequeue complete.",
+                {"size": len(self._items), "state": self.to_list()},
+            ),
+        ]
 
     def display(self) -> str:
         """Return a readable front-to-back queue representation."""

@@ -118,3 +118,29 @@ Deferred intentionally:
 - Step/event implementation
 - Visualization implementation
 - GUI implementation
+
+## Shared Step/Event Infrastructure
+
+Prompt goal: implement shared Round 1 step/event infrastructure and integrate it with existing Stack, Queue, Singly Linked List, and Dynamic Array domain operations without adding GUI or visualization rendering.
+
+Work completed:
+
+- Inspected the existing Round 1 data-structure modules, tests, and documentation.
+- Added a shared `EventType` enum with `ADD`, `REMOVE`, `VISIT`, `MOVE`, `COMPARE`, `UPDATE`, `RESIZE`, and `COMPLETE`.
+- Added a small immutable `Step` dataclass containing an event type, a short message, and optional metadata.
+- Exported the event infrastructure from the events package.
+- Added step-aware companion methods for Stack, Queue, Linked List, and Dynamic Array operations while preserving the existing method behavior.
+- Added pytest coverage for the shared event model and representative operation step sequences.
+
+Important implementation direction:
+
+- Step/event records are GUI-independent and contain only descriptive information for a later visualizer.
+- Existing domain methods keep their established return values.
+- Step-aware methods use returned event lists or `(result, steps)` tuples depending on whether the operation already has a meaningful result.
+- Linked List steps expose traversal and reference updates.
+- Dynamic Array steps expose adds, deletes, element movement, growth, shrinking, and capacity changes.
+
+Deferred intentionally:
+
+- Visualization renderer implementation
+- GUI implementation

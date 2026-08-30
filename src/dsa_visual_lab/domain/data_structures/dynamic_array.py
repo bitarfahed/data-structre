@@ -2,6 +2,8 @@
 
 from ctypes import py_object
 
+from dsa_visual_lab.events import EventType, Step
+
 
 class DynamicArray:
     """A simple integer-only dynamic array with explicit capacity management."""
@@ -43,6 +45,107 @@ class DynamicArray:
         self._storage[self._size] = None
         self._shrink_if_needed()
         return removed
+
+    def add_with_steps(self, value: int) -> list[Step]:
+        """Add an integer value and return observable steps for visualization."""
+        self._validate_integer(value, "DynamicArray values must be integers.")
+        steps: list[Step] = []
+
+        if self._size == self._capacity:
+            old_capacity = self._capacity
+            self._resize(self._capacity * 2)
+            steps.append(
+                Step(
+                    EventType.RESIZE,
+                    f"Grew capacity from {old_capacity} to {self._capacity}.",
+                    {"old_capacity": old_capacity, "new_capacity": self._capacity},
+                )
+            )
+
+        self._storage[self._size] = value
+        steps.append(
+            Step(
+                EventType.ADD,
+                f"Added {value} at index {self._size}.",
+                {"index": self._size, "value": value},
+            )
+        )
+        self._size += 1
+        steps.append(
+            Step(
+                EventType.COMPLETE,
+                "DynamicArray add complete.",
+                {"size": self._size, "capacity": self._capacity, "state": self.to_list()},
+            )
+        )
+        return steps
+
+    def delete_with_steps(self, index: int) -> tuple[int | None, list[Step]]:
+        """Delete a value and return it with observable steps."""
+        self._validate_index_type(index)
+        steps = [
+            Step(
+                EventType.COMPARE,
+                f"Checked whether index {index} can be deleted.",
+                {"index": index, "size": self._size},
+            )
+        ]
+
+        if index < 0 or index >= self._size:
+            steps.append(
+                Step(
+                    EventType.COMPLETE,
+                    "DynamicArray delete skipped because the index is invalid or the array is empty.",
+                    {"value": None, "size": self._size, "capacity": self._capacity},
+                )
+            )
+            return None, steps
+
+        removed = self._storage[index]
+        steps.append(
+            Step(
+                EventType.REMOVE,
+                f"Removed {removed} from index {index}.",
+                {"index": index, "value": removed},
+            )
+        )
+
+        for position in range(index, self._size - 1):
+            self._storage[position] = self._storage[position + 1]
+            steps.append(
+                Step(
+                    EventType.MOVE,
+                    f"Moved value from index {position + 1} to index {position}.",
+                    {"from_index": position + 1, "to_index": position},
+                )
+            )
+
+        self._size -= 1
+        self._storage[self._size] = None
+        old_capacity = self._capacity
+        self._shrink_if_needed()
+        if self._capacity != old_capacity:
+            steps.append(
+                Step(
+                    EventType.RESIZE,
+                    f"Shrank capacity from {old_capacity} to {self._capacity}.",
+                    {"old_capacity": old_capacity, "new_capacity": self._capacity},
+                )
+            )
+
+        steps.append(
+            Step(
+                EventType.COMPLETE,
+                "DynamicArray delete complete.",
+                {
+                    "value": removed,
+                    "size": self._size,
+                    "capacity": self._capacity,
+                    "state": self.to_list(),
+                },
+            )
+        )
+        return removed, steps
 
     def display(self) -> str:
         """Return a readable dynamic array representation."""

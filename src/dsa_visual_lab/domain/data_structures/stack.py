@@ -1,5 +1,7 @@
 """Stack domain model."""
 
+from dsa_visual_lab.events import EventType, Step
+
 
 class Stack:
     """A simple integer-only stack with LIFO behavior."""
@@ -18,6 +20,55 @@ class Stack:
             return None
 
         return self._items.pop()
+
+    def push_with_steps(self, value: int) -> list[Step]:
+        """Add an integer value and return observable steps for visualization."""
+        self._validate_integer(value)
+        self._items.append(value)
+
+        return [
+            Step(
+                EventType.ADD,
+                f"Pushed {value} onto the stack.",
+                {"value": value, "index": len(self._items) - 1},
+            ),
+            Step(
+                EventType.COMPLETE,
+                "Stack push complete.",
+                {"size": len(self._items), "state": self.to_list()},
+            ),
+        ]
+
+    def pop_with_steps(self) -> tuple[int | None, list[Step]]:
+        """Remove the top value and return it with observable steps."""
+        if not self._items:
+            return None, [
+                Step(
+                    EventType.COMPLETE,
+                    "Stack pop skipped because the stack is empty.",
+                    {"size": 0, "state": []},
+                )
+            ]
+
+        index = len(self._items) - 1
+        value = self._items.pop()
+        return value, [
+            Step(
+                EventType.VISIT,
+                f"Visited top stack value {value}.",
+                {"value": value, "index": index},
+            ),
+            Step(
+                EventType.REMOVE,
+                f"Popped {value} from the stack.",
+                {"value": value, "index": index},
+            ),
+            Step(
+                EventType.COMPLETE,
+                "Stack pop complete.",
+                {"size": len(self._items), "state": self.to_list()},
+            ),
+        ]
 
     def display(self) -> str:
         """Return a readable bottom-to-top stack representation."""

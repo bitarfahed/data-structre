@@ -41,10 +41,11 @@ Domain logic should remain independent from visualization and GUI code. Each dat
 The project foundation is in place:
 
 - Python package structure under `src/`
-- Reserved areas for data structures, algorithms, step/event infrastructure, visualization, and GUI code
+- Reserved areas for data structures, algorithms, visualization, and GUI code
+- Shared step/event infrastructure for future visualization
 - Stack, Queue, Singly Linked List, and Dynamic Array domain implementations
 - Pytest configuration
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
 
-No algorithms, GUI, visualization behavior, or step events have been implemented yet.
+No algorithms, GUI, or visualization renderer behavior has been implemented yet.
