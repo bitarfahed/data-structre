@@ -1,6 +1,15 @@
 [project]
 name = "data-structure"
 version = "0.1.0"
-description = "Add your description here"
+description = "Interactive Data Structures & Algorithms Visual Lab"
 requires-python = ">=3.11"
 dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

@@ -1,0 +1,16 @@
+import importlib
+
+
+def test_package_layers_import() -> None:
+    modules = [
+        "dsa_visual_lab",
+        "dsa_visual_lab.domain",
+        "dsa_visual_lab.domain.data_structures",
+        "dsa_visual_lab.domain.algorithms",
+        "dsa_visual_lab.events",
+        "dsa_visual_lab.visualization",
+        "dsa_visual_lab.gui",
+    ]
+
+    for module_name in modules:
+        assert importlib.import_module(module_name)
