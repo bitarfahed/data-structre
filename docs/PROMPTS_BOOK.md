@@ -251,6 +251,34 @@ Deferred intentionally:
 - Previous Step behavior
 - Animation beyond immediate redraws
 
+## Round 2 AVL Tree Domain Logic
+
+Prompt goal: implement AVL Tree domain logic while preserving the current architecture and keeping AVL GUI/visualization work deferred.
+
+Work completed:
+
+- Inspected the current project structure, package exports, tests, and documentation.
+- Added `AVLNode` and `AVLTree` in a dedicated data-structure module.
+- Exported AVL classes from the data-structures package.
+- Added package smoke-test coverage for the AVL module.
+- Added pytest coverage for BST-style insertion, pending rebalance, blocked insertion, left/right/left-right/right-left rotations, search, min/max, deletion, root deletion, height and balance-factor correctness, duplicate handling, invalid input, repeated insert/balance cycles, and AVL invariants after balancing.
+
+Important implementation direction:
+
+- `insert(value)` performs normal BST insertion only.
+- If insertion makes the tree unbalanced, `rebalance_pending` becomes `True`.
+- Additional insertions return `False` while rebalance is pending.
+- `balance()` restores AVL validity and clears the pending state.
+- Duplicate values are rejected by returning `False`.
+- Values must be integers, and `bool` is rejected even though it subclasses `int` in Python.
+- Deletion restores AVL validity immediately and clears any pending rebalance state.
+
+Deferred intentionally:
+
+- AVL GUI controls
+- AVL visualization rendering
+- Step/Event integration for AVL operations
+
 ## Project Rename
 
 Prompt goal: rename the project and Python package consistently to `data_structures_visual_lab`.

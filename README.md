@@ -57,7 +57,7 @@ The project foundation is in place:
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
 
-No algorithms beyond the Round 1 structures have been implemented yet. The GUI and visualization are intentionally simple shells.
+Round 2 domain work has started with AVL Tree logic. The GUI and visualization are intentionally simple shells for the Round 1 structures.
 
 ## Round 1 Status
 
@@ -78,3 +78,18 @@ Known limitations:
 - The GUI updates immediately after Run; it does not provide step playback controls.
 - Restart clears the selected structure and starts it over as a new empty instance.
 - The visualization is intentionally simple and not animated.
+
+## Round 2 Status
+
+Round 2 has started with AVL Tree domain logic.
+
+Implemented:
+
+- AVL Tree node and tree classes
+- BST-style insertion with separate `balance()`
+- Pending-rebalance state that blocks additional insertions
+- Search, delete, root delete, min, max
+- Left, right, left-right, and right-left rotation behavior
+- Height and balance-factor inspection
+
+The AVL Tree is not connected to the GUI or visualization shell yet.

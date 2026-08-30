@@ -7,6 +7,7 @@ def test_package_layers_import() -> None:
         "data_structures_visual_lab.__main__",
         "data_structures_visual_lab.domain",
         "data_structures_visual_lab.domain.data_structures",
+        "data_structures_visual_lab.domain.data_structures.avl_tree",
         "data_structures_visual_lab.domain.data_structures.dynamic_array",
         "data_structures_visual_lab.domain.data_structures.linked_list",
         "data_structures_visual_lab.domain.algorithms",

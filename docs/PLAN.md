@@ -79,3 +79,24 @@ Remaining limitations are intentionally deferred:
 - Step playback controls
 - Richer animation and visual polish
 - Round 2 data structures and algorithms
+
+## Round 2 Scope
+
+Round 2 begins with AVL Tree domain logic.
+
+Implemented:
+
+- `AVLNode`
+- `AVLTree`
+- `insert(value)` as normal BST insertion only
+- `balance()` as an explicit separate operation
+- Pending-rebalance state that blocks additional insertions while the tree is unbalanced
+- `search(value)`
+- `delete(value)`
+- `min()`
+- `max()`
+- Height and balance-factor inspection
+
+Duplicate values are rejected. This keeps search, deletion, and educational tree diagrams unambiguous.
+
+AVL GUI and visualization support remain deferred.
