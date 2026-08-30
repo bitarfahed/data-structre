@@ -27,7 +27,7 @@ Round 1 will focus on these structures:
 - Singly Linked List implemented with OOP: implemented
 - Dynamic Array: implemented
 
-All Round 1 structures currently provide domain logic only.
+All Round 1 structures provide domain logic that is used by the GUI shell.
 
 ## Architecture
 
@@ -52,8 +52,7 @@ The project foundation is in place:
 - Stack, Queue, Singly Linked List, and Dynamic Array domain implementations
 - Simple Tkinter desktop GUI shell
 - GUI-independent visualization state support
-- GUI operation controls for all Round 1 structure operations, including display
-- Step/Event sequence display with Next Step and Play/Pause controls
+- GUI operation controls for the mutating Round 1 operations
 - Pytest configuration
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
@@ -72,10 +71,10 @@ Verified coverage includes:
 - Dynamic Array growth, shrinking, minimum capacity protection, and value preservation
 - Empty-structure operations
 - Invalid integer input through the GUI controller
-- Step/Event playback snapshots and GUI visualization state
+- Step/Event snapshots and GUI visualization state
 
 Known limitations:
 
-- Playback is forward-only.
-- Restart replays the current operation's step sequence view; it does not undo and rerun the domain mutation.
-- The visualization is intentionally simple and not yet animated beyond timed step playback.
+- The GUI updates immediately after Run; it does not provide step playback controls.
+- Restart clears the selected structure and starts it over as a new empty instance.
+- The visualization is intentionally simple and not animated.

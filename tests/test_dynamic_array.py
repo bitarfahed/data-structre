@@ -6,6 +6,9 @@ from data_structures_visual_lab.domain.data_structures.dynamic_array import Dyna
 def test_add_stores_integer_values_in_order() -> None:
     array = DynamicArray()
 
+    assert array.capacity == 1
+    assert array.minimum_capacity == 1
+
     array.add(10)
     array.add(-3)
 
@@ -16,9 +19,11 @@ def test_add_stores_integer_values_in_order() -> None:
 
 
 def test_add_grows_capacity_when_size_reaches_capacity() -> None:
-    array = DynamicArray(initial_capacity=2)
+    array = DynamicArray()
 
     array.add(1)
+    assert array.capacity == 1
+
     array.add(2)
     assert array.capacity == 2
 
@@ -48,7 +53,7 @@ def test_delete_shrinks_capacity_after_size_reaches_quarter_capacity() -> None:
 
 
 def test_delete_never_shrinks_below_initial_minimum_capacity() -> None:
-    array = DynamicArray(initial_capacity=4)
+    array = DynamicArray()
     for value in range(5):
         array.add(value)
 
@@ -58,8 +63,8 @@ def test_delete_never_shrinks_below_initial_minimum_capacity() -> None:
         array.delete(0)
 
     assert array.size == 0
-    assert array.capacity == 4
-    assert array.minimum_capacity == 4
+    assert array.capacity == 1
+    assert array.minimum_capacity == 1
     assert array.to_list() == []
 
 
@@ -174,7 +179,7 @@ def test_size_and_capacity_after_repeated_operations() -> None:
 
 
 def test_display_representation() -> None:
-    array = DynamicArray(initial_capacity=2)
+    array = DynamicArray()
     array.add(2)
     array.add(9)
 
@@ -188,3 +193,15 @@ def test_initial_capacity_must_be_positive_integer() -> None:
 
     with pytest.raises(TypeError, match="integer"):
         DynamicArray(initial_capacity=True)  # type: ignore[arg-type]
+
+
+def test_repeated_default_capacity_doubling() -> None:
+    array = DynamicArray()
+    capacities = []
+
+    for value in range(9):
+        array.add(value)
+        capacities.append(array.capacity)
+
+    assert capacities == [1, 2, 4, 4, 8, 8, 8, 8, 16]
+    assert array.to_list() == list(range(9))

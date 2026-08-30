@@ -5,7 +5,7 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import ttk
 
-from data_structures_visual_lab.events import EventType, Step
+from data_structures_visual_lab.events import EventType
 from data_structures_visual_lab.gui.controller import OperationSpec, StructureKey, VisualLabController
 from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
 
@@ -25,13 +25,6 @@ class VisualLabApp(tk.Tk):
         self.value_input = tk.StringVar()
         self.index_input = tk.StringVar()
         self.status_text = tk.StringVar(value="Choose a structure to begin.")
-        self.play_button_text = tk.StringVar(value="Play")
-
-        self.current_steps: list[Step] = []
-        self.current_step_index = -1
-        self.last_operation: tuple[StructureKey, str, str, str] | None = None
-        self.playing = False
-        self.play_after_id: str | None = None
 
         self._build_layout()
         self._show_structure_selection()
@@ -48,7 +41,6 @@ class VisualLabApp(tk.Tk):
         self.main.grid(row=0, column=1, sticky="nsew")
         self.main.columnconfigure(0, weight=1)
         self.main.rowconfigure(2, weight=1)
-        self.main.rowconfigure(3, weight=0)
 
         ttk.Label(self.sidebar, text="Structures").grid(row=0, column=0, sticky="w")
         for row, structure_key in enumerate(self.controller.structure_keys(), start=1):
@@ -72,20 +64,12 @@ class VisualLabApp(tk.Tk):
         self.canvas = tk.Canvas(self.main, background="white", height=330)
         self.canvas.grid(row=2, column=0, sticky="nsew")
 
-        self.steps_list = tk.Listbox(self.main, height=5)
-        self.steps_list.grid(row=3, column=0, sticky="ew", pady=(8, 0))
-
         self.status_label = ttk.Label(self.main, textvariable=self.status_text, wraplength=700)
-        self.status_label.grid(row=4, column=0, sticky="ew", pady=(8, 0))
+        self.status_label.grid(row=3, column=0, sticky="ew", pady=(8, 0))
 
     def _show_structure_selection(self) -> None:
-        self._stop_playback()
         structure_key = self._current_structure_key()
         self.selected_operation.set("")
-        self.current_steps = []
-        self.current_step_index = -1
-        self.last_operation = None
-        self._update_step_sequence()
         self.explanation_label.config(text=self.controller.explanation_for(structure_key))
         self._render_continue_controls()
         self._draw_state(self.controller.snapshot(structure_key))
@@ -100,7 +84,6 @@ class VisualLabApp(tk.Tk):
         self.status_text.set("Read the explanation, then continue to operations.")
 
     def _show_operations(self) -> None:
-        self._stop_playback()
         self._clear_controls()
         structure_key = self._current_structure_key()
         operations = self.controller.operations_for(structure_key)
@@ -124,18 +107,10 @@ class VisualLabApp(tk.Tk):
         self.index_label = ttk.Label(self.controls, text="Index")
         self.index_entry = ttk.Entry(self.controls, width=10, textvariable=self.index_input)
         self.run_button = ttk.Button(self.controls, text="Run", command=self._run_current_operation)
-        self.next_button = ttk.Button(self.controls, text="Next Step", command=self._next_step)
-        self.play_button = ttk.Button(
-            self.controls,
-            textvariable=self.play_button_text,
-            command=self._toggle_playback,
-        )
-        self.restart_button = ttk.Button(self.controls, text="Restart", command=self._restart_operation)
+        self.restart_button = ttk.Button(self.controls, text="Restart", command=self._restart_structure)
 
         self.run_button.grid(row=0, column=6, padx=(0, 6))
-        self.next_button.grid(row=1, column=0, pady=(8, 0), sticky="w")
-        self.play_button.grid(row=1, column=1, pady=(8, 0), sticky="w")
-        self.restart_button.grid(row=1, column=2, pady=(8, 0), sticky="w")
+        self.restart_button.grid(row=0, column=7, sticky="w")
         self._refresh_operation_fields()
         self.status_text.set("Choose an operation and enter the required integer inputs.")
 
@@ -156,85 +131,32 @@ class VisualLabApp(tk.Tk):
             self.index_entry.grid(row=0, column=column + 1, padx=(0, 10))
 
     def _run_current_operation(self) -> None:
-        self._stop_playback()
         structure_key = self._current_structure_key()
         operation_key = self.selected_operation.get()
-        value_text = self.value_input.get()
-        index_text = self.index_input.get()
         result = self.controller.run_operation(
             structure_key,
             operation_key,
-            value_text=value_text,
-            index_text=index_text,
+            value_text=self.value_input.get(),
+            index_text=self.index_input.get(),
         )
 
         if not result.steps:
-            self.current_steps = []
-            self.current_step_index = -1
             self.status_text.set(result.message)
-            self._update_step_sequence()
             self._draw_state(self.controller.snapshot(structure_key))
             return
 
-        self.current_steps = result.steps
-        self.current_step_index = 0
-        self.last_operation = (structure_key, operation_key, value_text, index_text)
-        self.status_text.set(result.steps[0].message)
-        self._update_step_sequence()
-        self._draw_state(self.controller.snapshot(structure_key, result.steps[0]))
+        self.status_text.set(_summarize_steps(result.steps))
+        self._draw_state(self.controller.snapshot(structure_key, result.steps[-1]))
 
-    def _next_step(self) -> None:
-        if not self.current_steps:
-            self.status_text.set("Run an operation first.")
-            return
-
-        if self.current_step_index < len(self.current_steps) - 1:
-            self.current_step_index += 1
-
+    def _restart_structure(self) -> None:
         structure_key = self._current_structure_key()
-        step = self.current_steps[self.current_step_index]
-        self.status_text.set(step.message)
-        self._update_step_sequence()
-        self._draw_state(self.controller.snapshot(structure_key, step))
-
-    def _toggle_playback(self) -> None:
-        if self.playing:
-            self._stop_playback()
-            return
-        if not self.current_steps:
-            self.status_text.set("Run an operation first.")
-            return
-        self.playing = True
-        self.play_button_text.set("Pause")
-        self._schedule_next_step()
-
-    def _schedule_next_step(self) -> None:
-        if not self.playing:
-            return
-        if self.current_step_index >= len(self.current_steps) - 1:
-            self._stop_playback()
-            return
-        self._next_step()
-        self.play_after_id = self.after(850, self._schedule_next_step)
-
-    def _stop_playback(self) -> None:
-        self.playing = False
-        self.play_button_text.set("Play")
-        if self.play_after_id is not None:
-            self.after_cancel(self.play_after_id)
-            self.play_after_id = None
-
-    def _restart_operation(self) -> None:
-        if self.last_operation is None or not self.current_steps:
-            self.status_text.set("Run an operation first.")
-            return
-        self._stop_playback()
-        self.current_step_index = 0
-        structure_key = self.last_operation[0]
-        step = self.current_steps[0]
-        self.status_text.set(step.message)
-        self._update_step_sequence()
-        self._draw_state(self.controller.snapshot(structure_key, step))
+        self.controller.reset_structure(structure_key)
+        self.selected_operation.set("")
+        self.value_input.set("")
+        self.index_input.set("")
+        self.status_text.set(f"{structure_key.value} reset to empty.")
+        self._show_operations()
+        self._draw_state(self.controller.snapshot(structure_key))
 
     def _draw_state(self, state: VisualizationState) -> None:
         self.canvas.delete("all")
@@ -330,16 +252,6 @@ class VisualLabApp(tk.Tk):
             self.canvas.create_text(x + cell_width // 2, y + cell_height + 16, text=str(element.index), fill="#555")
             x += cell_width + 6
 
-    def _update_step_sequence(self) -> None:
-        self.steps_list.delete(0, tk.END)
-        for index, step in enumerate(self.current_steps):
-            marker = ">" if index == self.current_step_index else " "
-            self.steps_list.insert(tk.END, f"{marker} {index + 1}. {step.event_type.value}: {step.message}")
-        if self.current_step_index >= 0:
-            self.steps_list.selection_clear(0, tk.END)
-            self.steps_list.selection_set(self.current_step_index)
-            self.steps_list.see(self.current_step_index)
-
     def _clear_controls(self) -> None:
         for child in self.controls.winfo_children():
             child.destroy()
@@ -368,3 +280,8 @@ def check_runtime() -> str:
         controller._structures[StructureKey.STACK],
     )
     return f"{state.structure_name} ready"
+
+
+def _summarize_steps(steps: list[object]) -> str:
+    messages = [step.message for step in steps if hasattr(step, "message")]
+    return " ".join(messages)

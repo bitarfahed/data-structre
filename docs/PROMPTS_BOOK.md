@@ -222,9 +222,34 @@ Round 1 readiness:
 
 Remaining limitations:
 
-- Playback is forward-only.
-- Restart replays the current operation's step sequence view; it does not undo and rerun the domain mutation.
+- The GUI updates immediately after Run and does not provide step playback controls.
+- Restart clears the selected structure and starts it over as a new empty instance.
 - Visualization remains intentionally simple and lightly styled.
+
+## Round 1 GUI Simplification
+
+Prompt goal: simplify the Round 1 GUI by removing display, Play, and Next Step controls; make Run update immediately; make Restart clear the selected structure; and correct Dynamic Array default capacity behavior.
+
+Work completed:
+
+- Removed display operations from the GUI controller.
+- Removed Play, Next Step, step-list, and playback state from the Tkinter shell.
+- Changed Restart to replace the currently selected structure with a new empty domain instance and clear operation inputs.
+- Changed Dynamic Array default initial capacity and minimum capacity to `1`.
+- Kept domain `display()` methods for string representations and tests, but no longer exposes them as GUI operations.
+- Updated tests for capacity doubling, shrinking, minimum capacity protection, value preservation, and structure reset behavior.
+
+Important implementation direction:
+
+- The GUI still uses existing domain objects and step-aware methods.
+- The GUI now renders the final operation state immediately after Run.
+- Dynamic Array capacity follows `1 -> 2 -> 4 -> 8 -> 16` as values are added.
+
+Deferred intentionally:
+
+- Step playback controls
+- Previous Step behavior
+- Animation beyond immediate redraws
 
 ## Project Rename
 

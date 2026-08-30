@@ -8,7 +8,7 @@ from data_structures_visual_lab.events import EventType, Step
 class DynamicArray:
     """A simple integer-only dynamic array with explicit capacity management."""
 
-    def __init__(self, initial_capacity: int = 4) -> None:
+    def __init__(self, initial_capacity: int = 1) -> None:
         if type(initial_capacity) is not int:
             raise TypeError("DynamicArray initial capacity must be an integer.")
         if initial_capacity < 1:

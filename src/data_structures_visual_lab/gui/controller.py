@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from data_structures_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
-from data_structures_visual_lab.events import EventType, Step
+from data_structures_visual_lab.events import Step
 from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
 
 
@@ -48,12 +48,10 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
     StructureKey.STACK: (
         OperationSpec("push", "push(value)", needs_value=True),
         OperationSpec("pop", "pop()"),
-        OperationSpec("display", "display()"),
     ),
     StructureKey.QUEUE: (
         OperationSpec("enqueue", "enqueue(value)", needs_value=True),
         OperationSpec("dequeue", "dequeue()"),
-        OperationSpec("display", "display()"),
     ),
     StructureKey.LINKED_LIST: (
         OperationSpec("push", "push(value, index=0)", needs_value=True, needs_index=True),
@@ -65,12 +63,10 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
             needs_index=True,
             index_required=True,
         ),
-        OperationSpec("display", "display()"),
     ),
     StructureKey.DYNAMIC_ARRAY: (
         OperationSpec("add", "add(value)", needs_value=True),
         OperationSpec("delete", "delete(index)", needs_index=True, index_required=True),
-        OperationSpec("display", "display()"),
     ),
 }
 
@@ -112,6 +108,17 @@ class VisualLabController:
             step,
         )
 
+    def reset_structure(self, structure_key: StructureKey) -> None:
+        """Replace the selected structure with a new empty instance."""
+        if structure_key is StructureKey.STACK:
+            self._structures[structure_key] = Stack()
+        elif structure_key is StructureKey.QUEUE:
+            self._structures[structure_key] = Queue()
+        elif structure_key is StructureKey.LINKED_LIST:
+            self._structures[structure_key] = LinkedList()
+        else:
+            self._structures[structure_key] = DynamicArray()
+
     def run_operation(
         self,
         structure_key: StructureKey,
@@ -141,24 +148,6 @@ class VisualLabController:
         index: int | None,
     ) -> OperationResult:
         structure = self._structures[structure_key]
-
-        if operation_key == "display":
-            step = Step(
-                EventType.COMPLETE,
-                structure.display(),
-                {"size": len(structure), "state": structure.to_list()},
-            )
-            if isinstance(structure, DynamicArray):
-                step = Step(
-                    EventType.COMPLETE,
-                    structure.display(),
-                    {
-                        "size": structure.size,
-                        "capacity": structure.capacity,
-                        "state": structure.to_list(),
-                    },
-                )
-            return OperationResult(True, step.message, [step])
 
         if isinstance(structure, Stack):
             if operation_key == "push":

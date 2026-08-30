@@ -36,7 +36,7 @@ Round 1 will add:
 - Singly Linked List implemented with OOP: implemented
 - Dynamic Array: implemented
 
-Round 1 should focus on clear, testable domain logic before visualization and GUI work are added. Stack, Queue, Singly Linked List, and Dynamic Array are now available as integer-only domain models with safe empty operations.
+Round 1 focuses on clear, testable domain logic with a simple GUI shell layered on top. Stack, Queue, Singly Linked List, and Dynamic Array are available as integer-only domain models with safe empty operations.
 
 ## Planned User Flow
 
@@ -54,8 +54,8 @@ Future expansion may include trees, hash tables, heaps, and graph algorithms. Th
 
 The project should avoid adding AI, databases, authentication, networking, backend services, cloud infrastructure, or unrelated technologies.
 
-The current Tkinter GUI is a first shell for the planned flow and playback controls. Richer rendering polish remains deferred.
-All current Round 1 operations are connected through the GUI, including each structure's display operation. The GUI consumes Step/Event sequences from the domain layer and keeps the domain structures alive across multiple operations on the same selected structure.
+The current Tkinter GUI is a first shell for the planned flow. Richer rendering polish remains deferred.
+Current mutating Round 1 operations are connected through the GUI. The GUI executes operations immediately on Run, consumes Step/Event output for messages and visualization state, and keeps the domain structures alive across multiple operations on the same selected structure.
 
 ## Round 1 QA Result
 
@@ -76,7 +76,6 @@ The final QA pass verified:
 
 Remaining limitations are intentionally deferred:
 
-- Previous Step playback
-- Undo/replay of already-applied domain mutations
+- Step playback controls
 - Richer animation and visual polish
 - Round 2 data structures and algorithms
