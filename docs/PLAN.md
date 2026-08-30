@@ -21,9 +21,9 @@ The data-structure and algorithm layers should contain the actual domain behavio
 
 The step/event layer translates domain operations into small event records that a visualizer can consume later. It stays independent from GUI framework choices and renderer details.
 
-The visualization layer will eventually convert events and states into visual representations. It should not own the core rules of a structure or algorithm.
+The visualization layer converts structure state and step events into renderer-friendly snapshots. It should not own the core rules of a structure or algorithm.
 
-The GUI layer will eventually provide screens, controls, and user interactions. It should orchestrate the experience without embedding data-structure logic.
+The GUI layer provides screens, controls, and user interactions. It should orchestrate the experience without embedding data-structure logic.
 
 Each data structure should have its own module containing its own operations. Similar operation names such as `insert`, `delete`, `push`, and `pop` are not a reason to create shared operation files. Shared code should be extracted only when the behavior is genuinely reusable.
 
@@ -54,4 +54,4 @@ Future expansion may include trees, hash tables, heaps, and graph algorithms. Th
 
 The project should avoid adding AI, databases, authentication, networking, backend services, cloud infrastructure, or unrelated technologies.
 
-Visualization and GUI implementation remain deferred until after the Round 1 domain logic and event infrastructure.
+The current Tkinter GUI is a first shell for the planned flow and playback controls. Richer rendering polish remains deferred.

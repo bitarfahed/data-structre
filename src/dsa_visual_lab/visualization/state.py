@@ -1,0 +1,97 @@
+"""GUI-independent visualization state helpers."""
+
+from dataclasses import dataclass
+
+from dsa_visual_lab.domain.data_structures import DynamicArray, LinkedList, Queue, Stack
+from dsa_visual_lab.events import EventType, Step
+
+
+@dataclass(frozen=True)
+class VisualElement:
+    """One value-bearing item to render."""
+
+    index: int
+    value: int | None
+    highlighted: bool = False
+    moved: bool = False
+
+
+@dataclass(frozen=True)
+class VisualizationState:
+    """A structure snapshot plus the current operation message."""
+
+    structure_name: str
+    values: tuple[VisualElement, ...]
+    message: str
+    size: int
+    capacity: int | None = None
+
+
+def build_visualization_state(
+    structure_name: str,
+    structure: Stack | Queue | LinkedList | DynamicArray,
+    step: Step | None = None,
+) -> VisualizationState:
+    """Build a renderer-friendly state from a domain structure and optional step."""
+    metadata = step.metadata if step is not None else {}
+    highlight_indexes = _highlight_indexes(metadata)
+    moved_indexes = _moved_indexes(metadata)
+    message = step.message if step is not None else str(structure)
+
+    if isinstance(structure, DynamicArray):
+        elements = tuple(
+            VisualElement(
+                index=index,
+                value=structure.to_list()[index] if index < structure.size else None,
+                highlighted=index in highlight_indexes,
+                moved=index in moved_indexes,
+            )
+            for index in range(structure.capacity)
+        )
+        return VisualizationState(
+            structure_name=structure_name,
+            values=elements,
+            message=message,
+            size=structure.size,
+            capacity=structure.capacity,
+        )
+
+    values = structure.to_list()
+    elements = tuple(
+        VisualElement(
+            index=index,
+            value=value,
+            highlighted=index in highlight_indexes,
+            moved=index in moved_indexes,
+        )
+        for index, value in enumerate(values)
+    )
+    return VisualizationState(
+        structure_name=structure_name,
+        values=elements,
+        message=message,
+        size=len(values),
+    )
+
+
+def empty_step(message: str) -> Step:
+    """Create a complete step for non-mutating GUI messages."""
+    return Step(EventType.COMPLETE, message)
+
+
+def _highlight_indexes(metadata: dict[str, object]) -> set[int]:
+    indexes: set[int] = set()
+    for key in ("index", "from_index", "to_index", "previous_index", "inserted_index"):
+        value = metadata.get(key)
+        if type(value) is int:
+            indexes.add(value)
+    return indexes
+
+
+def _moved_indexes(metadata: dict[str, object]) -> set[int]:
+    indexes: set[int] = set()
+    for key in ("from_index", "to_index"):
+        value = metadata.get(key)
+        if type(value) is int:
+            indexes.add(value)
+    return indexes

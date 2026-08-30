@@ -12,6 +12,12 @@ The planned workflow is:
 6. Enter integer data.
 7. Watch the structure and operation update visually.
 
+Run the desktop shell from the terminal:
+
+```powershell
+uv run python -m dsa_visual_lab
+```
+
 ## Round 1 Scope
 
 Round 1 will focus on these structures:
@@ -44,8 +50,10 @@ The project foundation is in place:
 - Reserved areas for data structures, algorithms, visualization, and GUI code
 - Shared step/event infrastructure for future visualization
 - Stack, Queue, Singly Linked List, and Dynamic Array domain implementations
+- Simple Tkinter desktop GUI shell
+- GUI-independent visualization state support
 - Pytest configuration
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
 
-No algorithms, GUI, or visualization renderer behavior has been implemented yet.
+No algorithms beyond the Round 1 structures have been implemented yet. The GUI and visualization are intentionally simple shells.
