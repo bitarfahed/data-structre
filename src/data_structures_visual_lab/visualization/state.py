@@ -6,6 +6,7 @@ from data_structures_visual_lab.domain.data_structures import (
     AVLNode,
     AVLTree,
     DynamicArray,
+    HashTable,
     LinkedList,
     MinHeap,
     Queue,
@@ -40,6 +41,26 @@ class VisualTreeNode:
 
 
 @dataclass(frozen=True)
+class VisualHashEntry:
+    """One hash-table entry to render."""
+
+    key: int
+    value: int
+    entry_index: int
+    highlighted: bool = False
+
+
+@dataclass(frozen=True)
+class VisualBucket:
+    """One hash-table bucket chain to render."""
+
+    index: int
+    entries: tuple[VisualHashEntry, ...]
+    highlighted: bool = False
+    collision: bool = False
+
+
+@dataclass(frozen=True)
 class VisualizationState:
     """A structure snapshot plus the current operation message."""
 
@@ -58,11 +79,15 @@ class VisualizationState:
     repair_pending: bool = False
     repair_index: int | None = None
     repair_kind: str | None = None
+    buckets: tuple[VisualBucket, ...] = ()
+    bucket_count: int | None = None
+    bucket_index: int | None = None
+    collision: bool = False
 
 
 def build_visualization_state(
     structure_name: str,
-    structure: Stack | Queue | LinkedList | DynamicArray | AVLTree | MinHeap,
+    structure: Stack | Queue | LinkedList | DynamicArray | AVLTree | MinHeap | HashTable,
     step: Step | None = None,
 ) -> VisualizationState:
     """Build a renderer-friendly state from a domain structure and optional step."""
@@ -117,6 +142,29 @@ def build_visualization_state(
             repair_pending=structure.repair_pending,
             repair_index=structure.repair_index,
             repair_kind=structure.repair_kind,
+        )
+
+    if isinstance(structure, HashTable):
+        bucket_index = _int_or_none(metadata.get("bucket_index"))
+        entry_index = _int_or_none(metadata.get("entry_index"))
+        collision = metadata.get("collision") is True
+        buckets = _hash_buckets(
+            structure.bucket_contents(),
+            bucket_index=bucket_index,
+            entry_index=entry_index,
+            collision=collision,
+        )
+        return VisualizationState(
+            structure_name=structure_name,
+            values=(),
+            message=message,
+            size=structure.size,
+            event_type=step.event_type if step is not None else None,
+            metadata=metadata,
+            buckets=buckets,
+            bucket_count=structure.bucket_count,
+            bucket_index=bucket_index,
+            collision=collision,
         )
 
     if isinstance(structure, DynamicArray):
@@ -300,3 +348,36 @@ def _heap_depth(index: int) -> int:
         index = (index - 1) // 2
         depth += 1
     return depth
+
+
+def _hash_buckets(
+    bucket_contents: list[list[tuple[int, int]]],
+    bucket_index: int | None,
+    entry_index: int | None,
+    collision: bool,
+) -> tuple[VisualBucket, ...]:
+    buckets: list[VisualBucket] = []
+    for current_bucket_index, bucket in enumerate(bucket_contents):
+        highlighted_bucket = current_bucket_index == bucket_index
+        entries = tuple(
+            VisualHashEntry(
+                key=key,
+                value=value,
+                entry_index=current_entry_index,
+                highlighted=highlighted_bucket and current_entry_index == entry_index,
+            )
+            for current_entry_index, (key, value) in enumerate(bucket)
+        )
+        buckets.append(
+            VisualBucket(
+                index=current_bucket_index,
+                entries=entries,
+                highlighted=highlighted_bucket,
+                collision=highlighted_bucket and collision,
+            )
+        )
+    return tuple(buckets)
+
+
+def _int_or_none(value: object) -> int | None:
+    return value if type(value) is int else None

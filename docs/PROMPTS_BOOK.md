@@ -385,3 +385,34 @@ Deferred intentionally:
 - Animated sift-up and heapify-down movement
 - Play, Next Step, and previous-step playback controls
 - Additional Round 2 structures
+
+## Round 2 Hash Table Domain Logic and GUI Integration
+
+Prompt goal: implement Hash Table domain logic and connect it to the existing GUI and visualization architecture without adding the 2-3 Tree or other new structures.
+
+Work completed:
+
+- Added `HashEntry` and `HashTable` in a dedicated data-structure module.
+- Exported Hash Table classes from the data-structures package.
+- Implemented fixed-bucket separate chaining without using Python `dict` as the table storage.
+- Added step-emitting companion methods for insert, search, and delete with bucket index, collision, bucket contents, and affected-entry metadata.
+- Added Hash Table to the GUI structure-selection flow with an educational explanation.
+- Added GUI operations for Insert, Search, Delete, and Restart.
+- Extended GUI-independent visualization state with hash buckets, chained entries, bucket count, calculated bucket index, collision status, and affected-entry highlights.
+- Added simple Tkinter rendering for indexed buckets and chained key-value entries.
+- Added domain, controller, visualization-state, package import, and GUI smoke coverage.
+
+Important implementation direction:
+
+- Hash Table logic remains independent from GUI code.
+- Integer keys and integer values are required; `bool` is rejected.
+- The table uses a fixed default bucket count of `8`.
+- Collisions are handled with separate chaining.
+- Duplicate keys update the existing value instead of adding a second entry.
+- Hash Table keys use the existing second GUI input field labeled as Key, and negative integer keys are allowed.
+
+Deferred intentionally:
+
+- Automatic resizing
+- Animated collision traversal
+- Additional Round 2 structures

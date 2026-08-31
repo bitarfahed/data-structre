@@ -49,6 +49,11 @@ def test_gui_main_flows_for_supported_structures() -> None:
         (StructureKey.MIN_HEAP, "peek_min", "", ""),
         (StructureKey.MIN_HEAP, "extract_raw", "", ""),
         (StructureKey.MIN_HEAP, "heapify_down", "", ""),
+        (StructureKey.HASH_TABLE, "insert", "10", "1"),
+        (StructureKey.HASH_TABLE, "insert", "50", "9"),
+        (StructureKey.HASH_TABLE, "insert", "99", "1"),
+        (StructureKey.HASH_TABLE, "search", "", "9"),
+        (StructureKey.HASH_TABLE, "delete", "", "9"),
     ]
 
     try:
@@ -127,6 +132,37 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert not app.controller.snapshot(StructureKey.MIN_HEAP).repair_pending
         app._restart_structure()
         assert app.controller.snapshot(StructureKey.MIN_HEAP).size == 0
+
+        app.selected_structure.set(StructureKey.HASH_TABLE.value)
+        app._show_structure_selection()
+        assert "hash table" in app.explanation_label.cget("text").lower()
+        app._show_operations()
+        app.selected_operation.set("insert")
+        app._refresh_operation_fields()
+        assert app.index_label.cget("text") == "Key"
+        app.index_input.set("1")
+        app.value_input.set("10")
+        app._run_current_operation()
+        app.index_input.set("9")
+        app.value_input.set("50")
+        app._run_current_operation()
+        assert app.controller.snapshot(StructureKey.HASH_TABLE).size == 2
+        assert app.canvas.find_all()
+        app.selected_operation.set("search")
+        app._refresh_operation_fields()
+        app.index_input.set("9")
+        app._run_current_operation()
+        assert "Found key 9" in app.status_text.get()
+        app.selected_operation.set("delete")
+        app._refresh_operation_fields()
+        app.index_input.set("9")
+        app._run_current_operation()
+        assert app.controller.snapshot(StructureKey.HASH_TABLE).size == 1
+        app.index_input.set("abc")
+        app._run_current_operation()
+        assert app.status_text.get() == "Key must be an integer."
+        app._restart_structure()
+        assert app.controller.snapshot(StructureKey.HASH_TABLE).size == 0
 
         app.selected_structure.set(StructureKey.STACK.value)
         app._show_operations()

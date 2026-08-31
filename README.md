@@ -57,7 +57,7 @@ The project foundation is in place:
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
 
-Round 2 has started with AVL Tree support and Min-Heap support.
+Round 2 has started with AVL Tree, Min-Heap, and Hash Table support.
 
 ## Round 1 Status
 
@@ -81,7 +81,7 @@ Known limitations:
 
 ## Round 2 Status
 
-Round 2 has started with AVL Tree support and Min-Heap support.
+Round 2 has started with AVL Tree, Min-Heap, and Hash Table support.
 
 Implemented:
 
@@ -97,8 +97,13 @@ Implemented:
 - Min-Heap repair-pending state, heap validity checks, size, values, and repair index/value inspection
 - Min-Heap GUI selection, explanation, operation controls, and Restart support
 - Simple Min-Heap visualization with tree nodes, array indices, underlying array cells, and repair highlighting
+- Hash Table domain logic with fixed buckets and separate chaining
+- Hash Table insert, search, delete, duplicate-key update, and collision state
+- Hash Table GUI selection, explanation, operation controls, and Restart support
+- Simple Hash Table visualization with bucket indices, chained entries, calculated bucket index, collision status, and affected-entry highlighting
 
 Known limitations:
 
 - AVL visualization is simple and immediate; it does not animate rotations or provide step playback controls.
 - Min-Heap visualization is simple and immediate; it does not animate sift-up or heapify-down movement.
+- Hash Table uses a fixed bucket count and does not resize automatically.

@@ -120,6 +120,8 @@ class VisualLabApp(tk.Tk):
         self.value_entry.grid_remove()
         self.index_label.grid_remove()
         self.index_entry.grid_remove()
+        self.value_label.configure(text="Value")
+        self.index_label.configure(text=operation.index_label)
 
         column = 2
         if operation.needs_value:
@@ -187,8 +189,10 @@ class VisualLabApp(tk.Tk):
             self._draw_dynamic_array(state, x=40, y=130)
         elif state.structure_name == StructureKey.AVL_TREE.value:
             self._draw_avl_tree(state, width)
-        else:
+        elif state.structure_name == StructureKey.MIN_HEAP.value:
             self._draw_min_heap(state, width)
+        else:
+            self._draw_hash_table(state, width)
 
     def _draw_stack(self, state: VisualizationState, width: int) -> None:
         cell_width = 96
@@ -366,6 +370,51 @@ class VisualLabApp(tk.Tk):
             y = 125 + node.depth * max(48, min(66, 135 // max(max_depth, 1)))
             positions[node.id] = (x, y)
         return positions
+
+    def _draw_hash_table(self, state: VisualizationState, width: int) -> None:
+        self.canvas.create_text(
+            20,
+            76,
+            anchor="w",
+            text=f"buckets: {state.bucket_count}    entries: {state.size}",
+            fill="#333",
+            font=("Segoe UI", 10, "bold"),
+        )
+        if state.bucket_index is not None:
+            self.canvas.create_text(
+                20,
+                98,
+                anchor="w",
+                text=f"calculated bucket index: {state.bucket_index}",
+                fill="#2b4c7e",
+            )
+        if state.collision:
+            self.canvas.create_text(260, 98, anchor="w", text="collision", fill="#9f2d20", font=("Segoe UI", 10, "bold"))
+
+        if not state.buckets:
+            self.canvas.create_text(width // 2, 185, text="empty", fill="#666")
+            return
+
+        row_height = 27
+        y = 112
+        for bucket in state.buckets:
+            index_fill = "#ffe08a" if bucket.highlighted else "#e8f1ff"
+            if bucket.collision:
+                index_fill = "#ffd1cc"
+            self.canvas.create_rectangle(40, y, 94, y + 23, fill=index_fill, outline="#2b4c7e")
+            self.canvas.create_text(67, y + 12, text=str(bucket.index), font=("Segoe UI", 9, "bold"))
+
+            x = 118
+            if not bucket.entries:
+                self.canvas.create_text(x, y + 12, anchor="w", text="empty", fill="#777")
+            for entry in bucket.entries:
+                entry_fill = "#ffe08a" if entry.highlighted else "#eef7ea"
+                self.canvas.create_rectangle(x, y, x + 82, y + 23, fill=entry_fill, outline="#376b39")
+                self.canvas.create_text(x + 41, y + 12, text=f"{entry.key}: {entry.value}")
+                x += 96
+                if entry.entry_index < len(bucket.entries) - 1:
+                    self.canvas.create_line(x - 14, y + 12, x - 2, y + 12, arrow=tk.LAST, fill="#555")
+            y += row_height
 
     def _clear_controls(self) -> None:
         for child in self.controls.winfo_children():

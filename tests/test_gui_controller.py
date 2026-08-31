@@ -12,6 +12,7 @@ def test_controller_lists_structures_and_operations() -> None:
         StructureKey.DYNAMIC_ARRAY,
         StructureKey.AVL_TREE,
         StructureKey.MIN_HEAP,
+        StructureKey.HASH_TABLE,
     )
     assert [operation.key for operation in controller.operations_for(StructureKey.STACK)] == [
         "push",
@@ -44,6 +45,11 @@ def test_controller_lists_structures_and_operations() -> None:
         "extract_raw",
         "heapify_down",
         "peek_min",
+    ]
+    assert [operation.key for operation in controller.operations_for(StructureKey.HASH_TABLE)] == [
+        "insert",
+        "search",
+        "delete",
     ]
 
 
@@ -171,6 +177,7 @@ def test_controller_reset_clears_each_round_1_structure() -> None:
     controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="4")
     controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="5")
     controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="6")
+    controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="7", index_text="1")
 
     for structure_key in controller.structure_keys():
         controller.reset_structure(structure_key)
@@ -328,6 +335,98 @@ def test_controller_runs_min_heap_sift_up_and_reenables_mutations() -> None:
     assert snapshot.heap_valid
     assert not snapshot.repair_pending
     assert [element.value for element in snapshot.values].count(5) == 2
+
+
+def test_controller_runs_hash_table_insert_and_reports_collision() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="10", index_text="1")
+    result = controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="50", index_text="9")
+    snapshot = controller.snapshot(StructureKey.HASH_TABLE, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Inserted key 9 with value 50."
+    assert snapshot.bucket_count == 8
+    assert snapshot.bucket_index == 1
+    assert snapshot.collision
+    assert snapshot.buckets[1].collision
+    assert [(entry.key, entry.value) for entry in snapshot.buckets[1].entries] == [(1, 10), (9, 50)]
+    assert [entry.key for entry in snapshot.buckets[1].entries if entry.highlighted] == [9]
+
+
+def test_controller_runs_hash_table_duplicate_key_update() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="10", index_text="1")
+    result = controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="99", index_text="1")
+
+    assert result.ok
+    assert result.message == "Updated key 1 with value 99."
+    snapshot = controller.snapshot(StructureKey.HASH_TABLE, result.steps[-1])
+    assert [(entry.key, entry.value) for entry in snapshot.buckets[1].entries] == [(1, 99)]
+    assert not snapshot.collision
+
+
+def test_controller_runs_hash_table_search_and_delete() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="10", index_text="1")
+    found = controller.run_operation(StructureKey.HASH_TABLE, "search", index_text="1")
+    missing = controller.run_operation(StructureKey.HASH_TABLE, "search", index_text="2")
+    deleted = controller.run_operation(StructureKey.HASH_TABLE, "delete", index_text="1")
+    missing_delete = controller.run_operation(StructureKey.HASH_TABLE, "delete", index_text="1")
+
+    assert found.ok
+    assert found.message == "Found key 1 with value 10."
+    assert not missing.ok
+    assert missing.message == "Key 2 was not found."
+    assert deleted.ok
+    assert deleted.message == "Deleted key 1."
+    assert not missing_delete.ok
+    assert missing_delete.message == "Delete skipped because key 1 was not found."
+    assert controller.snapshot(StructureKey.HASH_TABLE).size == 0
+
+
+def test_controller_accepts_negative_integer_hash_keys() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="7", index_text="-1")
+
+    assert result.ok
+    snapshot = controller.snapshot(StructureKey.HASH_TABLE, result.steps[-1])
+    assert snapshot.bucket_index == 7
+    assert snapshot.buckets[7].entries[0].key == -1
+
+
+def test_controller_rejects_invalid_hash_table_inputs() -> None:
+    controller = VisualLabController()
+
+    missing_key = controller.run_operation(StructureKey.HASH_TABLE, "search")
+    invalid_key = controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="1", index_text="abc")
+    invalid_value = controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="abc", index_text="1")
+
+    assert not missing_key.ok
+    assert missing_key.message == "Enter an integer key."
+    assert not invalid_key.ok
+    assert invalid_key.message == "Key must be an integer."
+    assert not invalid_value.ok
+    assert invalid_value.message == "Value must be an integer."
+    assert controller.snapshot(StructureKey.HASH_TABLE).size == 0
+
+
+def test_controller_reset_clears_hash_table_entries() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="10", index_text="1")
+    controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="50", index_text="9")
+    assert controller.snapshot(StructureKey.HASH_TABLE).size == 2
+
+    controller.reset_structure(StructureKey.HASH_TABLE)
+    snapshot = controller.snapshot(StructureKey.HASH_TABLE)
+
+    assert snapshot.size == 0
+    assert snapshot.bucket_count == 8
+    assert all(not bucket.entries for bucket in snapshot.buckets)
 
 
 def test_controller_runs_min_heap_extract_raw_and_heapify_down() -> None:

@@ -1,4 +1,12 @@
-from data_structures_visual_lab.domain.data_structures import AVLTree, DynamicArray, LinkedList, MinHeap, Queue, Stack
+from data_structures_visual_lab.domain.data_structures import (
+    AVLTree,
+    DynamicArray,
+    HashTable,
+    LinkedList,
+    MinHeap,
+    Queue,
+    Stack,
+)
 from data_structures_visual_lab.events import EventType, Step
 from data_structures_visual_lab.visualization import build_visualization_state
 
@@ -103,3 +111,21 @@ def test_min_heap_visualization_state_includes_tree_array_and_repair_data() -> N
     assert [node.array_index for node in state.tree_nodes] == [0, 1, 2]
     assert state.tree_edges == ((0, 1), (0, 2))
     assert [node.array_index for node in state.tree_nodes if node.highlighted] == [2]
+
+
+def test_hash_table_visualization_state_includes_bucket_chains_and_collision_data() -> None:
+    table = HashTable(bucket_count=4)
+    table.insert(1, 10)
+    _ok, steps = table.insert_with_steps(5, 50)
+
+    state = build_visualization_state("Hash Table", table, steps[-1])
+
+    assert state.size == 2
+    assert state.bucket_count == 4
+    assert state.bucket_index == 1
+    assert state.collision
+    assert len(state.buckets) == 4
+    assert state.buckets[1].highlighted
+    assert state.buckets[1].collision
+    assert [(entry.key, entry.value) for entry in state.buckets[1].entries] == [(1, 10), (5, 50)]
+    assert [entry.key for entry in state.buckets[1].entries if entry.highlighted] == [5]

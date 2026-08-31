@@ -82,7 +82,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 2 Scope
 
-Round 2 begins with AVL Tree support and Min-Heap support.
+Round 2 begins with AVL Tree, Min-Heap, and Hash Table support.
 
 Implemented:
 
@@ -109,8 +109,20 @@ Implemented:
 - GUI structure selection and educational explanation for Min-Heap
 - GUI operations for Add Raw, Sift Up, Extract Raw, Heapify Down, Peek Min, and Restart
 - Simple Min-Heap visualization with tree nodes, parent-child edges, array indices, an underlying array view, and repair highlighting
+- `HashEntry`
+- `HashTable`
+- `insert(key, value)`
+- `search(key)`
+- `delete(key)`
+- Fixed bucket count with separate chaining for collisions
+- Duplicate-key updates rather than duplicate entries
+- Bucket count, calculated bucket index, bucket contents, and collision inspection
+- GUI structure selection and educational explanation for Hash Table
+- GUI operations for Insert, Search, Delete, and Restart
+- Simple Hash Table visualization with indexed buckets, chained entries, calculated bucket index, collision status, and affected-entry highlighting
 
-Duplicate values are rejected. This keeps search, deletion, and educational tree diagrams unambiguous.
+AVL Tree duplicate values are rejected. This keeps search, deletion, and educational tree diagrams unambiguous.
 Min-Heap duplicate values are allowed.
+Hash Table duplicate keys update the existing value.
 
-Richer AVL/Min-Heap animation, step playback, and additional Round 2 structures remain deferred.
+Hash Table resizing, richer AVL/Min-Heap animation, step playback, and additional Round 2 structures remain deferred.

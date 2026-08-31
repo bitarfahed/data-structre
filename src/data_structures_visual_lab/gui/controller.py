@@ -3,7 +3,15 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from data_structures_visual_lab.domain.data_structures import AVLTree, DynamicArray, LinkedList, MinHeap, Queue, Stack
+from data_structures_visual_lab.domain.data_structures import (
+    AVLTree,
+    DynamicArray,
+    HashTable,
+    LinkedList,
+    MinHeap,
+    Queue,
+    Stack,
+)
 from data_structures_visual_lab.events import Step
 from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
 
@@ -17,6 +25,7 @@ class StructureKey(str, Enum):
     DYNAMIC_ARRAY = "Dynamic Array"
     AVL_TREE = "AVL Tree"
     MIN_HEAP = "Min-Heap"
+    HASH_TABLE = "Hash Table"
 
 
 @dataclass(frozen=True)
@@ -28,6 +37,8 @@ class OperationSpec:
     needs_value: bool = False
     needs_index: bool = False
     index_required: bool = False
+    index_label: str = "Index"
+    index_allows_negative: bool = False
 
 
 @dataclass(frozen=True)
@@ -51,6 +62,10 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     StructureKey.MIN_HEAP: (
         "A min-heap stores values in a complete binary tree where each parent is less than or equal to its children. "
         "Here, raw add and raw extract are separated from the repair steps."
+    ),
+    StructureKey.HASH_TABLE: (
+        "A hash table maps integer keys to integer values by calculating a bucket index. "
+        "This version uses separate chaining when multiple keys land in the same bucket."
     ),
 }
 
@@ -93,6 +108,33 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
         OperationSpec("heapify_down", "heapify_down()"),
         OperationSpec("peek_min", "peek_min()"),
     ),
+    StructureKey.HASH_TABLE: (
+        OperationSpec(
+            "insert",
+            "insert(key, value)",
+            needs_value=True,
+            needs_index=True,
+            index_required=True,
+            index_label="Key",
+            index_allows_negative=True,
+        ),
+        OperationSpec(
+            "search",
+            "search(key)",
+            needs_index=True,
+            index_required=True,
+            index_label="Key",
+            index_allows_negative=True,
+        ),
+        OperationSpec(
+            "delete",
+            "delete(key)",
+            needs_index=True,
+            index_required=True,
+            index_label="Key",
+            index_allows_negative=True,
+        ),
+    ),
 }
 
 
@@ -107,6 +149,7 @@ class VisualLabController:
             StructureKey.DYNAMIC_ARRAY: DynamicArray(),
             StructureKey.AVL_TREE: AVLTree(),
             StructureKey.MIN_HEAP: MinHeap(),
+            StructureKey.HASH_TABLE: HashTable(),
         }
 
     def structure_keys(self) -> tuple[StructureKey, ...]:
@@ -147,8 +190,10 @@ class VisualLabController:
             self._structures[structure_key] = DynamicArray()
         elif structure_key is StructureKey.AVL_TREE:
             self._structures[structure_key] = AVLTree()
-        else:
+        elif structure_key is StructureKey.MIN_HEAP:
             self._structures[structure_key] = MinHeap()
+        else:
+            self._structures[structure_key] = HashTable()
 
     def run_operation(
         self,
@@ -159,7 +204,11 @@ class VisualLabController:
     ) -> OperationResult:
         operation = self.operation_for(structure_key, operation_key)
         value = self._parse_value(value_text) if operation.needs_value else None
-        index = self._parse_index(index_text, operation.index_required) if operation.needs_index else None
+        index = (
+            self._parse_index(index_text, operation.index_required, operation.index_label, operation.index_allows_negative)
+            if operation.needs_index
+            else None
+        )
 
         if isinstance(value, str):
             return OperationResult(False, value, [])
@@ -239,6 +288,16 @@ class VisualLabController:
             result, steps = structure.peek_min_with_steps()
             return OperationResult(result is not None, steps[-1].message, steps)
 
+        if isinstance(structure, HashTable):
+            if operation_key == "insert":
+                ok, steps = structure.insert_with_steps(_require_int(index), _require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "search":
+                result, steps = structure.search_with_steps(_require_int(index))
+                return OperationResult(result is not None, steps[-1].message, steps)
+            ok, steps = structure.delete_with_steps(_require_int(index))
+            return OperationResult(ok, steps[-1].message, steps)
+
         if operation_key == "add":
             steps = structure.add_with_steps(_require_int(value))
             return OperationResult(True, steps[-1].message, steps)
@@ -254,17 +313,17 @@ class VisualLabController:
         return _parse_integer(text, "Value must be an integer.")
 
     @staticmethod
-    def _parse_index(index_text: str, required: bool) -> int | str | None:
+    def _parse_index(index_text: str, required: bool, label: str, allows_negative: bool) -> int | str | None:
         text = index_text.strip()
         if not text and not required:
             return None
         if not text:
-            return "Enter an integer index."
-        parsed = _parse_integer(text, "Index must be an integer.")
+            return f"Enter an integer {label.lower()}."
+        parsed = _parse_integer(text, f"{label} must be an integer.")
         if isinstance(parsed, str):
             return parsed
-        if parsed < 0:
-            return "Index must be greater than or equal to 0."
+        if parsed < 0 and not allows_negative:
+            return f"{label} must be greater than or equal to 0."
         return parsed
 
 
