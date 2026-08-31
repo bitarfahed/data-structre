@@ -623,3 +623,33 @@ Deferred intentionally:
 - Heap Sort
 - Manual Play and Next Step controls
 - Advanced sorting optimizations or large-array performance infrastructure
+
+## Round 3 Merge Sort with GUI Visualization
+
+Prompt goal: implement Merge Sort with GUI visualization while keeping Quick Sort and Heap Sort deferred.
+
+Work completed:
+
+- Added `merge_sort.py` as a separate algorithm module.
+- Reused Round 3 integer-array validation.
+- Implemented standard recursive divide-and-conquer Merge Sort for small educational arrays.
+- Added step output for recursive range splitting, left/right subarrays, merge comparisons, appended merged values, and completed merged ranges.
+- Added Merge Sort to the GUI under Algorithms / Sorting.
+- Reused the simple automatic algorithm-step visualization for indexed array cells.
+- Extended visualization state and canvas rendering with split point, merge ranges, completed merged ranges, and compared/affected-element highlighting.
+- Updated tests for normal sorting, odd-length arrays, even-length arrays, duplicates, empty arrays, single-element arrays, already sorted arrays, reverse-sorted arrays, negative integers, merge-step metadata, controller behavior, package imports, visualization state, and GUI smoke flow.
+
+Important implementation direction:
+
+- Merge Sort logic remains in the domain algorithms package.
+- The GUI does not duplicate the recursive split or merge logic; it consumes generated algorithm steps.
+- The implementation intentionally keeps recursion visible rather than adding iterative fallbacks.
+- Input remains integer-only, with duplicate and negative values allowed.
+
+Deferred intentionally:
+
+- Quick Sort
+- Heap Sort
+- Manual Play and Next Step controls
+- Iterative recursion-depth fallback behavior
+- Advanced large-array visualization infrastructure

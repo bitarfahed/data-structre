@@ -10,6 +10,7 @@ from data_structures_visual_lab.domain.data_structures import (
 )
 from data_structures_visual_lab.domain.algorithms import binary_search
 from data_structures_visual_lab.domain.algorithms import bubble_sort
+from data_structures_visual_lab.domain.algorithms import merge_sort
 from data_structures_visual_lab.events import EventType, Step
 from data_structures_visual_lab.visualization import build_algorithm_visualization_state, build_visualization_state
 
@@ -172,6 +173,28 @@ def test_sort_visualization_state_highlights_swaps_and_sorted_suffix() -> None:
 
     assert [element.index for element in state.values if element.highlighted] == [0, 1]
     assert [element.index for element in state.values if element.moved] == []
+
+
+def test_sort_visualization_empty_state_prompts_for_array_only() -> None:
+    state = build_algorithm_visualization_state("Merge Sort")
+
+    assert state.message == "Enter an integer array, then run the algorithm."
+
+
+def test_merge_sort_visualization_state_includes_split_and_merge_ranges() -> None:
+    result = merge_sort((3, 1, 2))
+    split_step = [step for step in result.steps if step.state.metadata.get("split_index") == 1][0]
+    merged_step = [step for step in result.steps if step.state.metadata.get("completed_range") == (0, 2)][0]
+
+    split_state = build_algorithm_visualization_state("Merge Sort", split_step)
+    merged_state = build_algorithm_visualization_state("Merge Sort", merged_step)
+
+    assert split_state.split_index == 1
+    assert split_state.merge_ranges == ((0, 1), (2, 2))
+    assert [element.index for element in split_state.values if element.highlighted] == [0, 1, 2]
+    assert [element.index for element in split_state.values if element.moved] == [0, 1, 2]
+    assert merged_state.completed_range == (0, 2)
+    assert [element.value for element in merged_state.values] == [1, 2, 3]
 
 
 def test_two_three_visualization_state_includes_multikey_nodes_and_repair_data() -> None:

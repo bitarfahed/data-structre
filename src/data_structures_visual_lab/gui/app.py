@@ -547,6 +547,25 @@ class VisualLabApp(tk.Tk):
                 text=f"sorted suffix: {state.sorted_suffix_start}..{state.size - 1}",
                 fill="#1f6f43",
             )
+        if state.split_index is not None:
+            self.canvas.create_text(
+                x,
+                y - 16,
+                anchor="w",
+                text=f"split at: {state.split_index}",
+                fill="#2b4c7e",
+            )
+        if state.merge_ranges:
+            ranges = ", ".join(f"{start}..{end}" for start, end in state.merge_ranges)
+            self.canvas.create_text(x, y + 88, anchor="w", text=f"merge ranges: {ranges}", fill="#2b4c7e")
+        if state.completed_range is not None:
+            self.canvas.create_text(
+                x + 240,
+                y + 88,
+                anchor="w",
+                text=f"merged: {state.completed_range[0]}..{state.completed_range[1]}",
+                fill="#1f6f43",
+            )
 
         if not state.values:
             self.canvas.create_text(x, y, anchor="w", text="empty array", fill="#666")
@@ -630,4 +649,5 @@ def _is_algorithm_key(structure_key: StructureKey) -> bool:
         StructureKey.BUBBLE_SORT,
         StructureKey.SELECTION_SORT,
         StructureKey.INSERTION_SORT,
+        StructureKey.MERGE_SORT,
     }

@@ -58,7 +58,7 @@ The project foundation is in place:
 - Planning and development-process documentation
 
 Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
-Round 3 has started with Binary Search, Bubble Sort, Selection Sort, Insertion Sort, and shared array-algorithm infrastructure.
+Round 3 has started with Binary Search, Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, and shared array-algorithm infrastructure.
 
 ## Round 1 Status
 
@@ -126,5 +126,7 @@ Round 3 has started. Implemented:
 - Binary Search GUI selection, array/target inputs, automatic visual step progression, active range display, low/mid/high labels, discarded-range highlighting, and found/not-found status
 - Bubble Sort, Selection Sort, and Insertion Sort domain logic
 - Sorting GUI selection, array input, automatic visual step progression, compared/affected-element highlighting, swap/shift updates, and completion status
+- Merge Sort domain logic with recursive split/merge execution steps
+- Merge Sort GUI selection, array input, automatic visual step progression, split/merge range display, compared-value highlighting, and final sorted output
 
-Merge Sort, Quick Sort, and Heap Sort are not implemented yet.
+Quick Sort and Heap Sort are not implemented yet.

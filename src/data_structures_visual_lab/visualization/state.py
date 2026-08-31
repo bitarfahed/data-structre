@@ -112,6 +112,9 @@ class VisualizationState:
     found: bool | None = None
     sorted_prefix_end: int | None = None
     sorted_suffix_start: int | None = None
+    split_index: int | None = None
+    merge_ranges: tuple[tuple[int, int], ...] = ()
+    completed_range: tuple[int, int] | None = None
 
 
 def build_algorithm_visualization_state(
@@ -121,10 +124,13 @@ def build_algorithm_visualization_state(
 ) -> VisualizationState:
     """Build a renderer-friendly state from an algorithm step."""
     if step is None:
+        message = "Enter an integer array and target, then run the algorithm."
+        if algorithm_name != "Binary Search":
+            message = "Enter an integer array, then run the algorithm."
         return VisualizationState(
             structure_name=algorithm_name,
             values=tuple(VisualElement(index=index, value=value) for index, value in enumerate(values)),
-            message="Enter an integer array and target, then run the algorithm.",
+            message=message,
             size=len(values),
         )
 
@@ -135,6 +141,9 @@ def build_algorithm_visualization_state(
     discarded_range = _range_or_none(metadata.get("discarded_range"))
     sorted_prefix_end = _int_or_none(metadata.get("sorted_prefix_end"))
     sorted_suffix_start = _int_or_none(metadata.get("sorted_suffix_start"))
+    completed_range = _range_or_none(metadata.get("completed_range"))
+    merge_output_range = _range_or_none(metadata.get("merge_output_range"))
+    merge_ranges = step.state.merge_ranges
     elements = tuple(
         VisualElement(
             index=index,
@@ -142,6 +151,9 @@ def build_algorithm_visualization_state(
             highlighted=index in current_indices or index == step.state.found_index,
             moved=(
                 (discarded_range is not None and discarded_range[0] <= index <= discarded_range[1])
+                or _index_in_ranges(index, merge_ranges)
+                or (completed_range is not None and completed_range[0] <= index <= completed_range[1])
+                or (merge_output_range is not None and merge_output_range[0] <= index <= merge_output_range[1])
                 or index in _shift_indexes(metadata)
                 or (sorted_prefix_end is not None and index <= sorted_prefix_end)
                 or (sorted_suffix_start is not None and index >= sorted_suffix_start)
@@ -164,6 +176,9 @@ def build_algorithm_visualization_state(
         found=step.state.found,
         sorted_prefix_end=sorted_prefix_end,
         sorted_suffix_start=sorted_suffix_start,
+        split_index=_int_or_none(metadata.get("split_index")),
+        merge_ranges=merge_ranges,
+        completed_range=completed_range,
     )
 
 
@@ -499,6 +514,10 @@ def _range_or_none(value: object) -> tuple[int, int] | None:
     ):
         return value
     return None
+
+
+def _index_in_ranges(index: int, ranges: tuple[tuple[int, int], ...]) -> bool:
+    return any(start <= index <= end for start, end in ranges)
 
 
 def _shift_indexes(metadata: dict[str, object]) -> set[int]:

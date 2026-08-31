@@ -162,7 +162,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 3 Scope
 
-Round 3 starts with Binary Search, simple sorting algorithms, and shared infrastructure for future array-based searching and sorting algorithms. The current work adds:
+Round 3 starts with Binary Search, simple sorting algorithms, Merge Sort, and shared infrastructure for future array-based searching and sorting algorithms. The current work adds:
 
 - `AlgorithmEventType`
 - `AlgorithmState`
@@ -177,11 +177,12 @@ Round 3 starts with Binary Search, simple sorting algorithms, and shared infrast
 - `bubble_sort(values)`
 - `selection_sort(values)`
 - `insertion_sort(values)`
+- `merge_sort(values)`
 - Sorting GUI flow under Algorithms / Sorting
 
-The algorithm logic is domain-only. It does not import GUI code or choose a renderer. Merge Sort, Quick Sort, and Heap Sort are not implemented yet.
+The algorithm logic is domain-only. It does not import GUI code or choose a renderer. Quick Sort and Heap Sort are not implemented yet.
 
-The execution state supports visualization of comparisons, swaps, current indices, active ranges, pivots, merge ranges, found/not-found results, and completed states. Binary Search and the simple sorting algorithms return step lists; future algorithms may return step lists or yield steps from generators depending on what best fits the algorithm.
+The execution state supports visualization of comparisons, swaps, current indices, active ranges, pivots, merge ranges, found/not-found results, and completed states. Binary Search and the implemented sorting algorithms return step lists; future algorithms may return step lists or yield steps from generators depending on what best fits the algorithm.
 
 Binary Search GUI behavior:
 
@@ -191,11 +192,11 @@ Binary Search GUI behavior:
 - The canvas displays indexed cells, the active search range, low/mid/high labels, discarded ranges, and final found/not-found status.
 - The GUI progresses through generated Binary Search steps automatically without Play or Next Step controls.
 
-Simple sorting GUI behavior:
+Sorting GUI behavior:
 
-- User selects Bubble Sort, Selection Sort, or Insertion Sort under Algorithms / Sorting.
+- User selects Bubble Sort, Selection Sort, Insertion Sort, or Merge Sort under Algorithms / Sorting.
 - User enters a comma-separated integer array.
-- The canvas displays indexed cells, compared or affected elements, swaps, shifts, sorted prefix/suffix hints where useful, and final completion status.
+- The canvas displays indexed cells, compared or affected elements, swaps, shifts, split/merge ranges, sorted prefix/suffix hints where useful, and final completion status.
 - The GUI progresses through generated sorting steps automatically without Play or Next Step controls.
 
 ## Round 3 Edge Cases
@@ -225,4 +226,4 @@ Stronger alternatives not chosen for this learning round:
 - A production GUI could add large-array limits, pagination, or virtualization, but those controls are outside the current learning core.
 - A generic algorithm library could accept floats, strings, or custom comparable values, but integer-only input keeps Round 3 consistent with the existing project.
 
-Merge Sort, Quick Sort, Heap Sort, and more advanced sorting variants remain deferred.
+Quick Sort, Heap Sort, and more advanced sorting variants remain deferred.

@@ -4,6 +4,7 @@ from data_structures_visual_lab.domain.algorithms import (
     AlgorithmEventType,
     bubble_sort,
     insertion_sort,
+    merge_sort,
     selection_sort,
 )
 
@@ -12,6 +13,7 @@ SORTS = [
     (bubble_sort, "Bubble Sort complete."),
     (selection_sort, "Selection Sort complete."),
     (insertion_sort, "Insertion Sort complete."),
+    (merge_sort, "Merge Sort complete."),
 ]
 
 
@@ -39,7 +41,7 @@ def test_sorting_algorithms_handle_round_3_edge_cases(sort_func, message: str, v
     assert result.steps[-1].state.completed
 
 
-@pytest.mark.parametrize("sort_func", [bubble_sort, selection_sort, insertion_sort])
+@pytest.mark.parametrize("sort_func", [bubble_sort, selection_sort, insertion_sort, merge_sort])
 def test_sorting_algorithms_reject_non_integer_values(sort_func) -> None:
     result = sort_func((1, "2", 3))
 
@@ -87,3 +89,38 @@ def test_insertion_sort_steps_expose_current_element_shift_and_insert_position()
     assert move_steps[0].state.metadata["from_index"] == 0
     assert move_steps[0].state.metadata["to_index"] == 1
     assert move_steps[1].message == "Place 1 at index 0."
+
+
+@pytest.mark.parametrize(
+    ("values", "expected"),
+    [
+        ((4, 1, 3, 2, 5), (1, 2, 3, 4, 5)),
+        ((8, 3, 7, 1), (1, 3, 7, 8)),
+    ],
+)
+def test_merge_sort_handles_odd_and_even_length_arrays(values: tuple[int, ...], expected: tuple[int, ...]) -> None:
+    result = merge_sort(values)
+
+    assert result.ok
+    assert result.values == expected
+    assert result.steps[-1].state.values == expected
+
+
+def test_merge_sort_steps_expose_split_compare_append_and_completed_ranges() -> None:
+    result = merge_sort((3, 1, 2))
+
+    split_steps = [step for step in result.steps if step.message.startswith("Split range")]
+    compare_steps = [step for step in result.steps if step.event_type is AlgorithmEventType.COMPARE]
+    append_steps = [step for step in result.steps if step.message.startswith("Append")]
+    merged_steps = [step for step in result.steps if step.message.startswith("Merged range")]
+
+    assert split_steps[0].state.current_range == (0, 2)
+    assert split_steps[0].state.metadata["split_index"] == 1
+    assert split_steps[0].state.metadata["left_values"] == (3, 1)
+    assert split_steps[0].state.metadata["right_values"] == (2,)
+    assert compare_steps[0].state.comparison_indices == (0, 1)
+    assert compare_steps[0].state.metadata["compared_values"] == (3, 1)
+    assert append_steps[0].state.metadata["appended_value"] == 1
+    assert append_steps[0].state.metadata["write_index"] == 0
+    assert merged_steps[-1].state.values == (1, 2, 3)
+    assert merged_steps[-1].state.metadata["completed_range"] == (0, 2)

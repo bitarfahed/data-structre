@@ -15,6 +15,7 @@ from data_structures_visual_lab.domain.algorithms.validation import (
 from data_structures_visual_lab.domain.algorithms.binary_search import BinarySearchResult, binary_search
 from data_structures_visual_lab.domain.algorithms.bubble_sort import SortResult, bubble_sort
 from data_structures_visual_lab.domain.algorithms.insertion_sort import insertion_sort
+from data_structures_visual_lab.domain.algorithms.merge_sort import merge_sort
 from data_structures_visual_lab.domain.algorithms.selection_sort import selection_sort
 
 __all__ = [
@@ -28,6 +29,7 @@ __all__ = [
     "bubble_sort",
     "insertion_sort",
     "make_algorithm_step",
+    "merge_sort",
     "parse_integer_array_text",
     "selection_sort",
     "validate_ascending_sorted",

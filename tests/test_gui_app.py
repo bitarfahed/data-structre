@@ -63,6 +63,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
         (StructureKey.BUBBLE_SORT, "sort", "", "3, 1, 2"),
         (StructureKey.SELECTION_SORT, "sort", "", "3, 1, 2"),
         (StructureKey.INSERTION_SORT, "sort", "", "3, 1, 2"),
+        (StructureKey.MERGE_SORT, "sort", "", "3, 1, 2"),
     ]
 
     try:
@@ -257,6 +258,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
             (StructureKey.BUBBLE_SORT, "Bubble Sort complete."),
             (StructureKey.SELECTION_SORT, "Selection Sort complete."),
             (StructureKey.INSERTION_SORT, "Insertion Sort complete."),
+            (StructureKey.MERGE_SORT, "Merge Sort complete."),
         ):
             app.selected_structure.set(structure_key.value)
             app._show_structure_selection()
@@ -268,7 +270,8 @@ def test_gui_main_flows_for_supported_structures() -> None:
             app.index_input.set("2, 1")
             app._run_current_operation()
             assert app.canvas.find_all()
-            app.after(4200, app.quit)
+            wait_ms = 9000 if structure_key is StructureKey.MERGE_SORT else 4200
+            app.after(wait_ms, app.quit)
             app.mainloop()
             assert app.status_text.get() == final_message
 
