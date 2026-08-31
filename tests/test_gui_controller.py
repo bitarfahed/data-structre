@@ -11,6 +11,7 @@ def test_controller_lists_structures_and_operations() -> None:
         StructureKey.LINKED_LIST,
         StructureKey.DYNAMIC_ARRAY,
         StructureKey.AVL_TREE,
+        StructureKey.MIN_HEAP,
     )
     assert [operation.key for operation in controller.operations_for(StructureKey.STACK)] == [
         "push",
@@ -36,6 +37,13 @@ def test_controller_lists_structures_and_operations() -> None:
         "delete",
         "min",
         "max",
+    ]
+    assert [operation.key for operation in controller.operations_for(StructureKey.MIN_HEAP)] == [
+        "add_raw",
+        "sift_up",
+        "extract_raw",
+        "heapify_down",
+        "peek_min",
     ]
 
 
@@ -162,6 +170,7 @@ def test_controller_reset_clears_each_round_1_structure() -> None:
     controller.run_operation(StructureKey.LINKED_LIST, "push", value_text="3")
     controller.run_operation(StructureKey.DYNAMIC_ARRAY, "add", value_text="4")
     controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="5")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="6")
 
     for structure_key in controller.structure_keys():
         controller.reset_structure(structure_key)
@@ -265,3 +274,124 @@ def test_controller_reset_clears_avl_pending_rebalance_state() -> None:
     assert snapshot.tree_nodes == ()
     assert snapshot.balanced
     assert not snapshot.rebalance_pending
+
+
+def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="10")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="20")
+    result = controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="5")
+    snapshot = controller.snapshot(StructureKey.MIN_HEAP, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Raw add complete. Sift Up required before another add or extract."
+    assert not snapshot.heap_valid
+    assert snapshot.repair_pending
+    assert snapshot.repair_kind == "sift_up"
+    assert snapshot.repair_index == 2
+    assert [element.value for element in snapshot.values] == [10, 20, 5]
+    assert [node.array_index for node in snapshot.tree_nodes if node.highlighted] == [2]
+
+
+def test_controller_blocks_min_heap_mutations_while_repair_is_pending() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="10")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="20")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="5")
+
+    add_result = controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="1")
+    extract_result = controller.run_operation(StructureKey.MIN_HEAP, "extract_raw")
+
+    assert not add_result.ok
+    assert add_result.message == "Min-Heap add blocked because repair is pending."
+    assert not extract_result.ok
+    assert extract_result.message == "Min-Heap extract blocked because repair is pending."
+    assert [element.value for element in controller.snapshot(StructureKey.MIN_HEAP).values] == [10, 20, 5]
+
+
+def test_controller_runs_min_heap_sift_up_and_reenables_mutations() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="10")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="20")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="5")
+    sift_result = controller.run_operation(StructureKey.MIN_HEAP, "sift_up")
+    add_result = controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="5")
+    second_sift_result = controller.run_operation(StructureKey.MIN_HEAP, "sift_up")
+
+    assert sift_result.ok
+    assert add_result.ok
+    assert second_sift_result.ok
+    snapshot = controller.snapshot(StructureKey.MIN_HEAP)
+    assert snapshot.heap_valid
+    assert not snapshot.repair_pending
+    assert [element.value for element in snapshot.values].count(5) == 2
+
+
+def test_controller_runs_min_heap_extract_raw_and_heapify_down() -> None:
+    controller = VisualLabController()
+    for value in ("1", "3", "2", "8", "9", "4"):
+        controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text=value)
+        if controller.snapshot(StructureKey.MIN_HEAP).repair_pending:
+            controller.run_operation(StructureKey.MIN_HEAP, "sift_up")
+
+    extract_result = controller.run_operation(StructureKey.MIN_HEAP, "extract_raw")
+    extract_snapshot = controller.snapshot(StructureKey.MIN_HEAP, extract_result.steps[-1])
+    heapify_result = controller.run_operation(StructureKey.MIN_HEAP, "heapify_down")
+
+    assert extract_result.ok
+    assert extract_result.message == "Extracted 1. Heapify Down required before another add or extract."
+    assert not extract_snapshot.heap_valid
+    assert extract_snapshot.repair_kind == "heapify_down"
+    assert heapify_result.ok
+    snapshot = controller.snapshot(StructureKey.MIN_HEAP)
+    assert snapshot.heap_valid
+    assert not snapshot.repair_pending
+    assert [element.value for element in snapshot.values][0] == 2
+
+
+def test_controller_runs_min_heap_peek_min_and_empty_peek() -> None:
+    controller = VisualLabController()
+
+    empty = controller.run_operation(StructureKey.MIN_HEAP, "peek_min")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="7")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="3")
+    controller.run_operation(StructureKey.MIN_HEAP, "sift_up")
+    result = controller.run_operation(StructureKey.MIN_HEAP, "peek_min")
+
+    assert not empty.ok
+    assert empty.message == "Min-Heap peek skipped because the heap is empty."
+    assert result.ok
+    assert result.message == "Min-Heap minimum is 3."
+    snapshot = controller.snapshot(StructureKey.MIN_HEAP, result.steps[-1])
+    assert [node.array_index for node in snapshot.tree_nodes if node.highlighted] == [0]
+
+
+def test_controller_rejects_invalid_min_heap_value_input() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="abc")
+
+    assert not result.ok
+    assert result.message == "Value must be an integer."
+    assert controller.snapshot(StructureKey.MIN_HEAP).size == 0
+
+
+def test_controller_reset_clears_min_heap_repair_state() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="10")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="20")
+    controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="5")
+    assert controller.snapshot(StructureKey.MIN_HEAP).repair_pending
+
+    controller.reset_structure(StructureKey.MIN_HEAP)
+    snapshot = controller.snapshot(StructureKey.MIN_HEAP)
+
+    assert snapshot.size == 0
+    assert snapshot.values == ()
+    assert snapshot.tree_nodes == ()
+    assert snapshot.heap_valid
+    assert not snapshot.repair_pending

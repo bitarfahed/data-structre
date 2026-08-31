@@ -349,8 +349,39 @@ Important implementation direction:
 - Duplicate integer values are allowed.
 - The implementation does not use Python's `heapq`.
 
+Deferred at that step:
+
+- Min-Heap GUI controls, completed in the next pass
+- Min-Heap visualization rendering, completed in the next pass
+- Step/Event integration for Min-Heap operations
+
+## Round 2 Min-Heap GUI and Visualization
+
+Prompt goal: connect the Min-Heap to the existing GUI and visualization architecture without adding other Round 2 structures.
+
+Work completed:
+
+- Added Min-Heap to the structure-selection flow.
+- Added an educational Min-Heap explanation before the operation workspace.
+- Added GUI operations for Add Raw, Sift Up, Extract Raw, Heapify Down, Peek Min, and Restart.
+- Added Min-Heap step-emitting companion methods in the domain module for operation messages and visualization metadata.
+- Extended GUI-independent visualization state with heap validity, repair-pending state, repair index/kind, heap tree nodes, parent-child edges, and array-cell highlights.
+- Added simple Tkinter Min-Heap rendering for the tree view and the underlying array representation.
+- Updated controller, visualization-state, and GUI smoke tests for Min-Heap flows.
+
+Important implementation direction:
+
+- Min-Heap algorithms remain in the domain layer.
+- The GUI calls the controller, and the controller calls existing Min-Heap domain methods.
+- Add Raw appends without heap repair.
+- Extract Raw removes the root and applies last-element replacement without heapifying.
+- While `repair_pending` is true, Add Raw and Extract Raw are blocked and the GUI disables the Run button for those operations.
+- Sift Up repairs pending raw insertion, and Heapify Down repairs pending raw extraction.
+- Peek Min highlights the root and safely handles an empty heap.
+- Duplicate values remain allowed.
+
 Deferred intentionally:
 
-- Min-Heap GUI controls
-- Min-Heap visualization rendering
-- Step/Event integration for Min-Heap operations
+- Animated sift-up and heapify-down movement
+- Play, Next Step, and previous-step playback controls
+- Additional Round 2 structures

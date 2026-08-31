@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from data_structures_visual_lab.domain.data_structures import AVLTree, DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.domain.data_structures import AVLTree, DynamicArray, LinkedList, MinHeap, Queue, Stack
 from data_structures_visual_lab.events import Step
 from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
 
@@ -16,6 +16,7 @@ class StructureKey(str, Enum):
     LINKED_LIST = "Linked List"
     DYNAMIC_ARRAY = "Dynamic Array"
     AVL_TREE = "AVL Tree"
+    MIN_HEAP = "Min-Heap"
 
 
 @dataclass(frozen=True)
@@ -46,6 +47,10 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     StructureKey.AVL_TREE: (
         "An AVL tree is a binary search tree that tracks height and balance factor. "
         "Here, insert first behaves like a normal BST insert, then Balance restores AVL validity."
+    ),
+    StructureKey.MIN_HEAP: (
+        "A min-heap stores values in a complete binary tree where each parent is less than or equal to its children. "
+        "Here, raw add and raw extract are separated from the repair steps."
     ),
 }
 
@@ -81,6 +86,13 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
         OperationSpec("min", "min()"),
         OperationSpec("max", "max()"),
     ),
+    StructureKey.MIN_HEAP: (
+        OperationSpec("add_raw", "add_raw(value)", needs_value=True),
+        OperationSpec("sift_up", "sift_up()"),
+        OperationSpec("extract_raw", "extract_raw()"),
+        OperationSpec("heapify_down", "heapify_down()"),
+        OperationSpec("peek_min", "peek_min()"),
+    ),
 }
 
 
@@ -94,6 +106,7 @@ class VisualLabController:
             StructureKey.LINKED_LIST: LinkedList(),
             StructureKey.DYNAMIC_ARRAY: DynamicArray(),
             StructureKey.AVL_TREE: AVLTree(),
+            StructureKey.MIN_HEAP: MinHeap(),
         }
 
     def structure_keys(self) -> tuple[StructureKey, ...]:
@@ -132,8 +145,10 @@ class VisualLabController:
             self._structures[structure_key] = LinkedList()
         elif structure_key is StructureKey.DYNAMIC_ARRAY:
             self._structures[structure_key] = DynamicArray()
-        else:
+        elif structure_key is StructureKey.AVL_TREE:
             self._structures[structure_key] = AVLTree()
+        else:
+            self._structures[structure_key] = MinHeap()
 
     def run_operation(
         self,
@@ -206,6 +221,22 @@ class VisualLabController:
                 result, steps = structure.min_with_steps()
                 return OperationResult(result is not None, steps[-1].message, steps)
             result, steps = structure.max_with_steps()
+            return OperationResult(result is not None, steps[-1].message, steps)
+
+        if isinstance(structure, MinHeap):
+            if operation_key == "add_raw":
+                ok, steps = structure.add_raw_with_steps(_require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "sift_up":
+                ok, steps = structure.sift_up_with_steps()
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "extract_raw":
+                result, steps = structure.extract_raw_with_steps()
+                return OperationResult(result is not None, steps[-1].message, steps)
+            if operation_key == "heapify_down":
+                ok, steps = structure.heapify_down_with_steps()
+                return OperationResult(ok, steps[-1].message, steps)
+            result, steps = structure.peek_min_with_steps()
             return OperationResult(result is not None, steps[-1].message, steps)
 
         if operation_key == "add":

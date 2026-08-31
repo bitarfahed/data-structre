@@ -82,7 +82,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 2 Scope
 
-Round 2 begins with AVL Tree support and Min-Heap domain logic.
+Round 2 begins with AVL Tree support and Min-Heap support.
 
 Implemented:
 
@@ -106,8 +106,11 @@ Implemented:
 - `heapify_down()` as explicit post-extraction heap repair
 - `peek_min()`
 - Heap validity, repair-pending state, current size, heap values, and repair index/value inspection
+- GUI structure selection and educational explanation for Min-Heap
+- GUI operations for Add Raw, Sift Up, Extract Raw, Heapify Down, Peek Min, and Restart
+- Simple Min-Heap visualization with tree nodes, parent-child edges, array indices, an underlying array view, and repair highlighting
 
 Duplicate values are rejected. This keeps search, deletion, and educational tree diagrams unambiguous.
 Min-Heap duplicate values are allowed.
 
-Min-Heap GUI/visualization, richer AVL animation, step playback, and additional Round 2 structures remain deferred.
+Richer AVL/Min-Heap animation, step playback, and additional Round 2 structures remain deferred.

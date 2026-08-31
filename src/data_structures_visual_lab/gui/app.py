@@ -134,6 +134,10 @@ class VisualLabApp(tk.Tk):
             self._current_structure_key() is StructureKey.AVL_TREE
             and operation.key == "insert"
             and self.controller.snapshot(StructureKey.AVL_TREE).rebalance_pending
+        ) and not (
+            self._current_structure_key() is StructureKey.MIN_HEAP
+            and operation.key in {"add_raw", "extract_raw"}
+            and self.controller.snapshot(StructureKey.MIN_HEAP).repair_pending
         )
         self.run_button.configure(state=tk.NORMAL if can_run else tk.DISABLED)
 
@@ -181,8 +185,10 @@ class VisualLabApp(tk.Tk):
             self._draw_linear(state, x=40, y=145, show_arrows=True)
         elif state.structure_name == StructureKey.DYNAMIC_ARRAY.value:
             self._draw_dynamic_array(state, x=40, y=130)
-        else:
+        elif state.structure_name == StructureKey.AVL_TREE.value:
             self._draw_avl_tree(state, width)
+        else:
+            self._draw_min_heap(state, width)
 
     def _draw_stack(self, state: VisualizationState, width: int) -> None:
         cell_width = 96
@@ -305,6 +311,61 @@ class VisualLabApp(tk.Tk):
             self.canvas.create_text(x, y - 3, text=str(node.value), font=("Segoe UI", 10, "bold"))
             self.canvas.create_text(x, y + 13, text=f"bf {node.balance_factor}", fill="#333", font=("Segoe UI", 8))
             self.canvas.create_text(x, y + 34, text=f"h {node.height}", fill="#666", font=("Segoe UI", 8))
+
+    def _draw_min_heap(self, state: VisualizationState, width: int) -> None:
+        status = "VALID" if state.heap_valid else "REPAIR REQUIRED"
+        fill = "#1f6f43" if state.heap_valid else "#9f2d20"
+        self.canvas.create_text(20, 76, anchor="w", text=status, fill=fill, font=("Segoe UI", 11, "bold"))
+        if state.repair_pending:
+            repair = "Sift Up" if state.repair_kind == "sift_up" else "Heapify Down"
+            self.canvas.create_text(
+                20,
+                98,
+                anchor="w",
+                text=f"Run {repair} before adding or extracting another value.",
+                fill="#9f2d20",
+            )
+
+        if not state.tree_nodes:
+            self.canvas.create_text(width // 2, 175, text="empty", fill="#666")
+            return
+
+        positions = self._heap_positions(state, width)
+        for parent_id, child_id in state.tree_edges:
+            parent_x, parent_y = positions[parent_id]
+            child_x, child_y = positions[child_id]
+            self.canvas.create_line(parent_x, parent_y + 22, child_x, child_y - 22, fill="#555")
+
+        for node in state.tree_nodes:
+            x, y = positions[node.id]
+            node_fill = "#ffe08a" if node.highlighted else "#e8f1ff"
+            self.canvas.create_oval(x - 23, y - 23, x + 23, y + 23, fill=node_fill, outline="#2b4c7e")
+            self.canvas.create_text(x, y - 3, text=str(node.value), font=("Segoe UI", 10, "bold"))
+            self.canvas.create_text(x, y + 13, text=f"i {node.array_index}", fill="#333", font=("Segoe UI", 8))
+
+        array_y = 285
+        self.canvas.create_text(40, array_y - 28, anchor="w", text=f"array order   size: {state.size}", fill="#333")
+        x = 40
+        cell_width = 56
+        cell_height = 38
+        for element in state.values:
+            cell_fill = "#ffe08a" if element.highlighted else "#eef7ea"
+            self.canvas.create_rectangle(x, array_y, x + cell_width, array_y + cell_height, fill=cell_fill, outline="#376b39")
+            self.canvas.create_text(x + cell_width // 2, array_y + cell_height // 2, text=str(element.value))
+            self.canvas.create_text(x + cell_width // 2, array_y + cell_height + 14, text=str(element.index), fill="#555")
+            x += cell_width + 6
+
+    def _heap_positions(self, state: VisualizationState, width: int) -> dict[int, tuple[int, int]]:
+        max_depth = max(node.depth for node in state.tree_nodes)
+        positions: dict[int, tuple[int, int]] = {}
+        for node in state.tree_nodes:
+            level_start = (2**node.depth) - 1
+            position_in_level = node.id - level_start
+            slots = 2**node.depth
+            x = int(((position_in_level + 1) / (slots + 1)) * max(width - 80, 1)) + 40
+            y = 125 + node.depth * max(48, min(66, 135 // max(max_depth, 1)))
+            positions[node.id] = (x, y)
+        return positions
 
     def _clear_controls(self) -> None:
         for child in self.controls.winfo_children():

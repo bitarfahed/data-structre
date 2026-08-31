@@ -1,4 +1,4 @@
-from data_structures_visual_lab.domain.data_structures import AVLTree, DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.domain.data_structures import AVLTree, DynamicArray, LinkedList, MinHeap, Queue, Stack
 from data_structures_visual_lab.events import EventType, Step
 from data_structures_visual_lab.visualization import build_visualization_state
 
@@ -83,3 +83,23 @@ def test_avl_visualization_state_includes_nodes_edges_and_balance_data() -> None
     assert [(parent, child) for parent, child in state.tree_edges] == [(1, 0), (2, 1)]
     assert [node.value for node in state.tree_nodes if node.unbalanced] == [30]
     assert [node.value for node in state.tree_nodes if node.highlighted] == [10]
+
+
+def test_min_heap_visualization_state_includes_tree_array_and_repair_data() -> None:
+    heap = MinHeap()
+    heap.add_raw(10)
+    heap.add_raw(20)
+    _ok, steps = heap.add_raw_with_steps(5)
+
+    state = build_visualization_state("Min-Heap", heap, steps[-1])
+
+    assert state.size == 3
+    assert not state.heap_valid
+    assert state.repair_pending
+    assert state.repair_kind == "sift_up"
+    assert state.repair_index == 2
+    assert [element.value for element in state.values] == [10, 20, 5]
+    assert [element.index for element in state.values if element.highlighted] == [2]
+    assert [node.array_index for node in state.tree_nodes] == [0, 1, 2]
+    assert state.tree_edges == ((0, 1), (0, 2))
+    assert [node.array_index for node in state.tree_nodes if node.highlighted] == [2]

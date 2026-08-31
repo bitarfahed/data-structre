@@ -2,7 +2,15 @@
 
 from dataclasses import dataclass
 
-from data_structures_visual_lab.domain.data_structures import AVLNode, AVLTree, DynamicArray, LinkedList, Queue, Stack
+from data_structures_visual_lab.domain.data_structures import (
+    AVLNode,
+    AVLTree,
+    DynamicArray,
+    LinkedList,
+    MinHeap,
+    Queue,
+    Stack,
+)
 from data_structures_visual_lab.events import EventType, Step
 
 
@@ -24,8 +32,9 @@ class VisualTreeNode:
     value: int
     depth: int
     order: int
-    height: int
-    balance_factor: int
+    height: int | None = None
+    balance_factor: int | None = None
+    array_index: int | None = None
     highlighted: bool = False
     unbalanced: bool = False
 
@@ -45,11 +54,15 @@ class VisualizationState:
     tree_edges: tuple[tuple[int, int], ...] = ()
     balanced: bool | None = None
     rebalance_pending: bool = False
+    heap_valid: bool | None = None
+    repair_pending: bool = False
+    repair_index: int | None = None
+    repair_kind: str | None = None
 
 
 def build_visualization_state(
     structure_name: str,
-    structure: Stack | Queue | LinkedList | DynamicArray | AVLTree,
+    structure: Stack | Queue | LinkedList | DynamicArray | AVLTree | MinHeap,
     step: Step | None = None,
 ) -> VisualizationState:
     """Build a renderer-friendly state from a domain structure and optional step."""
@@ -77,6 +90,33 @@ def build_visualization_state(
             tree_edges=edges,
             balanced=structure.is_balanced(),
             rebalance_pending=structure.rebalance_pending,
+        )
+
+    if isinstance(structure, MinHeap):
+        values = _values_from_metadata(metadata, structure.to_list())
+        highlight_indexes = _heap_highlight_indexes(metadata)
+        nodes, edges = _heap_nodes_and_edges(values, highlight_indexes)
+        elements = tuple(
+            VisualElement(
+                index=index,
+                value=value,
+                highlighted=index in highlight_indexes,
+            )
+            for index, value in enumerate(values)
+        )
+        return VisualizationState(
+            structure_name=structure_name,
+            values=elements,
+            message=message,
+            size=len(values),
+            event_type=step.event_type if step is not None else None,
+            metadata=metadata,
+            tree_nodes=nodes,
+            tree_edges=edges,
+            heap_valid=structure.is_valid_heap(),
+            repair_pending=structure.repair_pending,
+            repair_index=structure.repair_index,
+            repair_kind=structure.repair_kind,
         )
 
     if isinstance(structure, DynamicArray):
@@ -127,6 +167,17 @@ def _highlight_indexes(metadata: dict[str, object]) -> set[int]:
         value = metadata.get(key)
         if type(value) is int:
             indexes.add(value)
+    return indexes
+
+
+def _heap_highlight_indexes(metadata: dict[str, object]) -> set[int]:
+    indexes = _highlight_indexes(metadata)
+    value = metadata.get("repair_index")
+    if type(value) is int:
+        indexes.add(value)
+    listed_indexes = metadata.get("highlight_indexes")
+    if isinstance(listed_indexes, list):
+        indexes.update(index for index in listed_indexes if type(index) is int)
     return indexes
 
 
@@ -215,3 +266,37 @@ def _tree_nodes_and_edges(
 
     visit(root, 0)
     return tuple(nodes), tuple(edges)
+
+
+def _heap_nodes_and_edges(
+    values: list[int],
+    highlight_indexes: set[int],
+) -> tuple[tuple[VisualTreeNode, ...], tuple[tuple[int, int], ...]]:
+    nodes = tuple(
+        VisualTreeNode(
+            id=index,
+            value=value,
+            depth=_heap_depth(index),
+            order=index,
+            array_index=index,
+            highlighted=index in highlight_indexes,
+        )
+        for index, value in enumerate(values)
+    )
+    edges = []
+    for index in range(len(values)):
+        left_index = 2 * index + 1
+        right_index = 2 * index + 2
+        if left_index < len(values):
+            edges.append((index, left_index))
+        if right_index < len(values):
+            edges.append((index, right_index))
+    return nodes, tuple(edges)
+
+
+def _heap_depth(index: int) -> int:
+    depth = 0
+    while index > 0:
+        index = (index - 1) // 2
+        depth += 1
+    return depth

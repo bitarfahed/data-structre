@@ -40,6 +40,15 @@ def test_gui_main_flows_for_supported_structures() -> None:
         (StructureKey.AVL_TREE, "min", "", ""),
         (StructureKey.AVL_TREE, "max", "", ""),
         (StructureKey.AVL_TREE, "delete", "20", ""),
+        (StructureKey.MIN_HEAP, "add_raw", "10", ""),
+        (StructureKey.MIN_HEAP, "add_raw", "20", ""),
+        (StructureKey.MIN_HEAP, "add_raw", "5", ""),
+        (StructureKey.MIN_HEAP, "sift_up", "", ""),
+        (StructureKey.MIN_HEAP, "add_raw", "5", ""),
+        (StructureKey.MIN_HEAP, "sift_up", "", ""),
+        (StructureKey.MIN_HEAP, "peek_min", "", ""),
+        (StructureKey.MIN_HEAP, "extract_raw", "", ""),
+        (StructureKey.MIN_HEAP, "heapify_down", "", ""),
     ]
 
     try:
@@ -91,6 +100,33 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert not app.controller.snapshot(StructureKey.AVL_TREE).rebalance_pending
         app._restart_structure()
         assert app.controller.snapshot(StructureKey.AVL_TREE).size == 0
+
+        app.selected_structure.set(StructureKey.MIN_HEAP.value)
+        app._show_structure_selection()
+        assert "min-heap" in app.explanation_label.cget("text").lower()
+        app._show_operations()
+        for value in ("10", "20", "5"):
+            app.selected_operation.set("add_raw")
+            app._refresh_operation_fields()
+            app.value_input.set(value)
+            app._run_current_operation()
+        assert str(app.run_button.cget("state")) == tk.DISABLED
+        assert app.controller.snapshot(StructureKey.MIN_HEAP).repair_pending
+        app.selected_operation.set("sift_up")
+        app._refresh_operation_fields()
+        assert str(app.run_button.cget("state")) == tk.NORMAL
+        app._run_current_operation()
+        assert not app.controller.snapshot(StructureKey.MIN_HEAP).repair_pending
+        app.selected_operation.set("extract_raw")
+        app._refresh_operation_fields()
+        app._run_current_operation()
+        assert app.controller.snapshot(StructureKey.MIN_HEAP).repair_pending
+        app.selected_operation.set("heapify_down")
+        app._refresh_operation_fields()
+        app._run_current_operation()
+        assert not app.controller.snapshot(StructureKey.MIN_HEAP).repair_pending
+        app._restart_structure()
+        assert app.controller.snapshot(StructureKey.MIN_HEAP).size == 0
 
         app.selected_structure.set(StructureKey.STACK.value)
         app._show_operations()
