@@ -29,6 +29,7 @@ class VisualLabApp(tk.Tk):
         self.selected_operation = tk.StringVar()
         self.value_input = tk.StringVar()
         self.index_input = tk.StringVar()
+        self.array_input = tk.StringVar()
         self.status_text = tk.StringVar(value="Choose a structure to begin.")
         self._algorithm_after_id: str | None = None
 
@@ -121,6 +122,8 @@ class VisualLabApp(tk.Tk):
         self.value_entry = ttk.Entry(self.controls, width=10, textvariable=self.value_input)
         self.index_label = ttk.Label(self.controls, text="Index")
         self.index_entry = ttk.Entry(self.controls, width=10, textvariable=self.index_input)
+        self.array_label = ttk.Label(self.controls, text="Array")
+        self.array_entry = ttk.Entry(self.controls, width=34, textvariable=self.array_input)
         self.run_button = ttk.Button(self.controls, text="Run", command=self._run_current_operation)
         self.restart_button = ttk.Button(self.controls, text="Restart", command=self._restart_structure)
 
@@ -134,10 +137,13 @@ class VisualLabApp(tk.Tk):
         self.value_entry.grid_remove()
         self.index_label.grid_remove()
         self.index_entry.grid_remove()
+        self.array_label.grid_remove()
+        self.array_entry.grid_remove()
         self.value_label.configure(text=operation.value_label)
         self.index_label.configure(text=operation.index_label)
         self.value_entry.configure(width=10)
-        self.index_entry.configure(width=34 if operation.index_input_kind == "array" else 10)
+        self.index_entry.configure(width=10)
+        self.array_label.configure(text=operation.index_label)
 
         column = 2
         if operation.needs_value:
@@ -145,8 +151,12 @@ class VisualLabApp(tk.Tk):
             self.value_entry.grid(row=0, column=column + 1, padx=(0, 10))
             column += 2
         if operation.needs_index:
-            self.index_label.grid(row=0, column=column, padx=(0, 4))
-            self.index_entry.grid(row=0, column=column + 1, padx=(0, 10))
+            if operation.index_input_kind == "array":
+                self.array_label.grid(row=0, column=column, padx=(0, 4))
+                self.array_entry.grid(row=0, column=column + 1, padx=(0, 10))
+            else:
+                self.index_label.grid(row=0, column=column, padx=(0, 4))
+                self.index_entry.grid(row=0, column=column + 1, padx=(0, 10))
 
         can_run = not (
             self._current_structure_key() is StructureKey.AVL_TREE
@@ -176,7 +186,7 @@ class VisualLabApp(tk.Tk):
             structure_key,
             operation_key,
             value_text=self.value_input.get(),
-            index_text=self.index_input.get(),
+            index_text=self._current_index_text(),
         )
 
         if not result.steps:
@@ -199,6 +209,7 @@ class VisualLabApp(tk.Tk):
         self.selected_operation.set("")
         self.value_input.set("")
         self.index_input.set("")
+        self.array_input.set("")
         self.status_text.set(f"{structure_key.value} reset to empty.")
         self._show_operations()
         self._draw_state(self.controller.snapshot(structure_key))
@@ -666,6 +677,12 @@ class VisualLabApp(tk.Tk):
             self._current_structure_key(),
             self.selected_operation.get(),
         )
+
+    def _current_index_text(self) -> str:
+        operation = self._current_operation()
+        if operation.index_input_kind == "array":
+            return self.array_input.get()
+        return self.index_input.get()
 
 
 def launch() -> None:

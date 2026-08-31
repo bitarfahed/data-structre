@@ -763,3 +763,26 @@ Important implementation direction:
 - No sorting or searching logic was duplicated in the GUI.
 - Existing Round 3 parsing and validation rules remain the source of truth.
 - Sample values are not used as algorithm inputs.
+
+## Binary Search GUI Input Integration Fix
+
+Prompt goal: fix Binary Search so clicking Run consumes the editable array field and target field.
+
+Work completed:
+
+- Inspected the Binary Search GUI and controller flow.
+- Added a dedicated `array_input` state variable and `array_entry` widget for algorithm array input.
+- Changed Run handling to pass the dedicated Array field text to the existing controller parser.
+- Kept the Target field separate through the existing value input path.
+- Updated GUI tests so algorithm screens use the actual Array field instead of the generic index input field.
+- Added a regression test proving Binary Search ignores stale generic index text and uses the editable Array field.
+
+Root cause:
+
+- Algorithm screens visually treated the generic index entry as an Array field. This made the controller path work in direct tests, but the GUI did not have a dedicated array input source. The fix makes the array field explicit and routes it on Run.
+
+Important implementation direction:
+
+- Binary Search algorithm logic was not changed.
+- Sorting/searching logic was not duplicated in the GUI.
+- Binary Search still requires ascending sorted input and rejects unsorted arrays.

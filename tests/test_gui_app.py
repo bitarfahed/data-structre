@@ -13,6 +13,31 @@ def create_app_or_skip() -> VisualLabApp:
         pytest.skip(f"Tkinter is not available: {error}")
 
 
+def test_binary_search_gui_uses_editable_array_field() -> None:
+    app = create_app_or_skip()
+    try:
+        app.update()
+        app.selected_structure.set(StructureKey.BINARY_SEARCH.value)
+        app._show_structure_selection()
+        app._show_operations()
+        app.selected_operation.set("search")
+        app._refresh_operation_fields()
+
+        app.value_input.set("7")
+        app.array_input.set("1, 3, 5, 7, 9")
+        app.index_input.set("not the algorithm array")
+        app._run_current_operation()
+
+        app.after(2600, app.quit)
+        app.mainloop()
+
+        assert app.status_text.get() == "Found target 7 at index 3."
+        assert app.array_input.get() == "1, 3, 5, 7, 9"
+        assert app.canvas.find_all()
+    finally:
+        app.destroy()
+
+
 def test_gui_main_flows_for_supported_structures() -> None:
     app = create_app_or_skip()
     flows = [
@@ -86,7 +111,10 @@ def test_gui_main_flows_for_supported_structures() -> None:
             app.selected_operation.set(operation)
             app._refresh_operation_fields()
             app.value_input.set(value)
-            app.index_input.set(index)
+            if app._current_operation().index_input_kind == "array":
+                app.array_input.set(index)
+            else:
+                app.index_input.set(index)
             app._run_current_operation()
 
             assert app.canvas.find_all()
@@ -97,6 +125,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app._restart_structure()
         assert app.value_input.get() == ""
         assert app.index_input.get() == ""
+        assert app.array_input.get() == ""
         assert app.status_text.get() == "Choose an operation and enter the required integer inputs."
         assert app.controller.snapshot(StructureKey.DYNAMIC_ARRAY).size == 0
         assert app.controller.snapshot(StructureKey.DYNAMIC_ARRAY).capacity == 1
@@ -228,13 +257,13 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert "binary search" in app.explanation_label.cget("text").lower()
         app._show_operations()
         assert app.value_label.cget("text") == "Target"
-        assert app.index_label.cget("text") == "Array"
-        assert int(app.index_entry.cget("width")) == 34
+        assert app.array_label.cget("text") == "Array"
+        assert int(app.array_entry.cget("width")) == 34
         assert app.status_text.get() == "Enter comma-separated integers, then run the algorithm."
         app.selected_operation.set("search")
         app._refresh_operation_fields()
         app.value_input.set("7")
-        app.index_input.set("1, 3, 5, 7, 9")
+        app.array_input.set("1, 3, 5, 7, 9")
         app._run_current_operation()
         assert app.canvas.find_all()
         app.after(2600, app.quit)
@@ -242,17 +271,17 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert "Found target 7 at index 3." in app.status_text.get()
 
         app.value_input.set("3")
-        app.index_input.set("1, 4, 3")
+        app.array_input.set("1, 4, 3")
         app._run_current_operation()
         assert app.status_text.get() == "Binary Search requires ascending sorted input."
 
         app.value_input.set("5")
-        app.index_input.set("")
+        app.array_input.set("")
         app._run_current_operation()
         assert app.status_text.get() == "Target 5 was not found."
 
         app.value_input.set("5")
-        app.index_input.set("5")
+        app.array_input.set("5")
         app._run_current_operation()
         app.after(1200, app.quit)
         app.mainloop()
@@ -270,12 +299,12 @@ def test_gui_main_flows_for_supported_structures() -> None:
             app._show_structure_selection()
             assert "sort" in app.explanation_label.cget("text").lower()
             app._show_operations()
-            assert app.index_label.cget("text") == "Array"
-            assert int(app.index_entry.cget("width")) == 34
+            assert app.array_label.cget("text") == "Array"
+            assert int(app.array_entry.cget("width")) == 34
             assert app.status_text.get() == "Enter comma-separated integers, then run the algorithm."
             app.selected_operation.set("sort")
             app._refresh_operation_fields()
-            app.index_input.set("2, 1")
+            app.array_input.set("2, 1")
             app._run_current_operation()
             assert app.canvas.find_all()
             wait_ms = 9000 if structure_key in {
@@ -287,7 +316,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
             app.mainloop()
             assert app.status_text.get() == final_message
 
-            app.index_input.set("4, bad, 2")
+            app.array_input.set("4, bad, 2")
             app._run_current_operation()
             assert app.status_text.get() == "Array values must be integers."
 
