@@ -58,7 +58,7 @@ The project foundation is in place:
 - Planning and development-process documentation
 
 Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
-Round 3 has started with Binary Search, Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort, and shared array-algorithm infrastructure.
+Round 3 is implemented and QA-verified for Binary Search, Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort, and shared array-algorithm infrastructure.
 
 ## Round 1 Status
 
@@ -117,7 +117,9 @@ Known limitations:
 
 ## Round 3 Status
 
-Round 3 has started. Implemented:
+Round 3 is stable enough to close.
+
+Implemented and QA-verified:
 
 - Shared execution-state and step representations for future array-based searching and sorting algorithms
 - Metadata support for comparisons, swaps, current indices, current ranges, pivots, merge ranges, found/not-found results, and completed state
@@ -133,4 +135,27 @@ Round 3 has started. Implemented:
 - Heap Sort domain logic using in-place Max-Heap construction and root extraction
 - Heap Sort GUI selection, array input, automatic visual step progression, active heap range display, parent/child comparison highlighting, root swap updates, sorted suffix display, and final sorted output
 
-Additional searching and sorting algorithms are not implemented yet.
+Simplified educational decisions:
+
+- Round 3 algorithms accept integers only.
+- Empty arrays and single-element arrays are valid and handled safely.
+- Duplicate and negative integer values are allowed.
+- Binary Search requires ascending sorted input and rejects unsorted input instead of sorting it.
+- Visualizations target small educational arrays and use simple automatic progression.
+
+Production-oriented alternatives intentionally deferred:
+
+- Descending-order Binary Search
+- Automatically sorting before Binary Search
+- Returning first, last, or all duplicate search matches
+- Randomized or median-of-three Quick Sort pivots
+- 3-way Quick Sort partitioning
+- Recursion-depth fallbacks
+- Large-array pagination or virtualization
+- Generic comparable types
+
+Known limitations:
+
+- Additional searching and sorting algorithms are not implemented yet.
+- The GUI does not provide Play, Next Step, Previous Step, or detailed animation controls.
+- The visualizer is intended for small learning examples rather than large production-sized arrays.

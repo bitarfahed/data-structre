@@ -711,3 +711,32 @@ Deferred intentionally:
 - Additional searching and sorting algorithms
 - Manual Play and Next Step controls
 - Advanced large-array visualization infrastructure
+
+## Round 3 Final QA and Stabilization
+
+Prompt goal: perform final QA across Binary Search, Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort, shared algorithm infrastructure, GUI/controller integration, and compatibility with Rounds 1 and 2.
+
+Work completed:
+
+- Inspected the current repository state, Round 3 documentation, GUI/controller code, visualization state, and algorithm modules.
+- Ran the full automated pytest suite.
+- Launched the Tkinter GUI and manually drove all Round 3 algorithms through their main flows.
+- Verified Binary Search found/not-found behavior, duplicate handling, empty and single-element arrays, unsorted input rejection, and low/mid/high visualization state.
+- Verified Bubble Sort, Selection Sort, and Insertion Sort with normal, duplicate, already sorted, reverse-sorted, and negative-integer inputs.
+- Verified Merge Sort recursive splitting, odd/even arrays, merge behavior, duplicate handling, and final sorted output.
+- Verified Quick Sort last-element pivot behavior, pivot placement, duplicates, sorted/reverse-sorted inputs, and partition visualization.
+- Verified Heap Sort Max-Heap construction, heapify behavior, shrinking active heap region, growing sorted suffix, and final sorted output.
+- Checked that algorithm and event layers still do not import GUI or Tkinter code.
+- Updated README and plan documentation to record Round 3 as stable enough to close.
+
+QA result:
+
+- No product bugs were found during this pass.
+- No dead code or unnecessary duplication was removed.
+- Round 3 is stable enough to close.
+
+Remaining limitations:
+
+- Additional searching and sorting algorithms remain deferred.
+- Visualizations remain simple automatic step progressions without Play, Next Step, Previous Step, or detailed animation controls.
+- Production-oriented variants such as randomized pivots, median-of-three pivots, 3-way partitioning, recursion fallbacks, large-array virtualization, and generic comparable values remain intentionally outside this educational round.

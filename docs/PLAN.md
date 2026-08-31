@@ -244,3 +244,27 @@ Stronger alternatives not chosen for this learning round:
 - A generic algorithm library could accept floats, strings, or custom comparable values, but integer-only input keeps Round 3 consistent with the existing project.
 
 More advanced sorting variants and additional algorithms remain deferred.
+
+## Round 3 QA Result
+
+Round 3 is stable enough to close.
+
+The final QA pass verified:
+
+- Binary Search sorted-input behavior, found and not-found results, duplicates, empty arrays, single-element arrays, unsorted input rejection, and low/mid/high visualization state
+- Bubble Sort comparison, swap, sorted-suffix behavior, and GUI visualization across normal, duplicate, sorted, reverse-sorted, and negative-integer inputs
+- Selection Sort current-position, minimum-candidate, comparison, swap behavior, and GUI visualization across the agreed Round 3 sort inputs
+- Insertion Sort current-value, sorted-prefix comparison, shift, insertion behavior, and GUI visualization across the agreed Round 3 sort inputs
+- Merge Sort recursive splitting, odd/even lengths, merge comparisons, appended values, duplicate handling, final sorted result, and split/merge visualization state
+- Quick Sort deterministic last-element pivot choice, Lomuto partitioning, pivot placement, duplicate handling, sorted/reverse-sorted inputs, and partition visualization state
+- Heap Sort Max-Heap construction, heapify-down behavior, active heap shrinkage, sorted suffix growth, and final sorted result
+- Existing Round 1 and Round 2 automated coverage
+- Algorithm and event layers remaining independent from GUI code
+
+Remaining limitations are intentionally deferred:
+
+- Additional searching and sorting algorithms
+- Play, Next Step, Previous Step, or detailed animation controls
+- Production-oriented pivot strategies and recursion-depth fallbacks
+- Large-array pagination, limits, or virtualization
+- Generic comparable values beyond integers
