@@ -82,10 +82,18 @@ Remaining limitations are intentionally deferred:
 
 ## Round 2 Scope
 
-Round 2 begins with AVL Tree, Min-Heap, and Hash Table support.
+Round 2 begins with AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
 
 Implemented:
 
+- `TwoThreeNode`
+- `TwoThreeNodeSnapshot`
+- `TwoThreeTree`
+- `insert_raw(value)` as leaf insertion without split/promotion repair
+- `repair()` as explicit split and key-promotion repair
+- `search(value)`
+- Pending-repair state that blocks additional insertions while a node is overflowing
+- Node keys, child relationships, tree validity, and overflowing-node inspection
 - `AVLNode`
 - `AVLTree`
 - `insert(value)` as normal BST insertion only
@@ -124,5 +132,6 @@ Implemented:
 AVL Tree duplicate values are rejected. This keeps search, deletion, and educational tree diagrams unambiguous.
 Min-Heap duplicate values are allowed.
 Hash Table duplicate keys update the existing value.
+2-3 Tree duplicate values are rejected.
 
-Hash Table resizing, richer AVL/Min-Heap animation, step playback, and additional Round 2 structures remain deferred.
+2-3 Tree GUI/visualization, Hash Table resizing, richer AVL/Min-Heap animation, step playback, and additional Round 2 structures remain deferred.

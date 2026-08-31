@@ -7,6 +7,11 @@ from data_structures_visual_lab.domain.data_structures.linked_list import Linked
 from data_structures_visual_lab.domain.data_structures.min_heap import MinHeap
 from data_structures_visual_lab.domain.data_structures.queue import Queue
 from data_structures_visual_lab.domain.data_structures.stack import Stack
+from data_structures_visual_lab.domain.data_structures.two_three_tree import (
+    TwoThreeNode,
+    TwoThreeNodeSnapshot,
+    TwoThreeTree,
+)
 
 __all__ = [
     "AVLNode",
@@ -19,4 +24,7 @@ __all__ = [
     "Node",
     "Queue",
     "Stack",
+    "TwoThreeNode",
+    "TwoThreeNodeSnapshot",
+    "TwoThreeTree",
 ]

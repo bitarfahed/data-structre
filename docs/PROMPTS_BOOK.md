@@ -416,3 +416,30 @@ Deferred intentionally:
 - Automatic resizing
 - Animated collision traversal
 - Additional Round 2 structures
+
+## Round 2 2-3 Tree Domain Logic
+
+Prompt goal: implement 2-3 Tree domain logic while preserving the current architecture and keeping 2-3 Tree GUI/visualization work deferred.
+
+Work completed:
+
+- Added `TwoThreeNode`, `TwoThreeNodeSnapshot`, and `TwoThreeTree` in a dedicated data-structure module.
+- Exported 2-3 Tree classes from the data-structures package.
+- Added package smoke-test coverage for the 2-3 Tree module.
+- Added pytest coverage for empty-tree insertion, insertion into 2-nodes, leaf overflow, split behavior, key promotion, root split, upward split propagation, pending repair state, blocked insertion while repair is pending, search, duplicate handling, invalid input, repeated insert/repair cycles, node snapshots, and 2-3 Tree invariants after repair.
+
+Important implementation direction:
+
+- `insert_raw(value)` descends to the appropriate leaf and inserts without completing split/promotion repair.
+- If a node has three keys after raw insertion, `repair_pending` becomes `True`.
+- Additional raw insertions return `False` while repair is pending.
+- `repair()` splits overflowing nodes, promotes the middle key, propagates repair upward when needed, and may create a new root.
+- Duplicate integer values are rejected by returning `False`.
+- Values must be integers, and `bool` is rejected even though it subclasses `int` in Python.
+- Public snapshots expose node keys, child ids, parent ids, and overflowing-node state for future visualization.
+
+Deferred intentionally:
+
+- 2-3 Tree GUI controls
+- 2-3 Tree visualization rendering
+- Step/Event integration for 2-3 Tree operations
