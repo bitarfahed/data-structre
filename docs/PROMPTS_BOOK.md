@@ -559,8 +559,37 @@ Documented alternatives intentionally not chosen:
 - Large-array GUI limits, pagination, or virtualization
 - Generic comparable types instead of integers only
 
+Deferred at this step:
+
+- Binary Search implementation, completed in the next pass
+- Sorting algorithm implementations
+- Round 3 GUI integration for Binary Search, completed in the next pass
+
+## Round 3 Binary Search with GUI Visualization
+
+Prompt goal: implement Binary Search as the first Round 3 algorithm and connect it to the existing GUI without adding sorting algorithms.
+
+Work completed:
+
+- Added `binary_search(values, target)` in its own algorithm module.
+- Added `BinarySearchResult` for the algorithm result, found index, message, and execution steps.
+- Reused Round 3 validation to require integer arrays and ascending sorted input.
+- Added Binary Search to the GUI under Algorithms / Searching.
+- Added array and target inputs using the existing simple Run workflow.
+- Added automatic visual progression through Binary Search steps.
+- Added array-cell visualization with indices, active range, low/mid/high labels, discarded-range highlighting, and found/not-found status.
+- Added pytest coverage for found, not found, first/last positions, duplicates, empty arrays, single-element arrays, unsorted input rejection, invalid input, step metadata, controller behavior, visualization state, package imports, and GUI smoke flow.
+
+Important implementation direction:
+
+- Binary Search logic remains in the domain algorithms package.
+- The GUI does not sort input and does not duplicate the search loop.
+- Duplicates are allowed, and the algorithm returns one matching occurrence.
+- Empty and single-element arrays are handled safely.
+
 Deferred intentionally:
 
-- Binary Search implementation
-- Sorting algorithm implementations
-- Round 3 GUI integration
+- Sorting algorithms
+- Manual Play and Next Step controls
+- Descending-array Binary Search
+- Returning first, last, or all duplicate matches

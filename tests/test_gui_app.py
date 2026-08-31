@@ -59,6 +59,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
         (StructureKey.TWO_THREE_TREE, "insert_raw", "15", ""),
         (StructureKey.TWO_THREE_TREE, "repair", "", ""),
         (StructureKey.TWO_THREE_TREE, "search", "10", ""),
+        (StructureKey.BINARY_SEARCH, "search", "7", "1, 3, 5, 7, 9"),
     ]
 
     try:
@@ -215,6 +216,39 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert "search found 11" in app.status_text.get()
         app._restart_structure()
         assert app.controller.snapshot(StructureKey.TWO_THREE_TREE).size == 0
+
+        app.selected_structure.set(StructureKey.BINARY_SEARCH.value)
+        app._show_structure_selection()
+        assert "binary search" in app.explanation_label.cget("text").lower()
+        app._show_operations()
+        assert app.value_label.cget("text") == "Target"
+        assert app.index_label.cget("text") == "Array"
+        app.selected_operation.set("search")
+        app._refresh_operation_fields()
+        app.value_input.set("7")
+        app.index_input.set("1, 3, 5, 7, 9")
+        app._run_current_operation()
+        assert app.canvas.find_all()
+        app.after(2600, app.quit)
+        app.mainloop()
+        assert "Found target 7 at index 3." in app.status_text.get()
+
+        app.value_input.set("3")
+        app.index_input.set("1, 4, 3")
+        app._run_current_operation()
+        assert app.status_text.get() == "Binary Search requires ascending sorted input."
+
+        app.value_input.set("5")
+        app.index_input.set("")
+        app._run_current_operation()
+        assert app.status_text.get() == "Target 5 was not found."
+
+        app.value_input.set("5")
+        app.index_input.set("5")
+        app._run_current_operation()
+        app.after(1200, app.quit)
+        app.mainloop()
+        assert app.status_text.get() == "Found target 5 at index 0."
 
         app.selected_structure.set(StructureKey.STACK.value)
         app._show_operations()

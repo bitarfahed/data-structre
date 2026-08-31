@@ -14,6 +14,7 @@ def test_controller_lists_structures_and_operations() -> None:
         StructureKey.MIN_HEAP,
         StructureKey.HASH_TABLE,
         StructureKey.TWO_THREE_TREE,
+        StructureKey.BINARY_SEARCH,
     )
     assert [operation.key for operation in controller.operations_for(StructureKey.STACK)] == [
         "push",
@@ -55,6 +56,9 @@ def test_controller_lists_structures_and_operations() -> None:
     assert [operation.key for operation in controller.operations_for(StructureKey.TWO_THREE_TREE)] == [
         "insert_raw",
         "repair",
+        "search",
+    ]
+    assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "search",
     ]
 
@@ -605,3 +609,55 @@ def test_controller_reset_clears_min_heap_repair_state() -> None:
     assert snapshot.tree_nodes == ()
     assert snapshot.heap_valid
     assert not snapshot.repair_pending
+
+
+def test_controller_runs_binary_search_and_exposes_algorithm_steps() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(
+        StructureKey.BINARY_SEARCH,
+        "search",
+        value_text="7",
+        index_text="1, 3, 5, 7, 9",
+    )
+
+    assert result.ok
+    assert result.message == "Found target 7 at index 3."
+    assert result.steps[-1].state.found_index == 3  # type: ignore[union-attr]
+
+
+def test_controller_rejects_unsorted_binary_search_input() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(
+        StructureKey.BINARY_SEARCH,
+        "search",
+        value_text="3",
+        index_text="1, 4, 3",
+    )
+
+    assert not result.ok
+    assert result.message == "Binary Search requires ascending sorted input."
+    assert result.steps == []
+
+
+def test_controller_rejects_invalid_binary_search_inputs() -> None:
+    controller = VisualLabController()
+
+    invalid_array = controller.run_operation(
+        StructureKey.BINARY_SEARCH,
+        "search",
+        value_text="3",
+        index_text="1, no",
+    )
+    invalid_target = controller.run_operation(
+        StructureKey.BINARY_SEARCH,
+        "search",
+        value_text="no",
+        index_text="1, 2",
+    )
+
+    assert not invalid_array.ok
+    assert invalid_array.message == "Array values must be integers."
+    assert not invalid_target.ok
+    assert invalid_target.message == "Value must be an integer."

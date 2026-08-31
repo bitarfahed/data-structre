@@ -7,6 +7,7 @@ from data_structures_visual_lab.visualization.state import (
     VisualMultiKeyTreeNode,
     VisualTreeNode,
     VisualizationState,
+    build_algorithm_visualization_state,
     build_visualization_state,
 )
 
@@ -17,5 +18,6 @@ __all__ = [
     "VisualMultiKeyTreeNode",
     "VisualTreeNode",
     "VisualizationState",
+    "build_algorithm_visualization_state",
     "build_visualization_state",
 ]

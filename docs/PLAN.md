@@ -162,7 +162,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 3 Scope
 
-Round 3 starts with shared infrastructure for future array-based searching and sorting algorithms. The current step adds:
+Round 3 starts with Binary Search and shared infrastructure for future array-based searching and sorting algorithms. The current work adds:
 
 - `AlgorithmEventType`
 - `AlgorithmState`
@@ -172,10 +172,20 @@ Round 3 starts with shared infrastructure for future array-based searching and s
 - `validate_integer_array(...)`
 - `parse_integer_array_text(...)`
 - `validate_ascending_sorted(...)`
+- `binary_search(values, target)`
+- Binary Search GUI flow under Algorithms / Searching
 
-This infrastructure is domain-only. It does not import GUI code, choose a renderer, or implement Binary Search or sorting algorithms yet.
+The algorithm logic is domain-only. It does not import GUI code or choose a renderer. Sorting algorithms are not implemented yet.
 
-The execution state is intended to support future visualization of comparisons, swaps, current indices, active ranges, pivots, merge ranges, found/not-found results, and completed states. Algorithms may later return step lists or yield steps from generators depending on what best fits the algorithm.
+The execution state supports visualization of comparisons, swaps, current indices, active ranges, pivots, merge ranges, found/not-found results, and completed states. Binary Search returns a step list; future algorithms may return step lists or yield steps from generators depending on what best fits the algorithm.
+
+Binary Search GUI behavior:
+
+- User selects Binary Search under Algorithms / Searching.
+- User enters a comma-separated integer array and an integer target.
+- The array must already be sorted in ascending order.
+- The canvas displays indexed cells, the active search range, low/mid/high labels, discarded ranges, and final found/not-found status.
+- The GUI progresses through generated Binary Search steps automatically without Play or Next Step controls.
 
 ## Round 3 Edge Cases
 
@@ -204,4 +214,4 @@ Stronger alternatives not chosen for this learning round:
 - A production GUI could add large-array limits, pagination, or virtualization, but those controls are outside the current learning core.
 - A generic algorithm library could accept floats, strings, or custom comparable values, but integer-only input keeps Round 3 consistent with the existing project.
 
-Binary Search, sorting algorithms, and GUI integration remain deferred.
+Sorting algorithms remain deferred.

@@ -58,7 +58,7 @@ The project foundation is in place:
 - Planning and development-process documentation
 
 Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
-Round 3 infrastructure has started for future array-based searching and sorting algorithms.
+Round 3 has started with Binary Search and shared infrastructure for future array-based sorting algorithms.
 
 ## Round 1 Status
 
@@ -117,11 +117,12 @@ Known limitations:
 
 ## Round 3 Status
 
-Round 3 infrastructure has started. Implemented:
+Round 3 has started. Implemented:
 
 - Shared execution-state and step representations for future array-based searching and sorting algorithms
 - Metadata support for comparisons, swaps, current indices, current ranges, pivots, merge ranges, found/not-found results, and completed state
 - Shared integer-array validation helpers
-- Ascending sorted-input validation for future Binary Search
+- Binary Search domain logic with ascending sorted-input validation
+- Binary Search GUI selection, array/target inputs, automatic visual step progression, active range display, low/mid/high labels, discarded-range highlighting, and found/not-found status
 
-No Round 3 algorithms or GUI screens are implemented yet.
+Sorting algorithms are not implemented yet.

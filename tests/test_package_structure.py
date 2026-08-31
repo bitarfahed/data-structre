@@ -14,6 +14,7 @@ def test_package_layers_import() -> None:
         "data_structures_visual_lab.domain.data_structures.min_heap",
         "data_structures_visual_lab.domain.data_structures.two_three_tree",
         "data_structures_visual_lab.domain.algorithms",
+        "data_structures_visual_lab.domain.algorithms.binary_search",
         "data_structures_visual_lab.domain.algorithms.state",
         "data_structures_visual_lab.domain.algorithms.validation",
         "data_structures_visual_lab.events",

@@ -8,8 +8,9 @@ from data_structures_visual_lab.domain.data_structures import (
     Stack,
     TwoThreeTree,
 )
+from data_structures_visual_lab.domain.algorithms import binary_search
 from data_structures_visual_lab.events import EventType, Step
-from data_structures_visual_lab.visualization import build_visualization_state
+from data_structures_visual_lab.visualization import build_algorithm_visualization_state, build_visualization_state
 
 
 def test_stack_visualization_state_marks_highlighted_index() -> None:
@@ -144,6 +145,22 @@ def test_hash_table_visualization_state_highlights_all_duplicate_matches() -> No
     assert state.bucket_index == 1
     assert [(entry.key, entry.value) for entry in state.buckets[1].entries] == [(1, 10), (5, 50), (1, 99)]
     assert [(entry.key, entry.value) for entry in state.buckets[1].entries if entry.highlighted] == [(1, 10), (1, 99)]
+
+
+def test_binary_search_visualization_state_highlights_range_indices_and_discard() -> None:
+    result = binary_search((1, 3, 5, 7, 9), 9)
+    discard_step = [step for step in result.steps if step.state.metadata.get("discarded_range") == (0, 2)][0]
+
+    state = build_algorithm_visualization_state("Binary Search", discard_step)
+
+    assert state.structure_name == "Binary Search"
+    assert state.target == 9
+    assert state.low_index == 3
+    assert state.high_index == 4
+    assert state.mid_index == 2
+    assert state.discarded_range == (0, 2)
+    assert [element.index for element in state.values if element.moved] == [0, 1, 2]
+    assert [element.index for element in state.values if element.highlighted] == [3, 4]
 
 
 def test_two_three_visualization_state_includes_multikey_nodes_and_repair_data() -> None:

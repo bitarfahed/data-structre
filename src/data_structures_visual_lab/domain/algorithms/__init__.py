@@ -12,12 +12,15 @@ from data_structures_visual_lab.domain.algorithms.validation import (
     validate_ascending_sorted,
     validate_integer_array,
 )
+from data_structures_visual_lab.domain.algorithms.binary_search import BinarySearchResult, binary_search
 
 __all__ = [
     "AlgorithmEventType",
     "AlgorithmState",
     "AlgorithmStep",
     "ArrayValidationResult",
+    "BinarySearchResult",
+    "binary_search",
     "make_algorithm_step",
     "parse_integer_array_text",
     "validate_ascending_sorted",

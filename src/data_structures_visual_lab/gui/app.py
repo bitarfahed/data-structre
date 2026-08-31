@@ -5,9 +5,14 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import ttk
 
+from data_structures_visual_lab.domain.algorithms import AlgorithmStep
 from data_structures_visual_lab.events import EventType
 from data_structures_visual_lab.gui.controller import OperationSpec, StructureKey, VisualLabController
-from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
+from data_structures_visual_lab.visualization.state import (
+    VisualizationState,
+    build_algorithm_visualization_state,
+    build_visualization_state,
+)
 
 
 class VisualLabApp(tk.Tk):
@@ -25,6 +30,7 @@ class VisualLabApp(tk.Tk):
         self.value_input = tk.StringVar()
         self.index_input = tk.StringVar()
         self.status_text = tk.StringVar(value="Choose a structure to begin.")
+        self._algorithm_after_id: str | None = None
 
         self._build_layout()
         self._show_structure_selection()
@@ -42,8 +48,14 @@ class VisualLabApp(tk.Tk):
         self.main.columnconfigure(0, weight=1)
         self.main.rowconfigure(2, weight=1)
 
-        ttk.Label(self.sidebar, text="Structures").grid(row=0, column=0, sticky="w")
-        for row, structure_key in enumerate(self.controller.structure_keys(), start=1):
+        row = 0
+        current_category = ""
+        for structure_key in self.controller.structure_keys():
+            category = self.controller.category_for(structure_key)
+            if category != current_category:
+                current_category = category
+                ttk.Label(self.sidebar, text=category).grid(row=row, column=0, sticky="w", pady=(0 if row == 0 else 10, 2))
+                row += 1
             ttk.Radiobutton(
                 self.sidebar,
                 text=structure_key.value,
@@ -51,6 +63,7 @@ class VisualLabApp(tk.Tk):
                 variable=self.selected_structure,
                 command=self._show_structure_selection,
             ).grid(row=row, column=0, sticky="w", pady=2)
+            row += 1
 
         self.explanation_label = ttk.Label(self.main, wraplength=700)
         self.explanation_label.grid(row=0, column=0, sticky="ew", pady=(0, 8))
@@ -68,6 +81,7 @@ class VisualLabApp(tk.Tk):
         self.status_label.grid(row=3, column=0, sticky="ew", pady=(8, 0))
 
     def _show_structure_selection(self) -> None:
+        self._cancel_algorithm_playback()
         structure_key = self._current_structure_key()
         self.selected_operation.set("")
         self.explanation_label.config(text=self.controller.explanation_for(structure_key))
@@ -84,6 +98,7 @@ class VisualLabApp(tk.Tk):
         self.status_text.set("Read the explanation, then continue to operations.")
 
     def _show_operations(self) -> None:
+        self._cancel_algorithm_playback()
         self._clear_controls()
         structure_key = self._current_structure_key()
         operations = self.controller.operations_for(structure_key)
@@ -120,7 +135,7 @@ class VisualLabApp(tk.Tk):
         self.value_entry.grid_remove()
         self.index_label.grid_remove()
         self.index_entry.grid_remove()
-        self.value_label.configure(text="Value")
+        self.value_label.configure(text=operation.value_label)
         self.index_label.configure(text=operation.index_label)
 
         column = 2
@@ -148,6 +163,7 @@ class VisualLabApp(tk.Tk):
         self.run_button.configure(state=tk.NORMAL if can_run else tk.DISABLED)
 
     def _run_current_operation(self) -> None:
+        self._cancel_algorithm_playback()
         structure_key = self._current_structure_key()
         operation_key = self.selected_operation.get()
         result = self.controller.run_operation(
@@ -162,11 +178,16 @@ class VisualLabApp(tk.Tk):
             self._draw_state(self.controller.snapshot(structure_key))
             return
 
+        if structure_key is StructureKey.BINARY_SEARCH:
+            self._show_algorithm_steps([step for step in result.steps if isinstance(step, AlgorithmStep)], result.message)
+            return
+
         self.status_text.set(_summarize_steps(result.steps))
         self._draw_state(self.controller.snapshot(structure_key, result.steps[-1]))
         self._refresh_operation_fields()
 
     def _restart_structure(self) -> None:
+        self._cancel_algorithm_playback()
         structure_key = self._current_structure_key()
         self.controller.reset_structure(structure_key)
         self.selected_operation.set("")
@@ -175,6 +196,25 @@ class VisualLabApp(tk.Tk):
         self.status_text.set(f"{structure_key.value} reset to empty.")
         self._show_operations()
         self._draw_state(self.controller.snapshot(structure_key))
+
+    def _show_algorithm_steps(self, steps: list[AlgorithmStep], final_message: str, index: int = 0) -> None:
+        if not steps:
+            self.status_text.set(final_message)
+            self._draw_state(self.controller.snapshot(StructureKey.BINARY_SEARCH))
+            return
+
+        step = steps[index]
+        self.status_text.set(step.message if index < len(steps) - 1 else final_message)
+        self._draw_state(build_algorithm_visualization_state(StructureKey.BINARY_SEARCH.value, step))
+        if index < len(steps) - 1:
+            self._algorithm_after_id = self.after(500, lambda: self._show_algorithm_steps(steps, final_message, index + 1))
+        else:
+            self._algorithm_after_id = None
+
+    def _cancel_algorithm_playback(self) -> None:
+        if self._algorithm_after_id is not None:
+            self.after_cancel(self._algorithm_after_id)
+            self._algorithm_after_id = None
 
     def _draw_state(self, state: VisualizationState) -> None:
         self.canvas.delete("all")
@@ -197,8 +237,10 @@ class VisualLabApp(tk.Tk):
             self._draw_min_heap(state, width)
         elif state.structure_name == StructureKey.HASH_TABLE.value:
             self._draw_hash_table(state, width)
-        else:
+        elif state.structure_name == StructureKey.TWO_THREE_TREE.value:
             self._draw_two_three_tree(state, width)
+        else:
+            self._draw_algorithm_array(state, x=40, y=135)
 
     def _draw_stack(self, state: VisualizationState, width: int) -> None:
         cell_width = 96
@@ -477,6 +519,59 @@ class VisualLabApp(tk.Tk):
             )
             for node in state.multi_key_tree_nodes
         }
+
+    def _draw_algorithm_array(self, state: VisualizationState, x: int, y: int) -> None:
+        if state.target is not None:
+            self.canvas.create_text(x, y - 36, anchor="w", text=f"target: {state.target}", fill="#333")
+        if state.discarded_range is not None:
+            self.canvas.create_text(
+                x + 120,
+                y - 36,
+                anchor="w",
+                text=f"discarded: {state.discarded_range[0]}..{state.discarded_range[1]}",
+                fill="#9f2d20",
+            )
+
+        if not state.values:
+            self.canvas.create_text(x, y, anchor="w", text="empty array", fill="#666")
+            return
+
+        cell_width = 58
+        cell_height = 42
+        for element in state.values:
+            fill = "#e8f1ff"
+            if element.moved:
+                fill = "#f0f0f0"
+            if element.highlighted:
+                fill = "#ffe08a"
+            if state.found_index == element.index:
+                fill = "#bfe8c1"
+
+            cell_x = x + element.index * (cell_width + 8)
+            self.canvas.create_rectangle(cell_x, y, cell_x + cell_width, y + cell_height, fill=fill, outline="#2b4c7e")
+            self.canvas.create_text(cell_x + cell_width // 2, y + cell_height // 2, text=str(element.value))
+            self.canvas.create_text(cell_x + cell_width // 2, y + cell_height + 14, text=str(element.index), fill="#555")
+
+            labels: list[str] = []
+            if state.low_index == element.index:
+                labels.append("low")
+            if state.mid_index == element.index:
+                labels.append("mid")
+            if state.high_index == element.index:
+                labels.append("high")
+            if labels:
+                self.canvas.create_text(
+                    cell_x + cell_width // 2,
+                    y - 14,
+                    text="/".join(labels),
+                    fill="#333",
+                    font=("Segoe UI", 8, "bold"),
+                )
+
+        if state.low_index is not None and state.high_index is not None and state.low_index <= state.high_index:
+            left = x + state.low_index * (cell_width + 8)
+            right = x + state.high_index * (cell_width + 8) + cell_width
+            self.canvas.create_rectangle(left - 3, y - 4, right + 3, y + cell_height + 4, outline="#1f6f43", width=2)
 
     def _clear_controls(self) -> None:
         for child in self.controls.winfo_children():

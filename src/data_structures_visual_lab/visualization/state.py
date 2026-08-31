@@ -13,6 +13,7 @@ from data_structures_visual_lab.domain.data_structures import (
     Stack,
     TwoThreeTree,
 )
+from data_structures_visual_lab.domain.algorithms import AlgorithmStep
 from data_structures_visual_lab.domain.data_structures.two_three_tree import TwoThreeNodeSnapshot
 from data_structures_visual_lab.events import EventType, Step
 
@@ -102,6 +103,55 @@ class VisualizationState:
     multi_key_tree_edges: tuple[tuple[int, int], ...] = ()
     tree_valid: bool | None = None
     invalid_node_id: int | None = None
+    low_index: int | None = None
+    high_index: int | None = None
+    mid_index: int | None = None
+    target: int | None = None
+    discarded_range: tuple[int, int] | None = None
+    found_index: int | None = None
+    found: bool | None = None
+
+
+def build_algorithm_visualization_state(
+    algorithm_name: str,
+    step: AlgorithmStep | None = None,
+    values: tuple[int, ...] = (),
+) -> VisualizationState:
+    """Build a renderer-friendly state from an algorithm step."""
+    if step is None:
+        return VisualizationState(
+            structure_name=algorithm_name,
+            values=tuple(VisualElement(index=index, value=value) for index, value in enumerate(values)),
+            message="Enter an integer array and target, then run the algorithm.",
+            size=len(values),
+        )
+
+    metadata = step.state.metadata
+    current_indices = set(step.state.current_indices)
+    discarded_range = _range_or_none(metadata.get("discarded_range"))
+    elements = tuple(
+        VisualElement(
+            index=index,
+            value=value,
+            highlighted=index in current_indices or index == step.state.found_index,
+            moved=discarded_range is not None and discarded_range[0] <= index <= discarded_range[1],
+        )
+        for index, value in enumerate(step.state.values)
+    )
+    return VisualizationState(
+        structure_name=algorithm_name,
+        values=elements,
+        message=step.message,
+        size=len(step.state.values),
+        metadata=metadata,
+        low_index=_int_or_none(metadata.get("low_index")),
+        high_index=_int_or_none(metadata.get("high_index")),
+        mid_index=_int_or_none(metadata.get("mid_index")),
+        target=_int_or_none(metadata.get("target")),
+        discarded_range=discarded_range,
+        found_index=step.state.found_index,
+        found=step.state.found,
+    )
 
 
 def build_visualization_state(
@@ -425,6 +475,17 @@ def _hash_buckets(
 
 def _int_or_none(value: object) -> int | None:
     return value if type(value) is int else None
+
+
+def _range_or_none(value: object) -> tuple[int, int] | None:
+    if (
+        isinstance(value, tuple)
+        and len(value) == 2
+        and type(value[0]) is int
+        and type(value[1]) is int
+    ):
+        return value
+    return None
 
 
 def _int_list(value: object) -> set[int]:
