@@ -740,3 +740,26 @@ Remaining limitations:
 - Additional searching and sorting algorithms remain deferred.
 - Visualizations remain simple automatic step progressions without Play, Next Step, Previous Step, or detailed animation controls.
 - Production-oriented variants such as randomized pivots, median-of-three pivots, 3-way partitioning, recursion fallbacks, large-array virtualization, and generic comparable values remain intentionally outside this educational round.
+
+## Round 3 Algorithm GUI Custom Input Correction
+
+Prompt goal: ensure Round 3 algorithm GUI screens clearly accept user-provided arrays and targets instead of relying on sample or hardcoded inputs.
+
+Work completed:
+
+- Kept algorithm execution routed through the existing controller and domain algorithm modules.
+- Made array inputs visually explicit by widening the editable Array entry for Binary Search and all sorting algorithms.
+- Kept Binary Search using a separate Target entry and an editable Array entry.
+- Added algorithm-specific status guidance for comma-separated integer arrays.
+- Added controller tests proving Binary Search and all sorting algorithms run against the exact custom input text provided.
+- Added GUI smoke assertions for the editable Array field and guidance text.
+
+Bug fixed:
+
+- Prevented operation-field refresh from overwriting completed structure-operation status messages after Run.
+
+Important implementation direction:
+
+- No sorting or searching logic was duplicated in the GUI.
+- Existing Round 3 parsing and validation rules remain the source of truth.
+- Sample values are not used as algorithm inputs.

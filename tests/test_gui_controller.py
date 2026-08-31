@@ -641,6 +641,21 @@ def test_controller_runs_binary_search_and_exposes_algorithm_steps() -> None:
     assert result.steps[-1].state.found_index == 3  # type: ignore[union-attr]
 
 
+def test_controller_runs_binary_search_on_custom_array_and_target() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(
+        StructureKey.BINARY_SEARCH,
+        "search",
+        value_text="11",
+        index_text="2, 4, 8, 11, 19",
+    )
+
+    assert result.ok
+    assert result.message == "Found target 11 at index 3."
+    assert result.steps[0].state.values == (2, 4, 8, 11, 19)  # type: ignore[union-attr]
+
+
 def test_controller_rejects_unsorted_binary_search_input() -> None:
     controller = VisualLabController()
 
@@ -694,6 +709,24 @@ def test_controller_runs_sorting_algorithms() -> None:
         assert result.ok
         assert result.message == message
         assert result.steps[-1].state.values == (1, 2, 3)  # type: ignore[union-attr]
+
+
+def test_controller_runs_sorting_algorithms_on_custom_arrays() -> None:
+    controller = VisualLabController()
+
+    for structure_key in (
+        StructureKey.BUBBLE_SORT,
+        StructureKey.SELECTION_SORT,
+        StructureKey.INSERTION_SORT,
+        StructureKey.MERGE_SORT,
+        StructureKey.QUICK_SORT,
+        StructureKey.HEAP_SORT,
+    ):
+        result = controller.run_operation(structure_key, "sort", index_text="8, 3, 7, 1, 5")
+
+        assert result.ok
+        assert result.steps[0].state.values == (8, 3, 7, 1, 5)  # type: ignore[union-attr]
+        assert result.steps[-1].state.values == (1, 3, 5, 7, 8)  # type: ignore[union-attr]
 
 
 def test_controller_rejects_invalid_sorting_array_input() -> None:

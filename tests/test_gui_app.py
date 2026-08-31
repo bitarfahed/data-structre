@@ -229,6 +229,8 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app._show_operations()
         assert app.value_label.cget("text") == "Target"
         assert app.index_label.cget("text") == "Array"
+        assert int(app.index_entry.cget("width")) == 34
+        assert app.status_text.get() == "Enter comma-separated integers, then run the algorithm."
         app.selected_operation.set("search")
         app._refresh_operation_fields()
         app.value_input.set("7")
@@ -269,6 +271,8 @@ def test_gui_main_flows_for_supported_structures() -> None:
             assert "sort" in app.explanation_label.cget("text").lower()
             app._show_operations()
             assert app.index_label.cget("text") == "Array"
+            assert int(app.index_entry.cget("width")) == 34
+            assert app.status_text.get() == "Enter comma-separated integers, then run the algorithm."
             app.selected_operation.set("sort")
             app._refresh_operation_fields()
             app.index_input.set("2, 1")

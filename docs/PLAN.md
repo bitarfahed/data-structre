@@ -189,7 +189,7 @@ The execution state supports visualization of comparisons, swaps, current indice
 Binary Search GUI behavior:
 
 - User selects Binary Search under Algorithms / Searching.
-- User enters a comma-separated integer array and an integer target.
+- User enters a comma-separated integer array in an editable Array field and an integer target in a separate Target field.
 - The array must already be sorted in ascending order.
 - The canvas displays indexed cells, the active search range, low/mid/high labels, discarded ranges, and final found/not-found status.
 - The GUI progresses through generated Binary Search steps automatically without Play or Next Step controls.
@@ -197,7 +197,7 @@ Binary Search GUI behavior:
 Sorting GUI behavior:
 
 - User selects Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, or Heap Sort under Algorithms / Sorting.
-- User enters a comma-separated integer array.
+- User enters a comma-separated integer array in an editable Array field.
 - The canvas displays indexed cells, compared or affected elements, swaps, shifts, pivot positions, partition ranges, split/merge ranges, active heap ranges, sorted prefix/suffix hints where useful, and final completion status.
 - The GUI progresses through generated sorting steps automatically without Play or Next Step controls.
 

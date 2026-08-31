@@ -125,9 +125,9 @@ Implemented and QA-verified:
 - Metadata support for comparisons, swaps, current indices, current ranges, pivots, merge ranges, found/not-found results, and completed state
 - Shared integer-array validation helpers
 - Binary Search domain logic with ascending sorted-input validation
-- Binary Search GUI selection, array/target inputs, automatic visual step progression, active range display, low/mid/high labels, discarded-range highlighting, and found/not-found status
+- Binary Search GUI selection, editable array input, separate target input, automatic visual step progression, active range display, low/mid/high labels, discarded-range highlighting, and found/not-found status
 - Bubble Sort, Selection Sort, and Insertion Sort domain logic
-- Sorting GUI selection, array input, automatic visual step progression, compared/affected-element highlighting, swap/shift updates, and completion status
+- Sorting GUI selection, editable array input, automatic visual step progression, compared/affected-element highlighting, swap/shift updates, and completion status
 - Merge Sort domain logic with recursive split/merge execution steps
 - Merge Sort GUI selection, array input, automatic visual step progression, split/merge range display, compared-value highlighting, and final sorted output
 - Quick Sort domain logic using deterministic last-element-pivot partitioning

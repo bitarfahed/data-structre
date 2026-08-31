@@ -127,9 +127,8 @@ class VisualLabApp(tk.Tk):
         self.run_button.grid(row=0, column=6, padx=(0, 6))
         self.restart_button.grid(row=0, column=7, sticky="w")
         self._refresh_operation_fields()
-        self.status_text.set("Choose an operation and enter the required integer inputs.")
 
-    def _refresh_operation_fields(self) -> None:
+    def _refresh_operation_fields(self, update_status: bool = True) -> None:
         operation = self._current_operation()
         self.value_label.grid_remove()
         self.value_entry.grid_remove()
@@ -137,6 +136,8 @@ class VisualLabApp(tk.Tk):
         self.index_entry.grid_remove()
         self.value_label.configure(text=operation.value_label)
         self.index_label.configure(text=operation.index_label)
+        self.value_entry.configure(width=10)
+        self.index_entry.configure(width=34 if operation.index_input_kind == "array" else 10)
 
         column = 2
         if operation.needs_value:
@@ -161,6 +162,11 @@ class VisualLabApp(tk.Tk):
             and self.controller.snapshot(StructureKey.TWO_THREE_TREE).repair_pending
         )
         self.run_button.configure(state=tk.NORMAL if can_run else tk.DISABLED)
+        if update_status:
+            if operation.index_input_kind == "array":
+                self.status_text.set("Enter comma-separated integers, then run the algorithm.")
+            else:
+                self.status_text.set("Choose an operation and enter the required integer inputs.")
 
     def _run_current_operation(self) -> None:
         self._cancel_algorithm_playback()
@@ -184,7 +190,7 @@ class VisualLabApp(tk.Tk):
 
         self.status_text.set(_summarize_steps(result.steps))
         self._draw_state(self.controller.snapshot(structure_key, result.steps[-1]))
-        self._refresh_operation_fields()
+        self._refresh_operation_fields(update_status=False)
 
     def _restart_structure(self) -> None:
         self._cancel_algorithm_playback()
