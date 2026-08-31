@@ -82,7 +82,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 2 Scope
 
-Round 2 begins with AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
+Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
 
 Implemented:
 
@@ -137,4 +137,24 @@ Min-Heap duplicate values are allowed.
 Hash Table duplicate keys update the existing value.
 2-3 Tree duplicate values are rejected.
 
-Hash Table resizing, richer AVL/Min-Heap/2-3 Tree animation, step playback, and additional Round 2 structures remain deferred.
+## Round 2 QA Result
+
+Round 2 is stable enough to close.
+
+The final QA pass verified:
+
+- AVL insert without automatic balancing, pending rebalance, blocked insertion, Balance, all four rotation cases, search, delete, min/max, and restart
+- Min-Heap Add Raw, pending repair, blocked mutation, Sift Up, Extract Raw, Heapify Down, Peek Min, duplicates, and restart
+- Hash Table insert, search, delete, collisions, chaining, duplicate-key updates, missing keys, and restart
+- 2-3 Tree normal insertion, overflow state, blocked insertion, split, promotion, root split, recursive upward repair, search, and restart
+- AVL, Min-Heap, Hash Table, and 2-3 Tree structural invariants after repair or mutation
+- Existing Round 1 GUI flows and automated tests
+- Domain and event layers remaining independent from GUI code
+
+Remaining limitations are intentionally deferred:
+
+- Hash Table resizing
+- Richer AVL, Min-Heap, and 2-3 Tree animation
+- Step playback controls
+- 2-3 Tree deletion
+- Additional future structures and algorithms

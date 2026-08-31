@@ -57,7 +57,7 @@ The project foundation is in place:
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
 
-Round 2 has started with AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
+Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
 
 ## Round 1 Status
 
@@ -81,7 +81,7 @@ Known limitations:
 
 ## Round 2 Status
 
-Round 2 has started with AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
+Round 2 is stable enough to close.
 
 Implemented:
 
@@ -112,3 +112,4 @@ Known limitations:
 - AVL visualization is simple and immediate; it does not animate rotations or provide step playback controls.
 - Min-Heap visualization is simple and immediate; it does not animate sift-up or heapify-down movement.
 - Hash Table uses a fixed bucket count and does not resize automatically.
+- 2-3 Tree does not support deletion yet.
