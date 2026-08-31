@@ -15,6 +15,9 @@ def test_controller_lists_structures_and_operations() -> None:
         StructureKey.HASH_TABLE,
         StructureKey.TWO_THREE_TREE,
         StructureKey.BINARY_SEARCH,
+        StructureKey.BUBBLE_SORT,
+        StructureKey.SELECTION_SORT,
+        StructureKey.INSERTION_SORT,
     )
     assert [operation.key for operation in controller.operations_for(StructureKey.STACK)] == [
         "push",
@@ -61,6 +64,8 @@ def test_controller_lists_structures_and_operations() -> None:
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "search",
     ]
+    for structure_key in (StructureKey.BUBBLE_SORT, StructureKey.SELECTION_SORT, StructureKey.INSERTION_SORT):
+        assert [operation.key for operation in controller.operations_for(structure_key)] == ["sort"]
 
 
 def test_controller_rejects_invalid_value_input_without_mutating_structure() -> None:
@@ -661,3 +666,28 @@ def test_controller_rejects_invalid_binary_search_inputs() -> None:
     assert invalid_array.message == "Array values must be integers."
     assert not invalid_target.ok
     assert invalid_target.message == "Value must be an integer."
+
+
+def test_controller_runs_sorting_algorithms() -> None:
+    controller = VisualLabController()
+
+    for structure_key, message in (
+        (StructureKey.BUBBLE_SORT, "Bubble Sort complete."),
+        (StructureKey.SELECTION_SORT, "Selection Sort complete."),
+        (StructureKey.INSERTION_SORT, "Insertion Sort complete."),
+    ):
+        result = controller.run_operation(structure_key, "sort", index_text="3, 1, 2")
+
+        assert result.ok
+        assert result.message == message
+        assert result.steps[-1].state.values == (1, 2, 3)  # type: ignore[union-attr]
+
+
+def test_controller_rejects_invalid_sorting_array_input() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(StructureKey.BUBBLE_SORT, "sort", index_text="3, no, 2")
+
+    assert not result.ok
+    assert result.message == "Array values must be integers."
+    assert result.steps == []

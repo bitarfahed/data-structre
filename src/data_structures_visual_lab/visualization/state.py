@@ -110,6 +110,8 @@ class VisualizationState:
     discarded_range: tuple[int, int] | None = None
     found_index: int | None = None
     found: bool | None = None
+    sorted_prefix_end: int | None = None
+    sorted_suffix_start: int | None = None
 
 
 def build_algorithm_visualization_state(
@@ -128,13 +130,22 @@ def build_algorithm_visualization_state(
 
     metadata = step.state.metadata
     current_indices = set(step.state.current_indices)
+    if step.state.swapped_indices is not None:
+        current_indices.update(step.state.swapped_indices)
     discarded_range = _range_or_none(metadata.get("discarded_range"))
+    sorted_prefix_end = _int_or_none(metadata.get("sorted_prefix_end"))
+    sorted_suffix_start = _int_or_none(metadata.get("sorted_suffix_start"))
     elements = tuple(
         VisualElement(
             index=index,
             value=value,
             highlighted=index in current_indices or index == step.state.found_index,
-            moved=discarded_range is not None and discarded_range[0] <= index <= discarded_range[1],
+            moved=(
+                (discarded_range is not None and discarded_range[0] <= index <= discarded_range[1])
+                or index in _shift_indexes(metadata)
+                or (sorted_prefix_end is not None and index <= sorted_prefix_end)
+                or (sorted_suffix_start is not None and index >= sorted_suffix_start)
+            ),
         )
         for index, value in enumerate(step.state.values)
     )
@@ -151,6 +162,8 @@ def build_algorithm_visualization_state(
         discarded_range=discarded_range,
         found_index=step.state.found_index,
         found=step.state.found,
+        sorted_prefix_end=sorted_prefix_end,
+        sorted_suffix_start=sorted_suffix_start,
     )
 
 
@@ -486,6 +499,15 @@ def _range_or_none(value: object) -> tuple[int, int] | None:
     ):
         return value
     return None
+
+
+def _shift_indexes(metadata: dict[str, object]) -> set[int]:
+    indexes: set[int] = set()
+    for key in ("from_index", "to_index", "insert_index", "current_position", "min_index"):
+        value = metadata.get(key)
+        if type(value) is int:
+            indexes.add(value)
+    return indexes
 
 
 def _int_list(value: object) -> set[int]:

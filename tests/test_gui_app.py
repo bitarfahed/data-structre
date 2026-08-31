@@ -60,6 +60,9 @@ def test_gui_main_flows_for_supported_structures() -> None:
         (StructureKey.TWO_THREE_TREE, "repair", "", ""),
         (StructureKey.TWO_THREE_TREE, "search", "10", ""),
         (StructureKey.BINARY_SEARCH, "search", "7", "1, 3, 5, 7, 9"),
+        (StructureKey.BUBBLE_SORT, "sort", "", "3, 1, 2"),
+        (StructureKey.SELECTION_SORT, "sort", "", "3, 1, 2"),
+        (StructureKey.INSERTION_SORT, "sort", "", "3, 1, 2"),
     ]
 
     try:
@@ -249,6 +252,29 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app.after(1200, app.quit)
         app.mainloop()
         assert app.status_text.get() == "Found target 5 at index 0."
+
+        for structure_key, final_message in (
+            (StructureKey.BUBBLE_SORT, "Bubble Sort complete."),
+            (StructureKey.SELECTION_SORT, "Selection Sort complete."),
+            (StructureKey.INSERTION_SORT, "Insertion Sort complete."),
+        ):
+            app.selected_structure.set(structure_key.value)
+            app._show_structure_selection()
+            assert "sort" in app.explanation_label.cget("text").lower()
+            app._show_operations()
+            assert app.index_label.cget("text") == "Array"
+            app.selected_operation.set("sort")
+            app._refresh_operation_fields()
+            app.index_input.set("2, 1")
+            app._run_current_operation()
+            assert app.canvas.find_all()
+            app.after(4200, app.quit)
+            app.mainloop()
+            assert app.status_text.get() == final_message
+
+            app.index_input.set("4, bad, 2")
+            app._run_current_operation()
+            assert app.status_text.get() == "Array values must be integers."
 
         app.selected_structure.set(StructureKey.STACK.value)
         app._show_operations()

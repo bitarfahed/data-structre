@@ -178,7 +178,7 @@ class VisualLabApp(tk.Tk):
             self._draw_state(self.controller.snapshot(structure_key))
             return
 
-        if structure_key is StructureKey.BINARY_SEARCH:
+        if _is_algorithm_key(structure_key):
             self._show_algorithm_steps([step for step in result.steps if isinstance(step, AlgorithmStep)], result.message)
             return
 
@@ -200,12 +200,12 @@ class VisualLabApp(tk.Tk):
     def _show_algorithm_steps(self, steps: list[AlgorithmStep], final_message: str, index: int = 0) -> None:
         if not steps:
             self.status_text.set(final_message)
-            self._draw_state(self.controller.snapshot(StructureKey.BINARY_SEARCH))
+            self._draw_state(self.controller.snapshot(self._current_structure_key()))
             return
 
         step = steps[index]
         self.status_text.set(step.message if index < len(steps) - 1 else final_message)
-        self._draw_state(build_algorithm_visualization_state(StructureKey.BINARY_SEARCH.value, step))
+        self._draw_state(build_algorithm_visualization_state(self._current_structure_key().value, step))
         if index < len(steps) - 1:
             self._algorithm_after_id = self.after(500, lambda: self._show_algorithm_steps(steps, final_message, index + 1))
         else:
@@ -531,6 +531,22 @@ class VisualLabApp(tk.Tk):
                 text=f"discarded: {state.discarded_range[0]}..{state.discarded_range[1]}",
                 fill="#9f2d20",
             )
+        if state.sorted_prefix_end is not None and state.sorted_prefix_end >= 0:
+            self.canvas.create_text(
+                x,
+                y - 16,
+                anchor="w",
+                text=f"sorted prefix: 0..{state.sorted_prefix_end}",
+                fill="#1f6f43",
+            )
+        if state.sorted_suffix_start is not None and state.sorted_suffix_start < state.size:
+            self.canvas.create_text(
+                x,
+                y - 16,
+                anchor="w",
+                text=f"sorted suffix: {state.sorted_suffix_start}..{state.size - 1}",
+                fill="#1f6f43",
+            )
 
         if not state.values:
             self.canvas.create_text(x, y, anchor="w", text="empty array", fill="#666")
@@ -606,3 +622,12 @@ def check_runtime() -> str:
 def _summarize_steps(steps: list[object]) -> str:
     messages = [step.message for step in steps if hasattr(step, "message")]
     return " ".join(messages)
+
+
+def _is_algorithm_key(structure_key: StructureKey) -> bool:
+    return structure_key in {
+        StructureKey.BINARY_SEARCH,
+        StructureKey.BUBBLE_SORT,
+        StructureKey.SELECTION_SORT,
+        StructureKey.INSERTION_SORT,
+    }

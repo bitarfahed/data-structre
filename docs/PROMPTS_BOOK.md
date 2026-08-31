@@ -589,7 +589,37 @@ Important implementation direction:
 
 Deferred intentionally:
 
-- Sorting algorithms
+- Additional sorting algorithms
 - Manual Play and Next Step controls
 - Descending-array Binary Search
 - Returning first, last, or all duplicate matches
+
+## Round 3 Simple Sorting Algorithms with GUI Visualization
+
+Prompt goal: implement Bubble Sort, Selection Sort, and Insertion Sort with GUI visualization while keeping Merge Sort, Quick Sort, and Heap Sort deferred.
+
+Work completed:
+
+- Added `bubble_sort.py`, `selection_sort.py`, and `insertion_sort.py` as separate algorithm modules.
+- Reused Round 3 integer-array validation for all three sorting algorithms.
+- Added step output for Bubble Sort comparisons, swaps, and sorted suffix progress.
+- Added step output for Selection Sort current position, minimum candidate, comparisons, and swap/final-position progress.
+- Added step output for Insertion Sort current insertion value, sorted-prefix comparisons, shifts, and final insertion position.
+- Added Bubble Sort, Selection Sort, and Insertion Sort to the GUI under Algorithms / Sorting.
+- Reused the simple automatic algorithm-step visualization for sorting arrays.
+- Updated tests for normal sorting, duplicates, empty arrays, single-element arrays, already sorted arrays, reverse-sorted arrays, negative integers, step metadata, controller behavior, package imports, visualization state, and GUI smoke flow.
+
+Important implementation direction:
+
+- Sorting logic remains in the domain algorithms package.
+- The GUI does not duplicate sorting loops; it consumes generated algorithm steps.
+- The algorithms are intentionally straightforward and educational.
+- Input remains integer-only, with duplicate and negative values allowed.
+
+Deferred intentionally:
+
+- Merge Sort
+- Quick Sort
+- Heap Sort
+- Manual Play and Next Step controls
+- Advanced sorting optimizations or large-array performance infrastructure

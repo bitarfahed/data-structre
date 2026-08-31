@@ -6,7 +6,10 @@ from enum import Enum
 from data_structures_visual_lab.domain.algorithms import (
     AlgorithmStep,
     binary_search,
+    bubble_sort,
+    insertion_sort,
     parse_integer_array_text,
+    selection_sort,
 )
 from data_structures_visual_lab.domain.data_structures import (
     AVLTree,
@@ -38,6 +41,9 @@ class StructureKey(str, Enum):
     HASH_TABLE = "Hash Table"
     TWO_THREE_TREE = "2-3 Tree"
     BINARY_SEARCH = "Binary Search"
+    BUBBLE_SORT = "Bubble Sort"
+    SELECTION_SORT = "Selection Sort"
+    INSERTION_SORT = "Insertion Sort"
 
 
 @dataclass(frozen=True)
@@ -88,6 +94,15 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     StructureKey.BINARY_SEARCH: (
         "Binary Search repeatedly checks the middle of an ascending sorted array, then discards the half "
         "that cannot contain the target."
+    ),
+    StructureKey.BUBBLE_SORT: (
+        "Bubble Sort repeatedly compares neighboring values and swaps them when they are out of order."
+    ),
+    StructureKey.SELECTION_SORT: (
+        "Selection Sort repeatedly finds the minimum value in the unsorted suffix and swaps it into place."
+    ),
+    StructureKey.INSERTION_SORT: (
+        "Insertion Sort grows a sorted prefix by shifting larger values and inserting the current value."
     ),
 }
 
@@ -174,6 +189,15 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
             index_input_kind="array",
         ),
     ),
+    StructureKey.BUBBLE_SORT: (
+        OperationSpec("sort", "sort(array)", needs_index=True, index_required=True, index_label="Array", index_input_kind="array"),
+    ),
+    StructureKey.SELECTION_SORT: (
+        OperationSpec("sort", "sort(array)", needs_index=True, index_required=True, index_label="Array", index_input_kind="array"),
+    ),
+    StructureKey.INSERTION_SORT: (
+        OperationSpec("sort", "sort(array)", needs_index=True, index_required=True, index_label="Array", index_input_kind="array"),
+    ),
 }
 
 
@@ -204,6 +228,8 @@ class VisualLabController:
     def category_for(self, structure_key: StructureKey) -> str:
         if structure_key is StructureKey.BINARY_SEARCH:
             return "Algorithms / Searching"
+        if structure_key in {StructureKey.BUBBLE_SORT, StructureKey.SELECTION_SORT, StructureKey.INSERTION_SORT}:
+            return "Algorithms / Sorting"
         return "Structures"
 
     def operation_for(self, structure_key: StructureKey, operation_key: str) -> OperationSpec:
@@ -217,7 +243,7 @@ class VisualLabController:
         structure_key: StructureKey,
         step: Step | None = None,
     ) -> VisualizationState:
-        if structure_key is StructureKey.BINARY_SEARCH:
+        if _is_algorithm_key(structure_key):
             return build_algorithm_visualization_state(structure_key.value)
         return build_visualization_state(
             structure_key.value,
@@ -284,6 +310,15 @@ class VisualLabController:
     ) -> OperationResult:
         if structure_key is StructureKey.BINARY_SEARCH:
             result = binary_search(_require_array(index), _require_int(value))
+            return OperationResult(result.ok, result.message, result.steps)
+        if structure_key is StructureKey.BUBBLE_SORT:
+            result = bubble_sort(_require_array(index))
+            return OperationResult(result.ok, result.message, result.steps)
+        if structure_key is StructureKey.SELECTION_SORT:
+            result = selection_sort(_require_array(index))
+            return OperationResult(result.ok, result.message, result.steps)
+        if structure_key is StructureKey.INSERTION_SORT:
+            result = insertion_sort(_require_array(index))
             return OperationResult(result.ok, result.message, result.steps)
 
         structure = self._structures[structure_key]
@@ -421,3 +456,12 @@ def _require_array(value: int | tuple[int, ...] | None) -> tuple[int, ...]:
     if not isinstance(value, tuple):
         raise TypeError("Expected an integer array.")
     return value
+
+
+def _is_algorithm_key(structure_key: StructureKey) -> bool:
+    return structure_key in {
+        StructureKey.BINARY_SEARCH,
+        StructureKey.BUBBLE_SORT,
+        StructureKey.SELECTION_SORT,
+        StructureKey.INSERTION_SORT,
+    }

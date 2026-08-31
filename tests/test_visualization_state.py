@@ -9,6 +9,7 @@ from data_structures_visual_lab.domain.data_structures import (
     TwoThreeTree,
 )
 from data_structures_visual_lab.domain.algorithms import binary_search
+from data_structures_visual_lab.domain.algorithms import bubble_sort
 from data_structures_visual_lab.events import EventType, Step
 from data_structures_visual_lab.visualization import build_algorithm_visualization_state, build_visualization_state
 
@@ -161,6 +162,16 @@ def test_binary_search_visualization_state_highlights_range_indices_and_discard(
     assert state.discarded_range == (0, 2)
     assert [element.index for element in state.values if element.moved] == [0, 1, 2]
     assert [element.index for element in state.values if element.highlighted] == [3, 4]
+
+
+def test_sort_visualization_state_highlights_swaps_and_sorted_suffix() -> None:
+    result = bubble_sort((3, 1, 2))
+    swap_step = [step for step in result.steps if step.event_type.name == "SWAP"][0]
+
+    state = build_algorithm_visualization_state("Bubble Sort", swap_step)
+
+    assert [element.index for element in state.values if element.highlighted] == [0, 1]
+    assert [element.index for element in state.values if element.moved] == []
 
 
 def test_two_three_visualization_state_includes_multikey_nodes_and_repair_data() -> None:
