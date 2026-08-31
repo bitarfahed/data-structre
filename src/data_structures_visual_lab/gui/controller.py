@@ -7,6 +7,7 @@ from data_structures_visual_lab.domain.algorithms import (
     AlgorithmStep,
     binary_search,
     bubble_sort,
+    heap_sort,
     insertion_sort,
     merge_sort,
     parse_integer_array_text,
@@ -48,6 +49,7 @@ class StructureKey(str, Enum):
     INSERTION_SORT = "Insertion Sort"
     MERGE_SORT = "Merge Sort"
     QUICK_SORT = "Quick Sort"
+    HEAP_SORT = "Heap Sort"
 
 
 @dataclass(frozen=True)
@@ -113,6 +115,9 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     ),
     StructureKey.QUICK_SORT: (
         "Quick Sort partitions an array around a pivot, then recursively sorts the left and right partitions."
+    ),
+    StructureKey.HEAP_SORT: (
+        "Heap Sort builds a Max-Heap, then repeatedly moves the largest root value into the sorted suffix."
     ),
 }
 
@@ -214,6 +219,9 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
     StructureKey.QUICK_SORT: (
         OperationSpec("sort", "sort(array)", needs_index=True, index_required=True, index_label="Array", index_input_kind="array"),
     ),
+    StructureKey.HEAP_SORT: (
+        OperationSpec("sort", "sort(array)", needs_index=True, index_required=True, index_label="Array", index_input_kind="array"),
+    ),
 }
 
 
@@ -250,6 +258,7 @@ class VisualLabController:
             StructureKey.INSERTION_SORT,
             StructureKey.MERGE_SORT,
             StructureKey.QUICK_SORT,
+            StructureKey.HEAP_SORT,
         }:
             return "Algorithms / Sorting"
         return "Structures"
@@ -347,6 +356,9 @@ class VisualLabController:
             return OperationResult(result.ok, result.message, result.steps)
         if structure_key is StructureKey.QUICK_SORT:
             result = quick_sort(_require_array(index))
+            return OperationResult(result.ok, result.message, result.steps)
+        if structure_key is StructureKey.HEAP_SORT:
+            result = heap_sort(_require_array(index))
             return OperationResult(result.ok, result.message, result.steps)
 
         structure = self._structures[structure_key]
@@ -494,4 +506,5 @@ def _is_algorithm_key(structure_key: StructureKey) -> bool:
         StructureKey.INSERTION_SORT,
         StructureKey.MERGE_SORT,
         StructureKey.QUICK_SORT,
+        StructureKey.HEAP_SORT,
     }

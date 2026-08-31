@@ -162,7 +162,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 3 Scope
 
-Round 3 starts with Binary Search, simple sorting algorithms, Merge Sort, Quick Sort, and shared infrastructure for future array-based searching and sorting algorithms. The current work adds:
+Round 3 starts with Binary Search, simple sorting algorithms, Merge Sort, Quick Sort, Heap Sort, and shared infrastructure for future array-based searching and sorting algorithms. The current work adds:
 
 - `AlgorithmEventType`
 - `AlgorithmState`
@@ -179,9 +179,10 @@ Round 3 starts with Binary Search, simple sorting algorithms, Merge Sort, Quick 
 - `insertion_sort(values)`
 - `merge_sort(values)`
 - `quick_sort(values)`
+- `heap_sort(values)`
 - Sorting GUI flow under Algorithms / Sorting
 
-The algorithm logic is domain-only. It does not import GUI code or choose a renderer. Heap Sort is not implemented yet.
+The algorithm logic is domain-only. It does not import GUI code or choose a renderer. Additional searching and sorting algorithms are intentionally deferred until the current Round 3 set is stable.
 
 The execution state supports visualization of comparisons, swaps, current indices, active ranges, pivots, merge ranges, found/not-found results, and completed states. Binary Search and the implemented sorting algorithms return step lists; future algorithms may return step lists or yield steps from generators depending on what best fits the algorithm.
 
@@ -195,9 +196,9 @@ Binary Search GUI behavior:
 
 Sorting GUI behavior:
 
-- User selects Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, or Quick Sort under Algorithms / Sorting.
+- User selects Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, or Heap Sort under Algorithms / Sorting.
 - User enters a comma-separated integer array.
-- The canvas displays indexed cells, compared or affected elements, swaps, shifts, pivot positions, partition ranges, split/merge ranges, sorted prefix/suffix hints where useful, and final completion status.
+- The canvas displays indexed cells, compared or affected elements, swaps, shifts, pivot positions, partition ranges, split/merge ranges, active heap ranges, sorted prefix/suffix hints where useful, and final completion status.
 - The GUI progresses through generated sorting steps automatically without Play or Next Step controls.
 
 Quick Sort partition strategy:
@@ -206,6 +207,14 @@ Quick Sort partition strategy:
 - The partition scan moves values less than or equal to the pivot into the lower partition.
 - After the scan, the pivot swaps into its final partition position, then the left and right partition ranges are processed recursively.
 - This deterministic strategy is not the most robust production choice for all inputs, but it is easy to follow visually.
+
+Heap Sort strategy:
+
+- Heap Sort builds a Max-Heap in place from the input array.
+- It repeatedly swaps the largest root value with the end of the active heap region.
+- After each root swap, the active heap region shrinks and the sorted suffix grows.
+- Heapify-down restores the Max-Heap property inside the remaining active heap.
+- This stays separate from the Round 2 Min-Heap domain object because Heap Sort needs a Max-Heap over the local array.
 
 ## Round 3 Edge Cases
 
@@ -234,4 +243,4 @@ Stronger alternatives not chosen for this learning round:
 - A production GUI could add large-array limits, pagination, or virtualization, but those controls are outside the current learning core.
 - A generic algorithm library could accept floats, strings, or custom comparable values, but integer-only input keeps Round 3 consistent with the existing project.
 
-Heap Sort and more advanced sorting variants remain deferred.
+More advanced sorting variants and additional algorithms remain deferred.

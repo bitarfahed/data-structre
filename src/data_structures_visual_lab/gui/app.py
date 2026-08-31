@@ -590,6 +590,14 @@ class VisualLabApp(tk.Tk):
                 text=f"right partition: {state.right_partition_range[0]}..{state.right_partition_range[1]}",
                 fill="#2b4c7e",
             )
+        if state.active_heap_range is not None:
+            self.canvas.create_text(
+                x,
+                y + 128,
+                anchor="w",
+                text=f"active heap: {state.active_heap_range[0]}..{state.active_heap_range[1]}",
+                fill="#7a4a00",
+            )
 
         if not state.values:
             self.canvas.create_text(x, y, anchor="w", text="empty array", fill="#666")
@@ -635,6 +643,10 @@ class VisualLabApp(tk.Tk):
             left = x + state.low_index * (cell_width + 8)
             right = x + state.high_index * (cell_width + 8) + cell_width
             self.canvas.create_rectangle(left - 3, y - 4, right + 3, y + cell_height + 4, outline="#1f6f43", width=2)
+        if state.active_heap_range is not None:
+            left = x + state.active_heap_range[0] * (cell_width + 8)
+            right = x + state.active_heap_range[1] * (cell_width + 8) + cell_width
+            self.canvas.create_rectangle(left - 3, y - 4, right + 3, y + cell_height + 4, outline="#7a4a00", width=2)
 
     def _clear_controls(self) -> None:
         for child in self.controls.winfo_children():
@@ -679,4 +691,5 @@ def _is_algorithm_key(structure_key: StructureKey) -> bool:
         StructureKey.INSERTION_SORT,
         StructureKey.MERGE_SORT,
         StructureKey.QUICK_SORT,
+        StructureKey.HEAP_SORT,
     }

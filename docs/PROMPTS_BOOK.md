@@ -683,3 +683,31 @@ Deferred intentionally:
 - Production-oriented pivot optimizations
 - Iterative recursion-depth fallback behavior
 - Advanced large-array visualization infrastructure
+
+## Round 3 Heap Sort with GUI Visualization
+
+Prompt goal: implement Heap Sort with GUI visualization without adding additional searching or sorting algorithms.
+
+Work completed:
+
+- Added `heap_sort.py` as a separate algorithm module.
+- Reused Round 3 integer-array validation.
+- Implemented standard in-place Heap Sort by building a Max-Heap, swapping the root with the end of the active heap, shrinking the heap region, and heapifying down.
+- Kept Heap Sort independent from the Round 2 Min-Heap domain object because this algorithm needs a local Max-Heap over the array being sorted.
+- Added step output for heap-building phase, active heap range, parent/child comparisons, heapify swaps, root-to-end swaps, sorted suffix growth, and completed state.
+- Added Heap Sort to the GUI under Algorithms / Sorting.
+- Extended visualization state and canvas rendering with active heap range display while reusing sorted suffix and swap highlighting.
+- Updated tests for normal sorting, duplicates, empty arrays, single-element arrays, already sorted arrays, reverse-sorted arrays, negative integers, heap construction correctness, heapify correctness, step metadata, controller behavior, package imports, visualization state, and GUI smoke flow.
+
+Important implementation direction:
+
+- Heap Sort logic remains in the domain algorithms package.
+- The GUI does not duplicate Max-Heap construction, extraction, or heapify-down logic; it consumes generated algorithm steps.
+- The implementation is intentionally straightforward and does not add unrelated optimizations.
+- Input remains integer-only, with duplicate and negative values allowed.
+
+Deferred intentionally:
+
+- Additional searching and sorting algorithms
+- Manual Play and Next Step controls
+- Advanced large-array visualization infrastructure

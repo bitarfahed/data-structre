@@ -20,6 +20,7 @@ def test_controller_lists_structures_and_operations() -> None:
         StructureKey.INSERTION_SORT,
         StructureKey.MERGE_SORT,
         StructureKey.QUICK_SORT,
+        StructureKey.HEAP_SORT,
     )
     assert [operation.key for operation in controller.operations_for(StructureKey.STACK)] == [
         "push",
@@ -72,6 +73,7 @@ def test_controller_lists_structures_and_operations() -> None:
         StructureKey.INSERTION_SORT,
         StructureKey.MERGE_SORT,
         StructureKey.QUICK_SORT,
+        StructureKey.HEAP_SORT,
     ):
         assert [operation.key for operation in controller.operations_for(structure_key)] == ["sort"]
 
@@ -685,6 +687,7 @@ def test_controller_runs_sorting_algorithms() -> None:
         (StructureKey.INSERTION_SORT, "Insertion Sort complete."),
         (StructureKey.MERGE_SORT, "Merge Sort complete."),
         (StructureKey.QUICK_SORT, "Quick Sort complete."),
+        (StructureKey.HEAP_SORT, "Heap Sort complete."),
     ):
         result = controller.run_operation(structure_key, "sort", index_text="3, 1, 2")
 

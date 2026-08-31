@@ -10,6 +10,7 @@ from data_structures_visual_lab.domain.data_structures import (
 )
 from data_structures_visual_lab.domain.algorithms import binary_search
 from data_structures_visual_lab.domain.algorithms import bubble_sort
+from data_structures_visual_lab.domain.algorithms import heap_sort
 from data_structures_visual_lab.domain.algorithms import merge_sort
 from data_structures_visual_lab.domain.algorithms import quick_sort
 from data_structures_visual_lab.events import EventType, Step
@@ -209,6 +210,18 @@ def test_quick_sort_visualization_state_includes_pivot_and_partitions() -> None:
     assert state.left_partition_range == (0, 0)
     assert state.right_partition_range == (2, 2)
     assert [element.index for element in state.values if element.highlighted] == [1, 2]
+    assert [element.index for element in state.values if element.moved] == [0, 1, 2]
+
+
+def test_heap_sort_visualization_state_includes_active_heap_and_sorted_suffix() -> None:
+    result = heap_sort((3, 1, 2))
+    root_swap = [step for step in result.steps if step.state.metadata.get("root_to_end_swap") is True][0]
+
+    state = build_algorithm_visualization_state("Heap Sort", root_swap)
+
+    assert state.active_heap_range == (0, 1)
+    assert state.sorted_suffix_start == 2
+    assert [element.index for element in state.values if element.highlighted] == [0, 2]
     assert [element.index for element in state.values if element.moved] == [0, 1, 2]
 
 

@@ -119,6 +119,7 @@ class VisualizationState:
     pivot_value: int | None = None
     left_partition_range: tuple[int, int] | None = None
     right_partition_range: tuple[int, int] | None = None
+    active_heap_range: tuple[int, int] | None = None
 
 
 def build_algorithm_visualization_state(
@@ -150,6 +151,7 @@ def build_algorithm_visualization_state(
     merge_ranges = step.state.merge_ranges
     left_partition_range = _range_or_none(metadata.get("left_partition_range"))
     right_partition_range = _range_or_none(metadata.get("right_partition_range"))
+    active_heap_range = _range_or_none(metadata.get("active_heap_range"))
     elements = tuple(
         VisualElement(
             index=index,
@@ -162,6 +164,7 @@ def build_algorithm_visualization_state(
                 or (merge_output_range is not None and merge_output_range[0] <= index <= merge_output_range[1])
                 or (left_partition_range is not None and left_partition_range[0] <= index <= left_partition_range[1])
                 or (right_partition_range is not None and right_partition_range[0] <= index <= right_partition_range[1])
+                or (active_heap_range is not None and active_heap_range[0] <= index <= active_heap_range[1])
                 or index in _shift_indexes(metadata)
                 or (sorted_prefix_end is not None and index <= sorted_prefix_end)
                 or (sorted_suffix_start is not None and index >= sorted_suffix_start)
@@ -191,6 +194,7 @@ def build_algorithm_visualization_state(
         pivot_value=_int_or_none(metadata.get("pivot_value")),
         left_partition_range=left_partition_range,
         right_partition_range=right_partition_range,
+        active_heap_range=active_heap_range,
     )
 
 

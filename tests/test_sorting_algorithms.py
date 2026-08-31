@@ -3,6 +3,7 @@ import pytest
 from data_structures_visual_lab.domain.algorithms import (
     AlgorithmEventType,
     bubble_sort,
+    heap_sort,
     insertion_sort,
     merge_sort,
     quick_sort,
@@ -16,6 +17,7 @@ SORTS = [
     (insertion_sort, "Insertion Sort complete."),
     (merge_sort, "Merge Sort complete."),
     (quick_sort, "Quick Sort complete."),
+    (heap_sort, "Heap Sort complete."),
 ]
 
 
@@ -43,7 +45,7 @@ def test_sorting_algorithms_handle_round_3_edge_cases(sort_func, message: str, v
     assert result.steps[-1].state.completed
 
 
-@pytest.mark.parametrize("sort_func", [bubble_sort, selection_sort, insertion_sort, merge_sort, quick_sort])
+@pytest.mark.parametrize("sort_func", [bubble_sort, selection_sort, insertion_sort, merge_sort, quick_sort, heap_sort])
 def test_sorting_algorithms_reject_non_integer_values(sort_func) -> None:
     result = sort_func((1, "2", 3))
 
@@ -164,3 +166,44 @@ def test_quick_sort_partition_correctness_after_first_pivot() -> None:
     assert pivot_value == 3
     assert all(value <= pivot_value for value in values[:pivot_index])
     assert all(value > pivot_value for value in values[pivot_index + 1 :])
+
+
+def test_heap_sort_builds_max_heap_before_extraction() -> None:
+    result = heap_sort((3, 1, 4, 2))
+
+    built_step = [step for step in result.steps if step.state.metadata.get("heap_built") is True][0]
+
+    assert built_step.message == "Max-Heap construction complete."
+    assert built_step.state.values[0] == max(built_step.state.values)
+    assert built_step.state.metadata["active_heap_range"] == (0, 3)
+
+
+def test_heap_sort_heapify_exposes_parent_child_comparisons_and_swaps() -> None:
+    result = heap_sort((1, 3, 2))
+
+    compare_steps = [step for step in result.steps if step.event_type is AlgorithmEventType.COMPARE]
+    heapify_swaps = [
+        step
+        for step in result.steps
+        if step.event_type is AlgorithmEventType.SWAP and step.state.metadata.get("root_to_end_swap") is not True
+    ]
+
+    assert compare_steps[0].state.comparison_indices == (0, 1)
+    assert compare_steps[0].state.metadata["parent_index"] == 0
+    assert compare_steps[0].state.metadata["child_index"] == 1
+    assert heapify_swaps[0].message == "Swap parent 1 with child 3."
+    assert heapify_swaps[0].state.values == (3, 1, 2)
+
+
+def test_heap_sort_root_swaps_shrink_heap_and_grow_sorted_suffix() -> None:
+    result = heap_sort((3, 1, 2))
+
+    root_swap = [step for step in result.steps if step.state.metadata.get("root_to_end_swap") is True][0]
+    suffix_step = [step for step in result.steps if step.message == "Index 2 joins the sorted suffix."][0]
+
+    assert root_swap.message == "Swap root 3 with index 2."
+    assert root_swap.state.values == (2, 1, 3)
+    assert root_swap.state.metadata["active_heap_range"] == (0, 1)
+    assert root_swap.state.metadata["sorted_suffix_start"] == 2
+    assert suffix_step.state.metadata["sorted_suffix_start"] == 2
+    assert result.values == (1, 2, 3)

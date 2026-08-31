@@ -65,6 +65,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
         (StructureKey.INSERTION_SORT, "sort", "", "3, 1, 2"),
         (StructureKey.MERGE_SORT, "sort", "", "3, 1, 2"),
         (StructureKey.QUICK_SORT, "sort", "", "3, 1, 2"),
+        (StructureKey.HEAP_SORT, "sort", "", "3, 1, 2"),
     ]
 
     try:
@@ -261,6 +262,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
             (StructureKey.INSERTION_SORT, "Insertion Sort complete."),
             (StructureKey.MERGE_SORT, "Merge Sort complete."),
             (StructureKey.QUICK_SORT, "Quick Sort complete."),
+            (StructureKey.HEAP_SORT, "Heap Sort complete."),
         ):
             app.selected_structure.set(structure_key.value)
             app._show_structure_selection()
@@ -272,7 +274,11 @@ def test_gui_main_flows_for_supported_structures() -> None:
             app.index_input.set("2, 1")
             app._run_current_operation()
             assert app.canvas.find_all()
-            wait_ms = 9000 if structure_key in {StructureKey.MERGE_SORT, StructureKey.QUICK_SORT} else 4200
+            wait_ms = 9000 if structure_key in {
+                StructureKey.MERGE_SORT,
+                StructureKey.QUICK_SORT,
+                StructureKey.HEAP_SORT,
+            } else 4200
             app.after(wait_ms, app.quit)
             app.mainloop()
             assert app.status_text.get() == final_message
