@@ -1,6 +1,6 @@
 """Non-visual controller logic for the visual lab GUI."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 
 from data_structures_visual_lab.domain.algorithms import (
@@ -13,6 +13,7 @@ from data_structures_visual_lab.domain.algorithms import (
     parse_integer_array_text,
     quick_sort,
     selection_sort,
+    validate_ascending_sorted,
 )
 from data_structures_visual_lab.domain.data_structures import (
     AVLTree,
@@ -194,14 +195,17 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
-            "search",
-            "search(array, target)",
-            needs_value=True,
+            "load_array",
+            "Load Array",
             needs_index=True,
-            index_required=True,
-            value_label="Target",
             index_label="Array",
             index_input_kind="array",
+        ),
+        OperationSpec(
+            "search",
+            "Search",
+            needs_value=True,
+            value_label="Target",
         ),
     ),
     StructureKey.BUBBLE_SORT: (
@@ -239,6 +243,8 @@ class VisualLabController:
             StructureKey.HASH_TABLE: HashTable(),
             StructureKey.TWO_THREE_TREE: TwoThreeTree(),
         }
+        self._binary_search_array: tuple[int, ...] = ()
+        self._binary_search_array_loaded = False
 
     def structure_keys(self) -> tuple[StructureKey, ...]:
         return tuple(StructureKey)
@@ -275,12 +281,23 @@ class VisualLabController:
         step: Step | None = None,
     ) -> VisualizationState:
         if _is_algorithm_key(structure_key):
+            if structure_key is StructureKey.BINARY_SEARCH and self._binary_search_array_loaded:
+                state = build_algorithm_visualization_state(structure_key.value, values=self._binary_search_array)
+                return replace(state, message="Loaded array. Enter a target, then search.")
             return build_algorithm_visualization_state(structure_key.value)
         return build_visualization_state(
             structure_key.value,
             self._structures[structure_key],
             step,
         )
+
+    def binary_search_array_loaded(self) -> bool:
+        """Return whether Binary Search has a validated loaded array."""
+        return self._binary_search_array_loaded
+
+    def binary_search_array(self) -> tuple[int, ...]:
+        """Return the current loaded Binary Search array."""
+        return self._binary_search_array
 
     def reset_structure(self, structure_key: StructureKey) -> None:
         """Replace the selected structure with a new empty instance."""
@@ -300,6 +317,9 @@ class VisualLabController:
             self._structures[structure_key] = HashTable()
         elif structure_key is StructureKey.TWO_THREE_TREE:
             self._structures[structure_key] = TwoThreeTree()
+        elif structure_key is StructureKey.BINARY_SEARCH:
+            self._binary_search_array = ()
+            self._binary_search_array_loaded = False
 
     def run_operation(
         self,
@@ -340,7 +360,17 @@ class VisualLabController:
         index: int | tuple[int, ...] | None,
     ) -> OperationResult:
         if structure_key is StructureKey.BINARY_SEARCH:
-            result = binary_search(_require_array(index), _require_int(value))
+            if operation_key == "load_array":
+                array = _require_array(index)
+                validation = validate_ascending_sorted(array)
+                if not validation.ok:
+                    return OperationResult(False, validation.message, [])
+                self._binary_search_array = validation.values
+                self._binary_search_array_loaded = True
+                return OperationResult(True, f"Loaded array with {len(validation.values)} values.", [])
+            if not self._binary_search_array_loaded:
+                return OperationResult(False, "Load an ascending sorted array before searching.", [])
+            result = binary_search(self._binary_search_array, _require_int(value))
             return OperationResult(result.ok, result.message, result.steps)
         if structure_key is StructureKey.BUBBLE_SORT:
             result = bubble_sort(_require_array(index))

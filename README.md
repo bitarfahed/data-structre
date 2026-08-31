@@ -125,7 +125,7 @@ Implemented and QA-verified:
 - Metadata support for comparisons, swaps, current indices, current ranges, pivots, merge ranges, found/not-found results, and completed state
 - Shared integer-array validation helpers
 - Binary Search domain logic with ascending sorted-input validation
-- Binary Search GUI selection, editable array input, separate target input, automatic visual step progression, active range display, low/mid/high labels, discarded-range highlighting, and found/not-found status
+- Binary Search GUI selection, two-stage Load Array/Search workflow, editable sorted-array input, separate target input, automatic visual step progression, active range display, low/mid/high labels, discarded-range highlighting, and found/not-found status
 - Bubble Sort, Selection Sort, and Insertion Sort domain logic
 - Sorting GUI selection, editable array input, automatic visual step progression, compared/affected-element highlighting, swap/shift updates, and completion status
 - Merge Sort domain logic with recursive split/merge execution steps
@@ -140,7 +140,7 @@ Simplified educational decisions:
 - Round 3 algorithms accept integers only.
 - Empty arrays and single-element arrays are valid and handled safely.
 - Duplicate and negative integer values are allowed.
-- Binary Search requires ascending sorted input and rejects unsorted input instead of sorting it.
+- Binary Search requires the user to Load Array first, requires ascending sorted input, and rejects unsorted input instead of sorting it.
 - Visualizations target small educational arrays and use simple automatic progression.
 
 Production-oriented alternatives intentionally deferred:

@@ -132,6 +132,8 @@ def build_algorithm_visualization_state(
         message = "Enter an integer array and target, then run the algorithm."
         if algorithm_name != "Binary Search":
             message = "Enter an integer array, then run the algorithm."
+        elif values:
+            message = "Loaded array. Enter a target, then search."
         return VisualizationState(
             structure_name=algorithm_name,
             values=tuple(VisualElement(index=index, value=value) for index, value in enumerate(values)),

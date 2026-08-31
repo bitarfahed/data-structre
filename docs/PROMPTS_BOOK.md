@@ -786,3 +786,27 @@ Important implementation direction:
 - Binary Search algorithm logic was not changed.
 - Sorting/searching logic was not duplicated in the GUI.
 - Binary Search still requires ascending sorted input and rejects unsorted arrays.
+
+## Binary Search Two-Stage GUI Workflow Fix
+
+Prompt goal: fix Binary Search so array loading is explicit and visible before running a search.
+
+Work completed:
+
+- Reproduced the bug where typing an array changed only the input field while the Binary Search visualization snapshot stayed empty.
+- Added controller-owned Binary Search loaded-array state.
+- Added a dedicated Load Array operation that parses comma-separated integers, requires ascending sorted order, stores the validated array, and exposes it to visualization immediately.
+- Changed Search to use the stored loaded array and only read the target input.
+- Disabled Search before a valid array is loaded.
+- Preserved sorting custom-input behavior and left the Binary Search algorithm unchanged.
+- Added regression tests for loading, visualization exposure before search, stored-array search, target changes, rejected invalid/unsorted loads, and restart clearing state.
+
+Root cause:
+
+- Binary Search was still modeled as one combined `search(array, target)` GUI operation. The editable array text was not stored as GUI/controller state, and algorithm snapshots had no values before Search executed.
+
+Important implementation direction:
+
+- Binary Search array state is owned by the GUI controller, not by the canvas drawing code.
+- Invalid or unsorted Load Array attempts do not replace the previous valid loaded array.
+- Restart clears the loaded array, target, result state, and visualization.

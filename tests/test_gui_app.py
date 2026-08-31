@@ -13,26 +13,31 @@ def create_app_or_skip() -> VisualLabApp:
         pytest.skip(f"Tkinter is not available: {error}")
 
 
-def test_binary_search_gui_uses_editable_array_field() -> None:
+def test_binary_search_gui_loads_array_before_searching() -> None:
     app = create_app_or_skip()
     try:
         app.update()
         app.selected_structure.set(StructureKey.BINARY_SEARCH.value)
         app._show_structure_selection()
         app._show_operations()
-        app.selected_operation.set("search")
-        app._refresh_operation_fields()
 
-        app.value_input.set("7")
         app.array_input.set("1, 3, 5, 7, 9")
         app.index_input.set("not the algorithm array")
-        app._run_current_operation()
+        app._load_binary_search_array()
+
+        loaded_values = [element.value for element in app.controller.snapshot(StructureKey.BINARY_SEARCH).values]
+        assert loaded_values == [1, 3, 5, 7, 9]
+        assert app.status_text.get() == "Loaded array with 5 values."
+        assert app.array_input.get() == "1, 3, 5, 7, 9"
+        assert str(app.search_button.cget("state")) == tk.NORMAL
+
+        app.value_input.set("7")
+        app._search_binary_search()
 
         app.after(2600, app.quit)
         app.mainloop()
 
         assert app.status_text.get() == "Found target 7 at index 3."
-        assert app.array_input.get() == "1, 3, 5, 7, 9"
         assert app.canvas.find_all()
     finally:
         app.destroy()
@@ -84,7 +89,6 @@ def test_gui_main_flows_for_supported_structures() -> None:
         (StructureKey.TWO_THREE_TREE, "insert_raw", "15", ""),
         (StructureKey.TWO_THREE_TREE, "repair", "", ""),
         (StructureKey.TWO_THREE_TREE, "search", "10", ""),
-        (StructureKey.BINARY_SEARCH, "search", "7", "1, 3, 5, 7, 9"),
         (StructureKey.BUBBLE_SORT, "sort", "", "3, 1, 2"),
         (StructureKey.SELECTION_SORT, "sort", "", "3, 1, 2"),
         (StructureKey.INSERTION_SORT, "sort", "", "3, 1, 2"),
@@ -108,6 +112,8 @@ def test_gui_main_flows_for_supported_structures() -> None:
             assert app.explanation_label.cget("text")
 
             app._show_operations()
+            if structure is StructureKey.BINARY_SEARCH:
+                continue
             app.selected_operation.set(operation)
             app._refresh_operation_fields()
             app.value_input.set(value)
@@ -256,36 +262,46 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app._show_structure_selection()
         assert "binary search" in app.explanation_label.cget("text").lower()
         app._show_operations()
-        assert app.value_label.cget("text") == "Target"
         assert app.array_label.cget("text") == "Array"
         assert int(app.array_entry.cget("width")) == 34
-        assert app.status_text.get() == "Enter comma-separated integers, then run the algorithm."
-        app.selected_operation.set("search")
-        app._refresh_operation_fields()
-        app.value_input.set("7")
+        assert app.status_text.get() == "Load an ascending sorted integer array."
+        assert str(app.search_button.cget("state")) == tk.DISABLED
         app.array_input.set("1, 3, 5, 7, 9")
-        app._run_current_operation()
+        app._load_binary_search_array()
+        assert [element.value for element in app.controller.snapshot(StructureKey.BINARY_SEARCH).values] == [1, 3, 5, 7, 9]
+        assert str(app.search_button.cget("state")) == tk.NORMAL
+        app.value_input.set("7")
+        app._search_binary_search()
         assert app.canvas.find_all()
         app.after(2600, app.quit)
         app.mainloop()
         assert "Found target 7 at index 3." in app.status_text.get()
 
-        app.value_input.set("3")
         app.array_input.set("1, 4, 3")
-        app._run_current_operation()
+        app._load_binary_search_array()
         assert app.status_text.get() == "Binary Search requires ascending sorted input."
+        assert [element.value for element in app.controller.snapshot(StructureKey.BINARY_SEARCH).values] == [1, 3, 5, 7, 9]
 
         app.value_input.set("5")
         app.array_input.set("")
-        app._run_current_operation()
+        app._load_binary_search_array()
+        app._search_binary_search()
         assert app.status_text.get() == "Target 5 was not found."
 
         app.value_input.set("5")
         app.array_input.set("5")
-        app._run_current_operation()
+        app._load_binary_search_array()
+        app._search_binary_search()
         app.after(1200, app.quit)
         app.mainloop()
         assert app.status_text.get() == "Found target 5 at index 0."
+
+        app._restart_structure()
+        assert not app.controller.binary_search_array_loaded()
+        assert app.controller.snapshot(StructureKey.BINARY_SEARCH).values == ()
+        assert app.array_input.get() == ""
+        assert app.value_input.get() == ""
+        assert str(app.search_button.cget("state")) == tk.DISABLED
 
         for structure_key, final_message in (
             (StructureKey.BUBBLE_SORT, "Bubble Sort complete."),

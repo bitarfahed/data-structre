@@ -189,8 +189,11 @@ The execution state supports visualization of comparisons, swaps, current indice
 Binary Search GUI behavior:
 
 - User selects Binary Search under Algorithms / Searching.
-- User enters a comma-separated integer array in an editable Array field and an integer target in a separate Target field.
-- The array must already be sorted in ascending order.
+- User enters a comma-separated integer array in an editable Array field.
+- User clicks Load Array to parse, validate, store, and immediately display the array before searching.
+- The loaded array must already be sorted in ascending order.
+- User enters an integer target in a separate Target field and clicks Search.
+- Search runs against the stored loaded array, so the array does not need to be re-entered for each target.
 - The canvas displays indexed cells, the active search range, low/mid/high labels, discarded ranges, and final found/not-found status.
 - The GUI progresses through generated Binary Search steps automatically without Play or Next Step controls.
 

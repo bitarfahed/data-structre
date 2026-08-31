@@ -102,6 +102,10 @@ class VisualLabApp(tk.Tk):
         self._cancel_algorithm_playback()
         self._clear_controls()
         structure_key = self._current_structure_key()
+        if structure_key is StructureKey.BINARY_SEARCH:
+            self._show_binary_search_controls()
+            return
+
         operations = self.controller.operations_for(structure_key)
         operation_keys = [operation.key for operation in operations]
         if self.selected_operation.get() not in operation_keys:
@@ -130,6 +134,65 @@ class VisualLabApp(tk.Tk):
         self.run_button.grid(row=0, column=6, padx=(0, 6))
         self.restart_button.grid(row=0, column=7, sticky="w")
         self._refresh_operation_fields()
+
+    def _show_binary_search_controls(self) -> None:
+        self.selected_operation.set("load_array")
+        ttk.Label(self.controls, text="Array").grid(row=0, column=0, padx=(0, 4))
+        self.array_entry = ttk.Entry(self.controls, width=34, textvariable=self.array_input)
+        self.array_entry.grid(row=0, column=1, padx=(0, 8))
+        self.load_array_button = ttk.Button(self.controls, text="Load Array", command=self._load_binary_search_array)
+        self.load_array_button.grid(row=0, column=2, padx=(0, 14))
+
+        self.value_label = ttk.Label(self.controls, text="Target")
+        self.value_label.grid(row=0, column=3, padx=(0, 4))
+        self.value_entry = ttk.Entry(self.controls, width=10, textvariable=self.value_input)
+        self.value_entry.grid(row=0, column=4, padx=(0, 8))
+        self.search_button = ttk.Button(self.controls, text="Search", command=self._search_binary_search)
+        self.search_button.grid(row=0, column=5, padx=(0, 6))
+        self.restart_button = ttk.Button(self.controls, text="Restart", command=self._restart_structure)
+        self.restart_button.grid(row=0, column=6, sticky="w")
+
+        # These attributes keep existing non-visual tests from depending on widget creation order.
+        self.index_label = ttk.Label(self.controls, text="Index")
+        self.index_entry = ttk.Entry(self.controls, width=10, textvariable=self.index_input)
+        self.array_label = ttk.Label(self.controls, text="Array")
+        self.run_button = self.search_button
+
+        self._update_binary_search_search_state()
+        if self.controller.binary_search_array_loaded():
+            self.status_text.set("Enter a target, then search.")
+        else:
+            self.status_text.set("Load an ascending sorted integer array.")
+
+    def _load_binary_search_array(self) -> None:
+        self._cancel_algorithm_playback()
+        result = self.controller.run_operation(
+            StructureKey.BINARY_SEARCH,
+            "load_array",
+            index_text=self.array_input.get(),
+        )
+        self.status_text.set(result.message)
+        self._draw_state(self.controller.snapshot(StructureKey.BINARY_SEARCH))
+        self._update_binary_search_search_state()
+
+    def _search_binary_search(self) -> None:
+        self._cancel_algorithm_playback()
+        result = self.controller.run_operation(
+            StructureKey.BINARY_SEARCH,
+            "search",
+            value_text=self.value_input.get(),
+        )
+        if not result.steps:
+            self.status_text.set(result.message)
+            self._draw_state(self.controller.snapshot(StructureKey.BINARY_SEARCH))
+            return
+
+        self._show_algorithm_steps([step for step in result.steps if isinstance(step, AlgorithmStep)], result.message)
+
+    def _update_binary_search_search_state(self) -> None:
+        if hasattr(self, "search_button"):
+            state = tk.NORMAL if self.controller.binary_search_array_loaded() else tk.DISABLED
+            self.search_button.configure(state=state)
 
     def _refresh_operation_fields(self, update_status: bool = True) -> None:
         operation = self._current_operation()

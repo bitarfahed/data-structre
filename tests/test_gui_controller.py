@@ -65,6 +65,7 @@ def test_controller_lists_structures_and_operations() -> None:
         "search",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
+        "load_array",
         "search",
     ]
     for structure_key in (
@@ -626,49 +627,69 @@ def test_controller_reset_clears_min_heap_repair_state() -> None:
     assert not snapshot.repair_pending
 
 
-def test_controller_runs_binary_search_and_exposes_algorithm_steps() -> None:
+def test_controller_loads_binary_search_array_and_exposes_it_to_visualization() -> None:
     controller = VisualLabController()
 
     result = controller.run_operation(
         StructureKey.BINARY_SEARCH,
-        "search",
-        value_text="7",
+        "load_array",
         index_text="1, 3, 5, 7, 9",
     )
 
     assert result.ok
-    assert result.message == "Found target 7 at index 3."
-    assert result.steps[-1].state.found_index == 3  # type: ignore[union-attr]
+    assert result.message == "Loaded array with 5 values."
+    assert controller.binary_search_array_loaded()
+    assert controller.binary_search_array() == (1, 3, 5, 7, 9)
+    assert [element.value for element in controller.snapshot(StructureKey.BINARY_SEARCH).values] == [1, 3, 5, 7, 9]
 
 
-def test_controller_runs_binary_search_on_custom_array_and_target() -> None:
+def test_controller_binary_search_uses_loaded_array_and_target() -> None:
     controller = VisualLabController()
 
+    controller.run_operation(
+        StructureKey.BINARY_SEARCH,
+        "load_array",
+        index_text="2, 4, 8, 11, 19",
+    )
     result = controller.run_operation(
         StructureKey.BINARY_SEARCH,
         "search",
         value_text="11",
-        index_text="2, 4, 8, 11, 19",
     )
 
     assert result.ok
     assert result.message == "Found target 11 at index 3."
     assert result.steps[0].state.values == (2, 4, 8, 11, 19)  # type: ignore[union-attr]
+    assert result.steps[-1].state.found_index == 3  # type: ignore[union-attr]
+
+
+def test_controller_binary_search_target_changes_do_not_replace_loaded_array() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.BINARY_SEARCH, "load_array", index_text="1, 3, 5")
+    first = controller.run_operation(StructureKey.BINARY_SEARCH, "search", value_text="3")
+    second = controller.run_operation(StructureKey.BINARY_SEARCH, "search", value_text="1")
+
+    assert first.ok
+    assert second.ok
+    assert controller.binary_search_array() == (1, 3, 5)
+    assert [element.value for element in controller.snapshot(StructureKey.BINARY_SEARCH).values] == [1, 3, 5]
 
 
 def test_controller_rejects_unsorted_binary_search_input() -> None:
     controller = VisualLabController()
 
+    controller.run_operation(StructureKey.BINARY_SEARCH, "load_array", index_text="1, 3, 5")
     result = controller.run_operation(
         StructureKey.BINARY_SEARCH,
-        "search",
-        value_text="3",
+        "load_array",
         index_text="1, 4, 3",
     )
 
     assert not result.ok
     assert result.message == "Binary Search requires ascending sorted input."
     assert result.steps == []
+    assert controller.binary_search_array() == (1, 3, 5)
 
 
 def test_controller_rejects_invalid_binary_search_inputs() -> None:
@@ -676,21 +697,57 @@ def test_controller_rejects_invalid_binary_search_inputs() -> None:
 
     invalid_array = controller.run_operation(
         StructureKey.BINARY_SEARCH,
-        "search",
-        value_text="3",
+        "load_array",
         index_text="1, no",
     )
+    controller.run_operation(StructureKey.BINARY_SEARCH, "load_array", index_text="1, 2")
     invalid_target = controller.run_operation(
         StructureKey.BINARY_SEARCH,
         "search",
         value_text="no",
-        index_text="1, 2",
     )
 
     assert not invalid_array.ok
     assert invalid_array.message == "Array values must be integers."
     assert not invalid_target.ok
     assert invalid_target.message == "Value must be an integer."
+
+
+def test_controller_rejects_binary_search_before_array_load() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(StructureKey.BINARY_SEARCH, "search", value_text="5")
+
+    assert not result.ok
+    assert result.message == "Load an ascending sorted array before searching."
+    assert result.steps == []
+
+
+def test_controller_binary_search_allows_loaded_empty_array() -> None:
+    controller = VisualLabController()
+
+    loaded = controller.run_operation(StructureKey.BINARY_SEARCH, "load_array", index_text="")
+    result = controller.run_operation(StructureKey.BINARY_SEARCH, "search", value_text="5")
+
+    assert loaded.ok
+    assert loaded.message == "Loaded array with 0 values."
+    assert controller.binary_search_array_loaded()
+    assert controller.snapshot(StructureKey.BINARY_SEARCH).message == "Loaded array. Enter a target, then search."
+    assert not result.ok
+    assert result.message == "Target 5 was not found."
+
+
+def test_controller_binary_search_restart_clears_loaded_array() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.BINARY_SEARCH, "load_array", index_text="1, 2, 3")
+    assert controller.binary_search_array_loaded()
+
+    controller.reset_structure(StructureKey.BINARY_SEARCH)
+
+    assert not controller.binary_search_array_loaded()
+    assert controller.binary_search_array() == ()
+    assert controller.snapshot(StructureKey.BINARY_SEARCH).values == ()
 
 
 def test_controller_runs_sorting_algorithms() -> None:
