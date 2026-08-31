@@ -162,7 +162,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 3 Scope
 
-Round 3 starts with Binary Search, simple sorting algorithms, Merge Sort, and shared infrastructure for future array-based searching and sorting algorithms. The current work adds:
+Round 3 starts with Binary Search, simple sorting algorithms, Merge Sort, Quick Sort, and shared infrastructure for future array-based searching and sorting algorithms. The current work adds:
 
 - `AlgorithmEventType`
 - `AlgorithmState`
@@ -178,9 +178,10 @@ Round 3 starts with Binary Search, simple sorting algorithms, Merge Sort, and sh
 - `selection_sort(values)`
 - `insertion_sort(values)`
 - `merge_sort(values)`
+- `quick_sort(values)`
 - Sorting GUI flow under Algorithms / Sorting
 
-The algorithm logic is domain-only. It does not import GUI code or choose a renderer. Quick Sort and Heap Sort are not implemented yet.
+The algorithm logic is domain-only. It does not import GUI code or choose a renderer. Heap Sort is not implemented yet.
 
 The execution state supports visualization of comparisons, swaps, current indices, active ranges, pivots, merge ranges, found/not-found results, and completed states. Binary Search and the implemented sorting algorithms return step lists; future algorithms may return step lists or yield steps from generators depending on what best fits the algorithm.
 
@@ -194,10 +195,17 @@ Binary Search GUI behavior:
 
 Sorting GUI behavior:
 
-- User selects Bubble Sort, Selection Sort, Insertion Sort, or Merge Sort under Algorithms / Sorting.
+- User selects Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, or Quick Sort under Algorithms / Sorting.
 - User enters a comma-separated integer array.
-- The canvas displays indexed cells, compared or affected elements, swaps, shifts, split/merge ranges, sorted prefix/suffix hints where useful, and final completion status.
+- The canvas displays indexed cells, compared or affected elements, swaps, shifts, pivot positions, partition ranges, split/merge ranges, sorted prefix/suffix hints where useful, and final completion status.
 - The GUI progresses through generated sorting steps automatically without Play or Next Step controls.
+
+Quick Sort partition strategy:
+
+- Quick Sort uses Lomuto partitioning with the last element in the current range as the pivot.
+- The partition scan moves values less than or equal to the pivot into the lower partition.
+- After the scan, the pivot swaps into its final partition position, then the left and right partition ranges are processed recursively.
+- This deterministic strategy is not the most robust production choice for all inputs, but it is easy to follow visually.
 
 ## Round 3 Edge Cases
 
@@ -226,4 +234,4 @@ Stronger alternatives not chosen for this learning round:
 - A production GUI could add large-array limits, pagination, or virtualization, but those controls are outside the current learning core.
 - A generic algorithm library could accept floats, strings, or custom comparable values, but integer-only input keeps Round 3 consistent with the existing project.
 
-Quick Sort, Heap Sort, and more advanced sorting variants remain deferred.
+Heap Sort and more advanced sorting variants remain deferred.

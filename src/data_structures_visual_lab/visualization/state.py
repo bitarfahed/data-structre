@@ -115,6 +115,10 @@ class VisualizationState:
     split_index: int | None = None
     merge_ranges: tuple[tuple[int, int], ...] = ()
     completed_range: tuple[int, int] | None = None
+    pivot_index: int | None = None
+    pivot_value: int | None = None
+    left_partition_range: tuple[int, int] | None = None
+    right_partition_range: tuple[int, int] | None = None
 
 
 def build_algorithm_visualization_state(
@@ -144,16 +148,20 @@ def build_algorithm_visualization_state(
     completed_range = _range_or_none(metadata.get("completed_range"))
     merge_output_range = _range_or_none(metadata.get("merge_output_range"))
     merge_ranges = step.state.merge_ranges
+    left_partition_range = _range_or_none(metadata.get("left_partition_range"))
+    right_partition_range = _range_or_none(metadata.get("right_partition_range"))
     elements = tuple(
         VisualElement(
             index=index,
             value=value,
-            highlighted=index in current_indices or index == step.state.found_index,
+            highlighted=index in current_indices or index == step.state.found_index or index == step.state.pivot_index,
             moved=(
                 (discarded_range is not None and discarded_range[0] <= index <= discarded_range[1])
                 or _index_in_ranges(index, merge_ranges)
                 or (completed_range is not None and completed_range[0] <= index <= completed_range[1])
                 or (merge_output_range is not None and merge_output_range[0] <= index <= merge_output_range[1])
+                or (left_partition_range is not None and left_partition_range[0] <= index <= left_partition_range[1])
+                or (right_partition_range is not None and right_partition_range[0] <= index <= right_partition_range[1])
                 or index in _shift_indexes(metadata)
                 or (sorted_prefix_end is not None and index <= sorted_prefix_end)
                 or (sorted_suffix_start is not None and index >= sorted_suffix_start)
@@ -179,6 +187,10 @@ def build_algorithm_visualization_state(
         split_index=_int_or_none(metadata.get("split_index")),
         merge_ranges=merge_ranges,
         completed_range=completed_range,
+        pivot_index=step.state.pivot_index,
+        pivot_value=_int_or_none(metadata.get("pivot_value")),
+        left_partition_range=left_partition_range,
+        right_partition_range=right_partition_range,
     )
 
 

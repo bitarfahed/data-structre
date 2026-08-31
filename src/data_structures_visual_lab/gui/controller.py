@@ -10,6 +10,7 @@ from data_structures_visual_lab.domain.algorithms import (
     insertion_sort,
     merge_sort,
     parse_integer_array_text,
+    quick_sort,
     selection_sort,
 )
 from data_structures_visual_lab.domain.data_structures import (
@@ -46,6 +47,7 @@ class StructureKey(str, Enum):
     SELECTION_SORT = "Selection Sort"
     INSERTION_SORT = "Insertion Sort"
     MERGE_SORT = "Merge Sort"
+    QUICK_SORT = "Quick Sort"
 
 
 @dataclass(frozen=True)
@@ -108,6 +110,9 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     ),
     StructureKey.MERGE_SORT: (
         "Merge Sort recursively splits an array into smaller ranges, then merges those ranges back in sorted order."
+    ),
+    StructureKey.QUICK_SORT: (
+        "Quick Sort partitions an array around a pivot, then recursively sorts the left and right partitions."
     ),
 }
 
@@ -206,6 +211,9 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
     StructureKey.MERGE_SORT: (
         OperationSpec("sort", "sort(array)", needs_index=True, index_required=True, index_label="Array", index_input_kind="array"),
     ),
+    StructureKey.QUICK_SORT: (
+        OperationSpec("sort", "sort(array)", needs_index=True, index_required=True, index_label="Array", index_input_kind="array"),
+    ),
 }
 
 
@@ -241,6 +249,7 @@ class VisualLabController:
             StructureKey.SELECTION_SORT,
             StructureKey.INSERTION_SORT,
             StructureKey.MERGE_SORT,
+            StructureKey.QUICK_SORT,
         }:
             return "Algorithms / Sorting"
         return "Structures"
@@ -335,6 +344,9 @@ class VisualLabController:
             return OperationResult(result.ok, result.message, result.steps)
         if structure_key is StructureKey.MERGE_SORT:
             result = merge_sort(_require_array(index))
+            return OperationResult(result.ok, result.message, result.steps)
+        if structure_key is StructureKey.QUICK_SORT:
+            result = quick_sort(_require_array(index))
             return OperationResult(result.ok, result.message, result.steps)
 
         structure = self._structures[structure_key]
@@ -481,4 +493,5 @@ def _is_algorithm_key(structure_key: StructureKey) -> bool:
         StructureKey.SELECTION_SORT,
         StructureKey.INSERTION_SORT,
         StructureKey.MERGE_SORT,
+        StructureKey.QUICK_SORT,
     }

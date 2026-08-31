@@ -11,6 +11,7 @@ from data_structures_visual_lab.domain.data_structures import (
 from data_structures_visual_lab.domain.algorithms import binary_search
 from data_structures_visual_lab.domain.algorithms import bubble_sort
 from data_structures_visual_lab.domain.algorithms import merge_sort
+from data_structures_visual_lab.domain.algorithms import quick_sort
 from data_structures_visual_lab.events import EventType, Step
 from data_structures_visual_lab.visualization import build_algorithm_visualization_state, build_visualization_state
 
@@ -195,6 +196,20 @@ def test_merge_sort_visualization_state_includes_split_and_merge_ranges() -> Non
     assert [element.index for element in split_state.values if element.moved] == [0, 1, 2]
     assert merged_state.completed_range == (0, 2)
     assert [element.value for element in merged_state.values] == [1, 2, 3]
+
+
+def test_quick_sort_visualization_state_includes_pivot_and_partitions() -> None:
+    result = quick_sort((3, 1, 2))
+    pivot_step = [step for step in result.steps if step.state.metadata.get("final_pivot_index") == 1][0]
+
+    state = build_algorithm_visualization_state("Quick Sort", pivot_step)
+
+    assert state.pivot_index == 1
+    assert state.pivot_value == 2
+    assert state.left_partition_range == (0, 0)
+    assert state.right_partition_range == (2, 2)
+    assert [element.index for element in state.values if element.highlighted] == [1, 2]
+    assert [element.index for element in state.values if element.moved] == [0, 1, 2]
 
 
 def test_two_three_visualization_state_includes_multikey_nodes_and_repair_data() -> None:

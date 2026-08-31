@@ -653,3 +653,33 @@ Deferred intentionally:
 - Manual Play and Next Step controls
 - Iterative recursion-depth fallback behavior
 - Advanced large-array visualization infrastructure
+
+## Round 3 Quick Sort with GUI Visualization
+
+Prompt goal: implement Quick Sort with GUI visualization while keeping Heap Sort deferred.
+
+Work completed:
+
+- Added `quick_sort.py` as a separate algorithm module.
+- Reused Round 3 integer-array validation.
+- Implemented recursive Quick Sort with deterministic Lomuto partitioning.
+- Chose the last element of each current range as the pivot so the partition step is easy to follow visually.
+- Added step output for pivot choice, partition ranges, comparisons with the pivot, swaps, final pivot position, recursive left/right ranges, and completed state.
+- Added Quick Sort to the GUI under Algorithms / Sorting.
+- Extended visualization state and canvas rendering with pivot labels, pivot highlighting, and left/right partition range display.
+- Updated tests for normal sorting, duplicates, empty arrays, single-element arrays, already sorted arrays, reverse-sorted arrays, negative integers, pivot placement, partition correctness, step metadata, controller behavior, package imports, visualization state, and GUI smoke flow.
+
+Important implementation direction:
+
+- Quick Sort logic remains in the domain algorithms package.
+- The GUI does not duplicate partition or recursive sorting logic; it consumes generated algorithm steps.
+- The implementation intentionally avoids randomized pivots, median-of-three pivots, 3-way partitioning, and recursion fallbacks in this learning round.
+- Input remains integer-only, with duplicate and negative values allowed.
+
+Deferred intentionally:
+
+- Heap Sort
+- Manual Play and Next Step controls
+- Production-oriented pivot optimizations
+- Iterative recursion-depth fallback behavior
+- Advanced large-array visualization infrastructure

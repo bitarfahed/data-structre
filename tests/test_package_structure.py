@@ -18,6 +18,7 @@ def test_package_layers_import() -> None:
         "data_structures_visual_lab.domain.algorithms.bubble_sort",
         "data_structures_visual_lab.domain.algorithms.insertion_sort",
         "data_structures_visual_lab.domain.algorithms.merge_sort",
+        "data_structures_visual_lab.domain.algorithms.quick_sort",
         "data_structures_visual_lab.domain.algorithms.selection_sort",
         "data_structures_visual_lab.domain.algorithms.state",
         "data_structures_visual_lab.domain.algorithms.validation",

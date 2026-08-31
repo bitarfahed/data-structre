@@ -523,6 +523,14 @@ class VisualLabApp(tk.Tk):
     def _draw_algorithm_array(self, state: VisualizationState, x: int, y: int) -> None:
         if state.target is not None:
             self.canvas.create_text(x, y - 36, anchor="w", text=f"target: {state.target}", fill="#333")
+        if state.pivot_index is not None and state.pivot_value is not None:
+            self.canvas.create_text(
+                x,
+                y - 36,
+                anchor="w",
+                text=f"pivot: {state.pivot_value} at {state.pivot_index}",
+                fill="#7a4a00",
+            )
         if state.discarded_range is not None:
             self.canvas.create_text(
                 x + 120,
@@ -566,6 +574,22 @@ class VisualLabApp(tk.Tk):
                 text=f"merged: {state.completed_range[0]}..{state.completed_range[1]}",
                 fill="#1f6f43",
             )
+        if state.left_partition_range is not None:
+            self.canvas.create_text(
+                x,
+                y + 108,
+                anchor="w",
+                text=f"left partition: {state.left_partition_range[0]}..{state.left_partition_range[1]}",
+                fill="#2b4c7e",
+            )
+        if state.right_partition_range is not None:
+            self.canvas.create_text(
+                x + 240,
+                y + 108,
+                anchor="w",
+                text=f"right partition: {state.right_partition_range[0]}..{state.right_partition_range[1]}",
+                fill="#2b4c7e",
+            )
 
         if not state.values:
             self.canvas.create_text(x, y, anchor="w", text="empty array", fill="#666")
@@ -579,6 +603,8 @@ class VisualLabApp(tk.Tk):
                 fill = "#f0f0f0"
             if element.highlighted:
                 fill = "#ffe08a"
+            if state.pivot_index == element.index:
+                fill = "#ffd59e"
             if state.found_index == element.index:
                 fill = "#bfe8c1"
 
@@ -594,6 +620,8 @@ class VisualLabApp(tk.Tk):
                 labels.append("mid")
             if state.high_index == element.index:
                 labels.append("high")
+            if state.pivot_index == element.index:
+                labels.append("pivot")
             if labels:
                 self.canvas.create_text(
                     cell_x + cell_width // 2,
@@ -650,4 +678,5 @@ def _is_algorithm_key(structure_key: StructureKey) -> bool:
         StructureKey.SELECTION_SORT,
         StructureKey.INSERTION_SORT,
         StructureKey.MERGE_SORT,
+        StructureKey.QUICK_SORT,
     }

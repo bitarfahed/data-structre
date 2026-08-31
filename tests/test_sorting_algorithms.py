@@ -5,6 +5,7 @@ from data_structures_visual_lab.domain.algorithms import (
     bubble_sort,
     insertion_sort,
     merge_sort,
+    quick_sort,
     selection_sort,
 )
 
@@ -14,6 +15,7 @@ SORTS = [
     (selection_sort, "Selection Sort complete."),
     (insertion_sort, "Insertion Sort complete."),
     (merge_sort, "Merge Sort complete."),
+    (quick_sort, "Quick Sort complete."),
 ]
 
 
@@ -41,7 +43,7 @@ def test_sorting_algorithms_handle_round_3_edge_cases(sort_func, message: str, v
     assert result.steps[-1].state.completed
 
 
-@pytest.mark.parametrize("sort_func", [bubble_sort, selection_sort, insertion_sort, merge_sort])
+@pytest.mark.parametrize("sort_func", [bubble_sort, selection_sort, insertion_sort, merge_sort, quick_sort])
 def test_sorting_algorithms_reject_non_integer_values(sort_func) -> None:
     result = sort_func((1, "2", 3))
 
@@ -124,3 +126,41 @@ def test_merge_sort_steps_expose_split_compare_append_and_completed_ranges() -> 
     assert append_steps[0].state.metadata["write_index"] == 0
     assert merged_steps[-1].state.values == (1, 2, 3)
     assert merged_steps[-1].state.metadata["completed_range"] == (0, 2)
+
+
+def test_quick_sort_steps_expose_last_element_pivot_and_comparisons() -> None:
+    result = quick_sort((3, 1, 2))
+
+    pivot_steps = [step for step in result.steps if step.event_type is AlgorithmEventType.PIVOT]
+    compare_steps = [step for step in result.steps if step.event_type is AlgorithmEventType.COMPARE]
+
+    assert pivot_steps[0].state.current_range == (0, 2)
+    assert pivot_steps[0].state.pivot_index == 2
+    assert pivot_steps[0].state.metadata["pivot_value"] == 2
+    assert compare_steps[0].state.comparison_indices == (0, 2)
+    assert compare_steps[0].state.metadata["compared_values"] == (3, 2)
+
+
+def test_quick_sort_places_pivot_and_exposes_partition_ranges() -> None:
+    result = quick_sort((3, 1, 2))
+
+    pivot_move = [step for step in result.steps if step.state.metadata.get("final_pivot_index") == 1][0]
+
+    assert pivot_move.message == "Move pivot 2 to index 1."
+    assert pivot_move.state.values == (1, 2, 3)
+    assert pivot_move.state.metadata["left_partition_range"] == (0, 0)
+    assert pivot_move.state.metadata["right_partition_range"] == (2, 2)
+    assert result.values == (1, 2, 3)
+
+
+def test_quick_sort_partition_correctness_after_first_pivot() -> None:
+    result = quick_sort((4, 2, 5, 1, 3))
+
+    first_pivot_move = [step for step in result.steps if step.state.metadata.get("final_pivot_index") == 2][0]
+    values = first_pivot_move.state.values
+    pivot_value = first_pivot_move.state.metadata["pivot_value"]
+    pivot_index = first_pivot_move.state.metadata["final_pivot_index"]
+
+    assert pivot_value == 3
+    assert all(value <= pivot_value for value in values[:pivot_index])
+    assert all(value > pivot_value for value in values[pivot_index + 1 :])
