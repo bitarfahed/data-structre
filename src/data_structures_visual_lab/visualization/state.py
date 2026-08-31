@@ -11,7 +11,9 @@ from data_structures_visual_lab.domain.data_structures import (
     MinHeap,
     Queue,
     Stack,
+    TwoThreeTree,
 )
+from data_structures_visual_lab.domain.data_structures.two_three_tree import TwoThreeNodeSnapshot
 from data_structures_visual_lab.events import EventType, Step
 
 
@@ -61,6 +63,19 @@ class VisualBucket:
 
 
 @dataclass(frozen=True)
+class VisualMultiKeyTreeNode:
+    """One 2-3 tree node to render."""
+
+    id: int
+    keys: tuple[int, ...]
+    depth: int
+    order: int
+    highlighted: bool = False
+    highlighted_key: int | None = None
+    overflowing: bool = False
+
+
+@dataclass(frozen=True)
 class VisualizationState:
     """A structure snapshot plus the current operation message."""
 
@@ -83,11 +98,15 @@ class VisualizationState:
     bucket_count: int | None = None
     bucket_index: int | None = None
     collision: bool = False
+    multi_key_tree_nodes: tuple[VisualMultiKeyTreeNode, ...] = ()
+    multi_key_tree_edges: tuple[tuple[int, int], ...] = ()
+    tree_valid: bool | None = None
+    invalid_node_id: int | None = None
 
 
 def build_visualization_state(
     structure_name: str,
-    structure: Stack | Queue | LinkedList | DynamicArray | AVLTree | MinHeap | HashTable,
+    structure: Stack | Queue | LinkedList | DynamicArray | AVLTree | MinHeap | HashTable | TwoThreeTree,
     step: Step | None = None,
 ) -> VisualizationState:
     """Build a renderer-friendly state from a domain structure and optional step."""
@@ -165,6 +184,27 @@ def build_visualization_state(
             bucket_count=structure.bucket_count,
             bucket_index=bucket_index,
             collision=collision,
+        )
+
+    if isinstance(structure, TwoThreeTree):
+        nodes, edges = _two_three_nodes_and_edges(
+            structure.node_snapshots(),
+            highlight_node_id=_int_or_none(metadata.get("highlight_node_id")),
+            highlight_value=_int_or_none(metadata.get("highlight_value")),
+            path_node_ids=_int_list(metadata.get("search_path_node_ids")),
+        )
+        return VisualizationState(
+            structure_name=structure_name,
+            values=(),
+            message=message,
+            size=structure.size,
+            event_type=step.event_type if step is not None else None,
+            metadata=metadata,
+            repair_pending=structure.repair_pending,
+            multi_key_tree_nodes=nodes,
+            multi_key_tree_edges=edges,
+            tree_valid=structure.is_valid(),
+            invalid_node_id=structure.invalid_node_id,
         )
 
     if isinstance(structure, DynamicArray):
@@ -381,3 +421,84 @@ def _hash_buckets(
 
 def _int_or_none(value: object) -> int | None:
     return value if type(value) is int else None
+
+
+def _int_list(value: object) -> set[int]:
+    if not isinstance(value, list):
+        return set()
+    return {item for item in value if type(item) is int}
+
+
+def _two_three_nodes_and_edges(
+    snapshots: tuple[TwoThreeNodeSnapshot, ...],
+    highlight_node_id: int | None,
+    highlight_value: int | None,
+    path_node_ids: set[int],
+) -> tuple[tuple[VisualMultiKeyTreeNode, ...], tuple[tuple[int, int], ...]]:
+    by_id = {snapshot.node_id: snapshot for snapshot in snapshots}
+    depths = _two_three_depths(snapshots, by_id)
+    ordered_ids = _two_three_ordered_ids(snapshots, by_id)
+    order_by_id = {node_id: order for order, node_id in enumerate(ordered_ids)}
+    nodes = tuple(
+        VisualMultiKeyTreeNode(
+            id=snapshot.node_id,
+            keys=snapshot.keys,
+            depth=depths.get(snapshot.node_id, 0),
+            order=order_by_id.get(snapshot.node_id, 0),
+            highlighted=snapshot.node_id == highlight_node_id or snapshot.node_id in path_node_ids,
+            highlighted_key=highlight_value if highlight_value in snapshot.keys else None,
+            overflowing=snapshot.overflowing,
+        )
+        for snapshot in snapshots
+    )
+    edges = tuple(
+        (snapshot.node_id, child_id)
+        for snapshot in snapshots
+        for child_id in snapshot.child_ids
+    )
+    return nodes, edges
+
+
+def _two_three_depths(
+    snapshots: tuple[TwoThreeNodeSnapshot, ...],
+    by_id: dict[int, TwoThreeNodeSnapshot],
+) -> dict[int, int]:
+    roots = [snapshot for snapshot in snapshots if snapshot.parent_id is None]
+    if not roots:
+        return {}
+    depths: dict[int, int] = {}
+
+    def visit(node_id: int, depth: int) -> None:
+        depths[node_id] = depth
+        for child_id in by_id[node_id].child_ids:
+            visit(child_id, depth + 1)
+
+    visit(roots[0].node_id, 0)
+    return depths
+
+
+def _two_three_ordered_ids(
+    snapshots: tuple[TwoThreeNodeSnapshot, ...],
+    by_id: dict[int, TwoThreeNodeSnapshot],
+) -> list[int]:
+    roots = [snapshot for snapshot in snapshots if snapshot.parent_id is None]
+    if not roots:
+        return []
+    ordered: list[int] = []
+
+    def visit(node_id: int) -> None:
+        snapshot = by_id[node_id]
+        if not snapshot.child_ids:
+            ordered.append(node_id)
+            return
+        for index, child_id in enumerate(snapshot.child_ids):
+            visit(child_id)
+            if index < len(snapshot.keys):
+                ordered.append(node_id)
+
+    visit(roots[0].node_id)
+    deduped: list[int] = []
+    for node_id in ordered:
+        if node_id not in deduped:
+            deduped.append(node_id)
+    return deduped

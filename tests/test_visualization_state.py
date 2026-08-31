@@ -6,6 +6,7 @@ from data_structures_visual_lab.domain.data_structures import (
     MinHeap,
     Queue,
     Stack,
+    TwoThreeTree,
 )
 from data_structures_visual_lab.events import EventType, Step
 from data_structures_visual_lab.visualization import build_visualization_state
@@ -129,3 +130,22 @@ def test_hash_table_visualization_state_includes_bucket_chains_and_collision_dat
     assert state.buckets[1].collision
     assert [(entry.key, entry.value) for entry in state.buckets[1].entries] == [(1, 10), (5, 50)]
     assert [entry.key for entry in state.buckets[1].entries if entry.highlighted] == [5]
+
+
+def test_two_three_visualization_state_includes_multikey_nodes_and_repair_data() -> None:
+    tree = TwoThreeTree()
+    tree.insert_raw(10)
+    tree.insert_raw(5)
+    _ok, steps = tree.insert_raw_with_steps(15)
+
+    state = build_visualization_state("2-3 Tree", tree, steps[-1])
+
+    assert state.size == 3
+    assert not state.tree_valid
+    assert state.repair_pending
+    assert state.invalid_node_id == state.multi_key_tree_nodes[0].id
+    assert state.multi_key_tree_edges == ()
+    assert state.multi_key_tree_nodes[0].keys == (5, 10, 15)
+    assert state.multi_key_tree_nodes[0].overflowing
+    assert state.multi_key_tree_nodes[0].highlighted
+    assert state.multi_key_tree_nodes[0].highlighted_key == 15

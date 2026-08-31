@@ -11,6 +11,7 @@ from data_structures_visual_lab.domain.data_structures import (
     MinHeap,
     Queue,
     Stack,
+    TwoThreeTree,
 )
 from data_structures_visual_lab.events import Step
 from data_structures_visual_lab.visualization.state import VisualizationState, build_visualization_state
@@ -26,6 +27,7 @@ class StructureKey(str, Enum):
     AVL_TREE = "AVL Tree"
     MIN_HEAP = "Min-Heap"
     HASH_TABLE = "Hash Table"
+    TWO_THREE_TREE = "2-3 Tree"
 
 
 @dataclass(frozen=True)
@@ -66,6 +68,10 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     StructureKey.HASH_TABLE: (
         "A hash table maps integer keys to integer values by calculating a bucket index. "
         "This version uses separate chaining when multiple keys land in the same bucket."
+    ),
+    StructureKey.TWO_THREE_TREE: (
+        "A 2-3 tree keeps all leaves at the same depth. Each node normally stores one or two keys, "
+        "and this version separates raw leaf insertion from split and promotion repair."
     ),
 }
 
@@ -135,6 +141,11 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
             index_allows_negative=True,
         ),
     ),
+    StructureKey.TWO_THREE_TREE: (
+        OperationSpec("insert_raw", "insert_raw(value)", needs_value=True),
+        OperationSpec("repair", "repair()"),
+        OperationSpec("search", "search(value)", needs_value=True),
+    ),
 }
 
 
@@ -150,6 +161,7 @@ class VisualLabController:
             StructureKey.AVL_TREE: AVLTree(),
             StructureKey.MIN_HEAP: MinHeap(),
             StructureKey.HASH_TABLE: HashTable(),
+            StructureKey.TWO_THREE_TREE: TwoThreeTree(),
         }
 
     def structure_keys(self) -> tuple[StructureKey, ...]:
@@ -192,8 +204,10 @@ class VisualLabController:
             self._structures[structure_key] = AVLTree()
         elif structure_key is StructureKey.MIN_HEAP:
             self._structures[structure_key] = MinHeap()
-        else:
+        elif structure_key is StructureKey.HASH_TABLE:
             self._structures[structure_key] = HashTable()
+        else:
+            self._structures[structure_key] = TwoThreeTree()
 
     def run_operation(
         self,
@@ -296,6 +310,16 @@ class VisualLabController:
                 result, steps = structure.search_with_steps(_require_int(index))
                 return OperationResult(result is not None, steps[-1].message, steps)
             ok, steps = structure.delete_with_steps(_require_int(index))
+            return OperationResult(ok, steps[-1].message, steps)
+
+        if isinstance(structure, TwoThreeTree):
+            if operation_key == "insert_raw":
+                ok, steps = structure.insert_raw_with_steps(_require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "repair":
+                ok, steps = structure.repair_with_steps()
+                return OperationResult(ok, steps[-1].message, steps)
+            ok, steps = structure.search_with_steps(_require_int(value))
             return OperationResult(ok, steps[-1].message, steps)
 
         if operation_key == "add":

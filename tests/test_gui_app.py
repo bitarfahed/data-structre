@@ -54,6 +54,11 @@ def test_gui_main_flows_for_supported_structures() -> None:
         (StructureKey.HASH_TABLE, "insert", "99", "1"),
         (StructureKey.HASH_TABLE, "search", "", "9"),
         (StructureKey.HASH_TABLE, "delete", "", "9"),
+        (StructureKey.TWO_THREE_TREE, "insert_raw", "10", ""),
+        (StructureKey.TWO_THREE_TREE, "insert_raw", "5", ""),
+        (StructureKey.TWO_THREE_TREE, "insert_raw", "15", ""),
+        (StructureKey.TWO_THREE_TREE, "repair", "", ""),
+        (StructureKey.TWO_THREE_TREE, "search", "10", ""),
     ]
 
     try:
@@ -163,6 +168,43 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert app.status_text.get() == "Key must be an integer."
         app._restart_structure()
         assert app.controller.snapshot(StructureKey.HASH_TABLE).size == 0
+
+        app.selected_structure.set(StructureKey.TWO_THREE_TREE.value)
+        app._show_structure_selection()
+        assert "2-3 tree" in app.explanation_label.cget("text").lower()
+        app._show_operations()
+        app._restart_structure()
+        for value in ("10", "5", "15"):
+            app.selected_operation.set("insert_raw")
+            app._refresh_operation_fields()
+            app.value_input.set(value)
+            app._run_current_operation()
+        assert str(app.run_button.cget("state")) == tk.DISABLED
+        assert app.controller.snapshot(StructureKey.TWO_THREE_TREE).repair_pending
+        app.selected_operation.set("repair")
+        app._refresh_operation_fields()
+        assert str(app.run_button.cget("state")) == tk.NORMAL
+        app._run_current_operation()
+        assert not app.controller.snapshot(StructureKey.TWO_THREE_TREE).repair_pending
+        for value in ("12", "11", "20", "25"):
+            app.selected_operation.set("insert_raw")
+            app._refresh_operation_fields()
+            app.value_input.set(value)
+            app._run_current_operation()
+            if app.controller.snapshot(StructureKey.TWO_THREE_TREE).repair_pending:
+                app.selected_operation.set("repair")
+                app._refresh_operation_fields()
+                app._run_current_operation()
+        snapshot = app.controller.snapshot(StructureKey.TWO_THREE_TREE)
+        assert snapshot.tree_valid
+        assert [node.keys for node in snapshot.multi_key_tree_nodes if node.depth == 0] == [(12,)]
+        app.selected_operation.set("search")
+        app._refresh_operation_fields()
+        app.value_input.set("11")
+        app._run_current_operation()
+        assert "search found 11" in app.status_text.get()
+        app._restart_structure()
+        assert app.controller.snapshot(StructureKey.TWO_THREE_TREE).size == 0
 
         app.selected_structure.set(StructureKey.STACK.value)
         app._show_operations()

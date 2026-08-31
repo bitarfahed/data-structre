@@ -52,7 +52,7 @@ The project foundation is in place:
 - Stack, Queue, Singly Linked List, and Dynamic Array domain implementations
 - Simple Tkinter desktop GUI shell
 - GUI-independent visualization state support
-- GUI operation controls for the mutating Round 1 operations and AVL Tree operations
+- GUI operation controls for Round 1 operations and implemented Round 2 structures
 - Pytest configuration
 - Unit tests for package imports and all Round 1 data structures
 - Planning and development-process documentation
@@ -87,6 +87,8 @@ Implemented:
 
 - 2-3 Tree domain logic with raw insertion and explicit split/promotion repair
 - 2-3 Tree pending-repair state, blocked insertion while repair is pending, valid-state checks, node keys, child relationships, and overflowing-node inspection
+- 2-3 Tree GUI selection, explanation, operation controls, and Restart support
+- Simple 2-3 Tree visualization with multi-key nodes, parent-child edges, overflow highlighting, and valid/repair-required status
 - AVL Tree node and tree classes
 - BST-style insertion with separate `balance()`
 - Pending-rebalance state that blocks additional insertions
@@ -106,7 +108,7 @@ Implemented:
 
 Known limitations:
 
-- 2-3 Tree is not connected to the GUI or visualization shell yet.
+- 2-3 Tree visualization is simple and immediate; it does not animate split or promotion movement.
 - AVL visualization is simple and immediate; it does not animate rotations or provide step playback controls.
 - Min-Heap visualization is simple and immediate; it does not animate sift-up or heapify-down movement.
 - Hash Table uses a fixed bucket count and does not resize automatically.

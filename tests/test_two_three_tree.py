@@ -1,6 +1,7 @@
 import pytest
 
 from data_structures_visual_lab.domain.data_structures.two_three_tree import TwoThreeNode, TwoThreeTree
+from data_structures_visual_lab.events import EventType
 
 
 def assert_two_three_invariant(tree: TwoThreeTree) -> None:
@@ -202,3 +203,47 @@ def test_node_snapshots_expose_keys_children_and_overflow() -> None:
     assert overflowing[0].keys == (11, 12, 15)
     assert tree.invalid_node_id == overflowing[0].node_id
     assert any(snapshot.child_ids for snapshot in snapshots)
+
+
+def test_insert_raw_steps_expose_overflow_state() -> None:
+    tree = TwoThreeTree()
+    tree.insert_raw(10)
+    tree.insert_raw(5)
+
+    ok, steps = tree.insert_raw_with_steps(15)
+
+    assert ok
+    assert [step.event_type for step in steps] == [EventType.ADD, EventType.COMPLETE]
+    assert steps[-1].message == "Raw insert complete. Repair required before another insert."
+    assert steps[-1].metadata["repair_pending"] is True
+    assert steps[-1].metadata["invalid_node_keys"] == (5, 10, 15)
+
+
+def test_repair_steps_expose_valid_repaired_state() -> None:
+    tree = TwoThreeTree()
+    tree.insert_raw(10)
+    tree.insert_raw(5)
+    tree.insert_raw(15)
+
+    ok, steps = tree.repair_with_steps()
+
+    assert ok
+    assert [step.event_type for step in steps] == [EventType.MOVE, EventType.COMPLETE]
+    assert steps[-1].message == "2-3 Tree repair complete. Tree is valid."
+    assert steps[-1].metadata["tree_valid"] is True
+    assert steps[-1].metadata["repair_pending"] is False
+
+
+def test_search_steps_expose_found_and_missing_paths() -> None:
+    tree = TwoThreeTree()
+    insert_and_repair(tree, [10, 5, 15, 12, 11])
+
+    found, found_steps = tree.search_with_steps(11)
+    missing, missing_steps = tree.search_with_steps(99)
+
+    assert found
+    assert found_steps[-1].message == "2-3 Tree search found 11."
+    assert found_steps[-1].metadata["highlight_value"] == 11
+    assert not missing
+    assert missing_steps[-1].message == "2-3 Tree search did not find 99."
+    assert missing_steps[-1].metadata["search_path_node_ids"]

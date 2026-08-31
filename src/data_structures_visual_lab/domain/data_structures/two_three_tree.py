@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from data_structures_visual_lab.events import EventType, Step
+
 
 @dataclass
 class TwoThreeNode:
@@ -78,6 +80,42 @@ class TwoThreeTree:
             self._invalid_node = leaf
         return True
 
+    def insert_raw_with_steps(self, value: int) -> tuple[bool, list[Step]]:
+        """Insert a value and return observable steps for visualization."""
+        self._validate_integer(value)
+        if self._repair_pending:
+            return False, [
+                self._step(
+                    EventType.COMPLETE,
+                    "2-3 Tree insert blocked because repair is pending.",
+                    {"value": value, "highlight_node_id": self.invalid_node_id},
+                )
+            ]
+        if self.search(value):
+            return False, [
+                self._step(
+                    EventType.COMPLETE,
+                    f"2-3 Tree insert skipped because {value} already exists.",
+                    {"value": value, "highlight_value": value},
+                )
+            ]
+
+        inserted = self.insert_raw(value)
+        leaf = self._find_node_containing(value)
+        metadata = {
+            "value": value,
+            "highlight_value": value,
+            "highlight_node_id": leaf.node_id if leaf is not None else None,
+        }
+        if self._repair_pending:
+            message = "Raw insert complete. Repair required before another insert."
+        else:
+            message = "Raw insert complete. Tree remains valid."
+        return inserted, [
+            self._step(EventType.ADD, f"Inserted {value} into a leaf.", metadata),
+            self._step(EventType.COMPLETE, message, metadata),
+        ]
+
     def repair(self) -> bool:
         """Restore 2-3 tree validity by splitting overflowing nodes upward."""
         if not self._repair_pending or self._invalid_node is None:
@@ -90,6 +128,32 @@ class TwoThreeTree:
         self._repair_pending = False
         self._invalid_node = None
         return True
+
+    def repair_with_steps(self) -> tuple[bool, list[Step]]:
+        """Repair overflowing nodes and return observable steps."""
+        if not self._repair_pending or self._invalid_node is None:
+            return False, [self._step(EventType.COMPLETE, "2-3 Tree repair skipped because no repair is pending.")]
+
+        invalid_node_id = self.invalid_node_id
+        invalid_keys = self.invalid_node_keys
+        repaired = self.repair()
+        root_keys = tuple(self.root.keys) if self.root is not None else ()
+        return repaired, [
+            self._step(
+                EventType.MOVE,
+                "Split overflowing node and promoted the middle key.",
+                {
+                    "previous_invalid_node_id": invalid_node_id,
+                    "previous_invalid_keys": invalid_keys,
+                    "highlight_node_id": self.root.node_id if self.root is not None else None,
+                },
+            ),
+            self._step(
+                EventType.COMPLETE,
+                "2-3 Tree repair complete. Tree is valid.",
+                {"root_keys": root_keys, "highlight_node_id": self.root.node_id if self.root is not None else None},
+            ),
+        ]
 
     def search(self, value: int) -> bool:
         """Return True when value exists in the tree."""
@@ -104,6 +168,28 @@ class TwoThreeTree:
             current = current.children[self._child_index_for_value(current, value)]
 
         return False
+
+    def search_with_steps(self, value: int) -> tuple[bool, list[Step]]:
+        """Search for a value and return observable steps."""
+        self._validate_integer(value)
+        path = self._search_path(value)
+        found_node = self._find_node_containing(value)
+        found = found_node is not None
+        if found:
+            message = f"2-3 Tree search found {value}."
+            metadata = {
+                "value": value,
+                "highlight_value": value,
+                "highlight_node_id": found_node.node_id,
+                "search_path_node_ids": path,
+            }
+        else:
+            message = f"2-3 Tree search did not find {value}."
+            metadata = {"value": value, "search_path_node_ids": path}
+        return found, [
+            self._step(EventType.VISIT, f"Searched path for {value}.", {"search_path_node_ids": path}),
+            self._step(EventType.COMPLETE, message, metadata),
+        ]
 
     def is_valid(self) -> bool:
         """Return True when all 2-3 tree invariants currently hold."""
@@ -270,6 +356,45 @@ class TwoThreeTree:
         )
         for child in node.children:
             self._collect_snapshots(child, snapshots)
+
+    def _find_node_containing(self, value: int) -> TwoThreeNode | None:
+        current = self.root
+        while current is not None:
+            if value in current.keys:
+                return current
+            if current.is_leaf:
+                return None
+            current = current.children[self._child_index_for_value(current, value)]
+        return None
+
+    def _search_path(self, value: int) -> list[int]:
+        path: list[int] = []
+        current = self.root
+        while current is not None:
+            path.append(current.node_id)
+            if value in current.keys or current.is_leaf:
+                break
+            current = current.children[self._child_index_for_value(current, value)]
+        return path
+
+    def _step(
+        self,
+        event_type: EventType,
+        message: str,
+        metadata: dict[str, object] | None = None,
+    ) -> Step:
+        step_metadata = {
+            "state": self.to_list(),
+            "size": self.size,
+            "tree_valid": self.is_valid(),
+            "repair_pending": self.repair_pending,
+            "invalid_node_id": self.invalid_node_id,
+            "invalid_node_keys": self.invalid_node_keys,
+            "nodes": self.node_snapshots(),
+        }
+        if metadata:
+            step_metadata.update(metadata)
+        return Step(event_type, message, step_metadata)
 
     def _new_node(self, keys: list[int], children: list[TwoThreeNode] | None = None) -> TwoThreeNode:
         node = TwoThreeNode(keys=keys, children=children or [], node_id=self._next_node_id)

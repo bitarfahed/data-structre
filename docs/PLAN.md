@@ -94,6 +94,9 @@ Implemented:
 - `search(value)`
 - Pending-repair state that blocks additional insertions while a node is overflowing
 - Node keys, child relationships, tree validity, and overflowing-node inspection
+- GUI structure selection and educational explanation for 2-3 Tree
+- GUI operations for Insert Raw, Repair, Search, and Restart
+- Simple 2-3 Tree visualization with multi-key nodes, parent-child edges, overflow highlighting, and valid/repair-required status
 - `AVLNode`
 - `AVLTree`
 - `insert(value)` as normal BST insertion only
@@ -134,4 +137,4 @@ Min-Heap duplicate values are allowed.
 Hash Table duplicate keys update the existing value.
 2-3 Tree duplicate values are rejected.
 
-2-3 Tree GUI/visualization, Hash Table resizing, richer AVL/Min-Heap animation, step playback, and additional Round 2 structures remain deferred.
+Hash Table resizing, richer AVL/Min-Heap/2-3 Tree animation, step playback, and additional Round 2 structures remain deferred.

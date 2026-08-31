@@ -419,7 +419,7 @@ Deferred intentionally:
 
 ## Round 2 2-3 Tree Domain Logic
 
-Prompt goal: implement 2-3 Tree domain logic while preserving the current architecture and keeping 2-3 Tree GUI/visualization work deferred.
+Prompt goal: implement 2-3 Tree domain logic while preserving the current architecture and keeping 2-3 Tree GUI/visualization work deferred for the next pass.
 
 Work completed:
 
@@ -438,8 +438,38 @@ Important implementation direction:
 - Values must be integers, and `bool` is rejected even though it subclasses `int` in Python.
 - Public snapshots expose node keys, child ids, parent ids, and overflowing-node state for future visualization.
 
+Deferred at this step:
+
+- 2-3 Tree GUI controls, completed in the next pass
+- 2-3 Tree visualization rendering, completed in the next pass
+- Step/Event integration for 2-3 Tree operations, completed in the next pass
+
+## Round 2 2-3 Tree GUI and Visualization
+
+Prompt goal: connect the 2-3 Tree to the existing GUI and visualization architecture without adding other structures or algorithms.
+
+Work completed:
+
+- Added 2-3 Tree to the GUI structure-selection flow with an educational explanation.
+- Added GUI operations for Insert Raw, Repair, Search, and Restart.
+- Added 2-3 Tree step-emitting companion methods in the domain module for operation messages and visualization metadata.
+- Extended GUI-independent visualization state with multi-key tree nodes, parent-child edges, valid state, repair-pending state, invalid-node id, highlighted nodes, and highlighted keys.
+- Added simple Tkinter rendering for 2-3 Tree nodes, parent-child edges, overflowing nodes, and valid/repair-required status.
+- Updated domain step tests, controller integration tests, visualization-state tests, and GUI smoke coverage.
+
+Important implementation direction:
+
+- 2-3 Tree algorithms remain in the domain layer.
+- The GUI calls the controller, and the controller calls existing 2-3 Tree domain methods.
+- Insert Raw inserts into the leaf without split/promotion repair.
+- While `repair_pending` is true, Insert Raw is blocked and the GUI disables the Run button for that operation.
+- Repair uses the domain split and key-promotion behavior, then redraws the repaired tree.
+- Search highlights the matching node/key when found and reports a clear not-found message otherwise.
+- Restart creates a fresh empty 2-3 Tree and clears tree-specific UI state.
+
 Deferred intentionally:
 
-- 2-3 Tree GUI controls
-- 2-3 Tree visualization rendering
-- Step/Event integration for 2-3 Tree operations
+- Animated split and key-promotion movement
+- Play, Next Step, and previous-step playback controls
+- 2-3 Tree deletion
+- Additional Round 2 structures

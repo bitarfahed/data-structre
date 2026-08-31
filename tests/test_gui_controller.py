@@ -13,6 +13,7 @@ def test_controller_lists_structures_and_operations() -> None:
         StructureKey.AVL_TREE,
         StructureKey.MIN_HEAP,
         StructureKey.HASH_TABLE,
+        StructureKey.TWO_THREE_TREE,
     )
     assert [operation.key for operation in controller.operations_for(StructureKey.STACK)] == [
         "push",
@@ -50,6 +51,11 @@ def test_controller_lists_structures_and_operations() -> None:
         "insert",
         "search",
         "delete",
+    ]
+    assert [operation.key for operation in controller.operations_for(StructureKey.TWO_THREE_TREE)] == [
+        "insert_raw",
+        "repair",
+        "search",
     ]
 
 
@@ -178,6 +184,7 @@ def test_controller_reset_clears_each_round_1_structure() -> None:
     controller.run_operation(StructureKey.AVL_TREE, "insert", value_text="5")
     controller.run_operation(StructureKey.MIN_HEAP, "add_raw", value_text="6")
     controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="7", index_text="1")
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="8")
 
     for structure_key in controller.structure_keys():
         controller.reset_structure(structure_key)
@@ -185,6 +192,7 @@ def test_controller_reset_clears_each_round_1_structure() -> None:
         assert snapshot.size == 0
         assert all(element.value is None for element in snapshot.values)
         assert snapshot.tree_nodes == ()
+        assert snapshot.multi_key_tree_nodes == ()
 
 
 def test_controller_runs_avl_insert_and_marks_pending_rebalance() -> None:
@@ -281,6 +289,102 @@ def test_controller_reset_clears_avl_pending_rebalance_state() -> None:
     assert snapshot.tree_nodes == ()
     assert snapshot.balanced
     assert not snapshot.rebalance_pending
+
+
+def test_controller_runs_two_three_insert_raw_and_marks_pending_repair() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="10")
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="5")
+    result = controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="15")
+    snapshot = controller.snapshot(StructureKey.TWO_THREE_TREE, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Raw insert complete. Repair required before another insert."
+    assert not snapshot.tree_valid
+    assert snapshot.repair_pending
+    assert len(snapshot.multi_key_tree_nodes) == 1
+    assert snapshot.multi_key_tree_nodes[0].keys == (5, 10, 15)
+    assert snapshot.multi_key_tree_nodes[0].overflowing
+    assert snapshot.multi_key_tree_nodes[0].highlighted
+
+
+def test_controller_blocks_two_three_insert_while_repair_is_pending() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="10")
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="5")
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="15")
+    result = controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="20")
+
+    assert not result.ok
+    assert result.message == "2-3 Tree insert blocked because repair is pending."
+    assert controller.snapshot(StructureKey.TWO_THREE_TREE).size == 3
+
+
+def test_controller_runs_two_three_repair_and_reenables_insert() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="10")
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="5")
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="15")
+    repair_result = controller.run_operation(StructureKey.TWO_THREE_TREE, "repair")
+    insert_result = controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="20")
+
+    assert repair_result.ok
+    assert repair_result.message == "2-3 Tree repair complete. Tree is valid."
+    assert insert_result.ok
+    snapshot = controller.snapshot(StructureKey.TWO_THREE_TREE)
+    assert snapshot.tree_valid
+    assert not snapshot.repair_pending
+    assert [node.keys for node in snapshot.multi_key_tree_nodes] == [(10,), (5,), (15, 20)]
+
+
+def test_controller_runs_two_three_recursive_repair_and_search() -> None:
+    controller = VisualLabController()
+    for value in ("10", "5", "15", "12", "11", "20", "25"):
+        controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text=value)
+        if controller.snapshot(StructureKey.TWO_THREE_TREE).repair_pending:
+            controller.run_operation(StructureKey.TWO_THREE_TREE, "repair")
+
+    found = controller.run_operation(StructureKey.TWO_THREE_TREE, "search", value_text="11")
+    missing = controller.run_operation(StructureKey.TWO_THREE_TREE, "search", value_text="99")
+    snapshot = controller.snapshot(StructureKey.TWO_THREE_TREE, found.steps[-1])
+
+    assert found.ok
+    assert found.message == "2-3 Tree search found 11."
+    assert not missing.ok
+    assert missing.message == "2-3 Tree search did not find 99."
+    assert snapshot.tree_valid
+    assert not snapshot.repair_pending
+    assert [node.keys for node in snapshot.multi_key_tree_nodes if node.depth == 0] == [(12,)]
+
+
+def test_controller_rejects_invalid_two_three_value_input() -> None:
+    controller = VisualLabController()
+
+    result = controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="abc")
+
+    assert not result.ok
+    assert result.message == "Value must be an integer."
+    assert controller.snapshot(StructureKey.TWO_THREE_TREE).size == 0
+
+
+def test_controller_reset_clears_two_three_repair_state() -> None:
+    controller = VisualLabController()
+
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="10")
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="5")
+    controller.run_operation(StructureKey.TWO_THREE_TREE, "insert_raw", value_text="15")
+    assert controller.snapshot(StructureKey.TWO_THREE_TREE).repair_pending
+
+    controller.reset_structure(StructureKey.TWO_THREE_TREE)
+    snapshot = controller.snapshot(StructureKey.TWO_THREE_TREE)
+
+    assert snapshot.size == 0
+    assert snapshot.multi_key_tree_nodes == ()
+    assert snapshot.tree_valid
+    assert not snapshot.repair_pending
 
 
 def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:

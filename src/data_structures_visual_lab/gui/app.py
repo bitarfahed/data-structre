@@ -140,6 +140,10 @@ class VisualLabApp(tk.Tk):
             self._current_structure_key() is StructureKey.MIN_HEAP
             and operation.key in {"add_raw", "extract_raw"}
             and self.controller.snapshot(StructureKey.MIN_HEAP).repair_pending
+        ) and not (
+            self._current_structure_key() is StructureKey.TWO_THREE_TREE
+            and operation.key == "insert_raw"
+            and self.controller.snapshot(StructureKey.TWO_THREE_TREE).repair_pending
         )
         self.run_button.configure(state=tk.NORMAL if can_run else tk.DISABLED)
 
@@ -191,8 +195,10 @@ class VisualLabApp(tk.Tk):
             self._draw_avl_tree(state, width)
         elif state.structure_name == StructureKey.MIN_HEAP.value:
             self._draw_min_heap(state, width)
-        else:
+        elif state.structure_name == StructureKey.HASH_TABLE.value:
             self._draw_hash_table(state, width)
+        else:
+            self._draw_two_three_tree(state, width)
 
     def _draw_stack(self, state: VisualizationState, width: int) -> None:
         cell_width = 96
@@ -415,6 +421,62 @@ class VisualLabApp(tk.Tk):
                 if entry.entry_index < len(bucket.entries) - 1:
                     self.canvas.create_line(x - 14, y + 12, x - 2, y + 12, arrow=tk.LAST, fill="#555")
             y += row_height
+
+    def _draw_two_three_tree(self, state: VisualizationState, width: int) -> None:
+        status = "VALID" if state.tree_valid else "REPAIR REQUIRED"
+        fill = "#1f6f43" if state.tree_valid else "#9f2d20"
+        self.canvas.create_text(20, 76, anchor="w", text=status, fill=fill, font=("Segoe UI", 11, "bold"))
+        if state.repair_pending:
+            self.canvas.create_text(
+                20,
+                98,
+                anchor="w",
+                text="Run Repair before inserting another value.",
+                fill="#9f2d20",
+            )
+
+        if not state.multi_key_tree_nodes:
+            self.canvas.create_text(width // 2, 185, text="empty", fill="#666")
+            return
+
+        positions = self._multi_key_tree_positions(state, width)
+        for parent_id, child_id in state.multi_key_tree_edges:
+            parent_x, parent_y = positions[parent_id]
+            child_x, child_y = positions[child_id]
+            self.canvas.create_line(parent_x, parent_y + 22, child_x, child_y - 20, fill="#555")
+
+        for node in state.multi_key_tree_nodes:
+            x, y = positions[node.id]
+            key_width = 36
+            node_width = key_width * len(node.keys)
+            node_fill = "#ffd1cc" if node.overflowing else "#e8f1ff"
+            if node.highlighted:
+                node_fill = "#ffe08a"
+            left = x - node_width // 2
+            self.canvas.create_rectangle(left, y - 20, left + node_width, y + 20, fill=node_fill, outline="#2b4c7e")
+            for index, key in enumerate(node.keys):
+                key_left = left + index * key_width
+                if index > 0:
+                    self.canvas.create_line(key_left, y - 20, key_left, y + 20, fill="#2b4c7e")
+                key_fill = "#fff2b0" if node.highlighted_key == key else node_fill
+                if key_fill != node_fill:
+                    self.canvas.create_rectangle(key_left + 1, y - 19, key_left + key_width - 1, y + 19, fill=key_fill, outline="")
+                self.canvas.create_text(key_left + key_width // 2, y, text=str(key), font=("Segoe UI", 10, "bold"))
+            if node.overflowing:
+                self.canvas.create_text(x, y + 34, text="overflow", fill="#9f2d20", font=("Segoe UI", 8, "bold"))
+
+    def _multi_key_tree_positions(self, state: VisualizationState, width: int) -> dict[int, tuple[int, int]]:
+        max_order = max(node.order for node in state.multi_key_tree_nodes)
+        max_depth = max(node.depth for node in state.multi_key_tree_nodes)
+        horizontal_span = max(width - 140, 1)
+        vertical_gap = max(58, min(76, 200 // max(max_depth, 1)))
+        return {
+            node.id: (
+                70 + int((node.order / max(max_order, 1)) * horizontal_span),
+                130 + node.depth * vertical_gap,
+            )
+            for node in state.multi_key_tree_nodes
+        }
 
     def _clear_controls(self) -> None:
         for child in self.controls.winfo_children():
