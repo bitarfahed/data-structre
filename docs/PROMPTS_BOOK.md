@@ -527,3 +527,40 @@ Deferred intentionally:
 
 - Hash Table resizing
 - Animated collision traversal
+
+## Round 3 Algorithms Infrastructure
+
+Prompt goal: add shared infrastructure for future array-based searching and sorting algorithms without implementing Binary Search, sorting algorithms, or GUI changes.
+
+Work completed:
+
+- Added shared `AlgorithmEventType`, `AlgorithmState`, and `AlgorithmStep` representations under the domain algorithms package.
+- Added `make_algorithm_step(...)` so future algorithms can create normalized immutable snapshots while still choosing returned step lists or generators.
+- Added Round 3 validation helpers for integer arrays, comma-separated text input, and Binary Search's ascending sorted-input precondition.
+- Added pytest coverage for execution-state metadata, event coverage, empty arrays, single-element arrays, duplicates, sorted arrays, reverse-sorted arrays, invalid input, text parsing, and unsorted Binary Search validation.
+- Updated package import smoke coverage.
+- Updated README and plan documentation with Round 3 status and edge-case decisions.
+
+Important implementation direction:
+
+- Algorithm infrastructure remains independent from GUI code.
+- Round 3 arrays accept integers only; `bool` is rejected because it is not useful educationally even though Python treats it as an `int` subclass.
+- Empty arrays, one-element arrays, duplicates, sorted arrays, and reverse-sorted arrays are valid inputs.
+- Binary Search will require ascending sorted input and reject unsorted arrays instead of sorting a copy.
+- The project continues to target small educational arrays.
+
+Documented alternatives intentionally not chosen:
+
+- Descending-array Binary Search
+- Automatically sorting a copy before Binary Search
+- Returning first, last, or all duplicate search matches
+- Randomized pivot, median-of-three pivot, or 3-way Quick Sort partitioning
+- Iterative fallbacks for recursive algorithms
+- Large-array GUI limits, pagination, or virtualization
+- Generic comparable types instead of integers only
+
+Deferred intentionally:
+
+- Binary Search implementation
+- Sorting algorithm implementations
+- Round 3 GUI integration

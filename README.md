@@ -58,6 +58,7 @@ The project foundation is in place:
 - Planning and development-process documentation
 
 Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
+Round 3 infrastructure has started for future array-based searching and sorting algorithms.
 
 ## Round 1 Status
 
@@ -113,3 +114,14 @@ Known limitations:
 - Min-Heap visualization is simple and immediate; it does not animate sift-up or heapify-down movement.
 - Hash Table uses a fixed bucket count and does not resize automatically.
 - 2-3 Tree does not support deletion yet.
+
+## Round 3 Status
+
+Round 3 infrastructure has started. Implemented:
+
+- Shared execution-state and step representations for future array-based searching and sorting algorithms
+- Metadata support for comparisons, swaps, current indices, current ranges, pivots, merge ranges, found/not-found results, and completed state
+- Shared integer-array validation helpers
+- Ascending sorted-input validation for future Binary Search
+
+No Round 3 algorithms or GUI screens are implemented yet.

@@ -159,3 +159,49 @@ Remaining limitations are intentionally deferred:
 - Step playback controls
 - 2-3 Tree deletion
 - Additional future structures and algorithms
+
+## Round 3 Scope
+
+Round 3 starts with shared infrastructure for future array-based searching and sorting algorithms. The current step adds:
+
+- `AlgorithmEventType`
+- `AlgorithmState`
+- `AlgorithmStep`
+- `make_algorithm_step(...)`
+- `ArrayValidationResult`
+- `validate_integer_array(...)`
+- `parse_integer_array_text(...)`
+- `validate_ascending_sorted(...)`
+
+This infrastructure is domain-only. It does not import GUI code, choose a renderer, or implement Binary Search or sorting algorithms yet.
+
+The execution state is intended to support future visualization of comparisons, swaps, current indices, active ranges, pivots, merge ranges, found/not-found results, and completed states. Algorithms may later return step lists or yield steps from generators depending on what best fits the algorithm.
+
+## Round 3 Edge Cases
+
+בחרנו במקרים פשוטים כי רוצים ללמוד מבלי להרחיב ל-edge cases שלא מוסיפים ערך לימודי. ההחלטות שלנו ל-edge cases הן:
+
+- Input values are integers only. This keeps parsing, comparison, and visual labeling simple.
+- Empty arrays are valid and must be handled safely.
+- Single-element arrays are valid and should complete normally.
+- Duplicate values are allowed.
+- Already-sorted arrays are valid input.
+- Reverse-sorted arrays are valid input.
+- Binary Search requires ascending sorted input.
+- Binary Search on unsorted input is rejected with a clear validation result instead of silently sorting the input.
+- Binary Search only needs to return one matching occurrence when duplicates exist.
+- Invalid text or non-integer input is rejected safely.
+- Arrays are expected to be small educational examples, so no large-input virtualization or performance infrastructure is planned.
+- Floats, strings, custom comparators, and generic comparable types are intentionally out of scope.
+
+Stronger alternatives not chosen for this learning round:
+
+- Binary Search could support descending arrays in a production tool, but that adds a second ordering mode before learners need it.
+- The app could automatically sort a copy before Binary Search, but that would hide the core precondition Binary Search depends on.
+- Searches could return first, last, or all duplicate matches, but Round 3 will focus on one valid occurrence to keep the first visual explanation clear.
+- Quick Sort could use randomized pivots, median-of-three pivots, or 3-way partitioning to improve robustness on difficult inputs, but the initial visual version should show the basic partition idea first.
+- Recursive algorithms could include iterative fallbacks to avoid recursion-depth limits, but the project targets small educational arrays where recursion is easier to teach.
+- A production GUI could add large-array limits, pagination, or virtualization, but those controls are outside the current learning core.
+- A generic algorithm library could accept floats, strings, or custom comparable values, but integer-only input keeps Round 3 consistent with the existing project.
+
+Binary Search, sorting algorithms, and GUI integration remain deferred.
