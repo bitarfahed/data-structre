@@ -408,7 +408,7 @@ Important implementation direction:
 - Integer keys and integer values are required; `bool` is rejected.
 - The table uses a fixed default bucket count of `8`.
 - Collisions are handled with separate chaining.
-- Duplicate keys update the existing value instead of adding a second entry.
+- Duplicate keys are preserved as multiple entries in the same bucket chain.
 - Hash Table keys use the existing second GUI input field labeled as Key, and negative integer keys are allowed.
 
 Deferred intentionally:
@@ -485,7 +485,7 @@ Work completed:
 - Manually drove the Tkinter GUI flow for AVL Tree, Min-Heap, Hash Table, 2-3 Tree, and a Round 1 smoke path in the same app instance.
 - Verified AVL pending rebalance, blocked insertion, Balance, search, delete, min/max, restart, and all four rotation cases through GUI/controller interactions.
 - Verified Min-Heap pending repair, blocked raw mutation, Sift Up, Extract Raw, Heapify Down, Peek Min, duplicates, and restart through GUI/controller interactions.
-- Verified Hash Table collisions, chaining, duplicate-key updates, search/delete of missing keys, and restart through GUI/controller interactions.
+- Verified Hash Table collisions, chaining, duplicate-key behavior, search/delete of missing keys, and restart through GUI/controller interactions.
 - Verified 2-3 Tree overflow, blocked insertion, split, promotion, root split, recursive upward repair, search, and restart through GUI/controller interactions.
 - Checked that domain and event layers still do not import GUI or Tkinter code.
 
@@ -502,3 +502,28 @@ Remaining limitations:
 - Hash Table resizing remains deferred.
 - 2-3 Tree deletion remains deferred.
 - Additional future structures and algorithms remain deferred.
+
+## Hash Table Duplicate-Key Behavior Change
+
+Prompt goal: change Hash Table duplicate-key behavior so repeated inserts preserve every `(key, value)` pair instead of overwriting the existing entry.
+
+Work completed:
+
+- Updated Hash Table insertion so every insert appends a new entry to the calculated bucket chain.
+- Updated `search(key)` to return all values for the key.
+- Updated `delete(key)` to remove all entries for the key while preserving unrelated colliding entries.
+- Updated step metadata so search can highlight all matching duplicate entries in the visualization.
+- Updated controller, visualization-state, domain, and GUI smoke tests for duplicate-key accumulation.
+- Updated README and plan documentation to describe the new policy.
+
+Important implementation direction:
+
+- Hash Table logic remains independent from GUI code.
+- Collision handling still uses fixed-bucket separate chaining.
+- Duplicate keys are treated as accumulated entries, not updates.
+- Missing searches return an empty list in the domain layer and a clear not-found result through the controller.
+
+Deferred intentionally:
+
+- Hash Table resizing
+- Animated collision traversal

@@ -67,7 +67,7 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     ),
     StructureKey.HASH_TABLE: (
         "A hash table maps integer keys to integer values by calculating a bucket index. "
-        "This version uses separate chaining when multiple keys land in the same bucket."
+        "This version uses separate chaining when keys repeat or multiple keys land in the same bucket."
     ),
     StructureKey.TWO_THREE_TREE: (
         "A 2-3 tree keeps all leaves at the same depth. Each node normally stores one or two keys, "
@@ -308,7 +308,7 @@ class VisualLabController:
                 return OperationResult(ok, steps[-1].message, steps)
             if operation_key == "search":
                 result, steps = structure.search_with_steps(_require_int(index))
-                return OperationResult(result is not None, steps[-1].message, steps)
+                return OperationResult(bool(result), steps[-1].message, steps)
             ok, steps = structure.delete_with_steps(_require_int(index))
             return OperationResult(ok, steps[-1].message, steps)
 

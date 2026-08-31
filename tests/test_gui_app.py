@@ -142,6 +142,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app._show_structure_selection()
         assert "hash table" in app.explanation_label.cget("text").lower()
         app._show_operations()
+        app._restart_structure()
         app.selected_operation.set("insert")
         app._refresh_operation_fields()
         assert app.index_label.cget("text") == "Key"
@@ -152,17 +153,26 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app.value_input.set("50")
         app._run_current_operation()
         assert app.controller.snapshot(StructureKey.HASH_TABLE).size == 2
+        app.index_input.set("1")
+        app.value_input.set("99")
+        app._run_current_operation()
+        snapshot = app.controller.snapshot(StructureKey.HASH_TABLE)
+        assert snapshot.size == 3
+        assert [(entry.key, entry.value) for entry in snapshot.buckets[1].entries] == [(1, 10), (9, 50), (1, 99)]
         assert app.canvas.find_all()
         app.selected_operation.set("search")
         app._refresh_operation_fields()
-        app.index_input.set("9")
+        app.index_input.set("1")
         app._run_current_operation()
-        assert "Found key 9" in app.status_text.get()
+        assert "Found key 1 with values [10, 99]" in app.status_text.get()
         app.selected_operation.set("delete")
         app._refresh_operation_fields()
-        app.index_input.set("9")
+        app.index_input.set("1")
         app._run_current_operation()
         assert app.controller.snapshot(StructureKey.HASH_TABLE).size == 1
+        assert [(entry.key, entry.value) for entry in app.controller.snapshot(StructureKey.HASH_TABLE).buckets[1].entries] == [
+            (9, 50)
+        ]
         app.index_input.set("abc")
         app._run_current_operation()
         assert app.status_text.get() == "Key must be an integer."

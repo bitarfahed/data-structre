@@ -132,6 +132,20 @@ def test_hash_table_visualization_state_includes_bucket_chains_and_collision_dat
     assert [entry.key for entry in state.buckets[1].entries if entry.highlighted] == [5]
 
 
+def test_hash_table_visualization_state_highlights_all_duplicate_matches() -> None:
+    table = HashTable(bucket_count=4)
+    table.insert(1, 10)
+    table.insert(5, 50)
+    table.insert(1, 99)
+    _values, steps = table.search_with_steps(1)
+
+    state = build_visualization_state("Hash Table", table, steps[-1])
+
+    assert state.bucket_index == 1
+    assert [(entry.key, entry.value) for entry in state.buckets[1].entries] == [(1, 10), (5, 50), (1, 99)]
+    assert [(entry.key, entry.value) for entry in state.buckets[1].entries if entry.highlighted] == [(1, 10), (1, 99)]
+
+
 def test_two_three_visualization_state_includes_multikey_nodes_and_repair_data() -> None:
     tree = TwoThreeTree()
     tree.insert_raw(10)

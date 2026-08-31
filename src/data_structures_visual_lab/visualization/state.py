@@ -166,11 +166,13 @@ def build_visualization_state(
     if isinstance(structure, HashTable):
         bucket_index = _int_or_none(metadata.get("bucket_index"))
         entry_index = _int_or_none(metadata.get("entry_index"))
+        entry_indexes = _int_list(metadata.get("entry_indexes"))
         collision = metadata.get("collision") is True
         buckets = _hash_buckets(
             structure.bucket_contents(),
             bucket_index=bucket_index,
             entry_index=entry_index,
+            entry_indexes=entry_indexes,
             collision=collision,
         )
         return VisualizationState(
@@ -394,6 +396,7 @@ def _hash_buckets(
     bucket_contents: list[list[tuple[int, int]]],
     bucket_index: int | None,
     entry_index: int | None,
+    entry_indexes: set[int],
     collision: bool,
 ) -> tuple[VisualBucket, ...]:
     buckets: list[VisualBucket] = []
@@ -404,7 +407,8 @@ def _hash_buckets(
                 key=key,
                 value=value,
                 entry_index=current_entry_index,
-                highlighted=highlighted_bucket and current_entry_index == entry_index,
+                highlighted=highlighted_bucket
+                and (current_entry_index == entry_index or current_entry_index in entry_indexes),
             )
             for current_entry_index, (key, value) in enumerate(bucket)
         )

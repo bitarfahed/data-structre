@@ -126,7 +126,8 @@ Implemented:
 - `search(key)`
 - `delete(key)`
 - Fixed bucket count with separate chaining for collisions
-- Duplicate-key updates rather than duplicate entries
+- Duplicate keys stored as additional entries in the same bucket chain
+- Search returns all values for a key, and delete removes all entries for a key
 - Bucket count, calculated bucket index, bucket contents, and collision inspection
 - GUI structure selection and educational explanation for Hash Table
 - GUI operations for Insert, Search, Delete, and Restart
@@ -134,7 +135,7 @@ Implemented:
 
 AVL Tree duplicate values are rejected. This keeps search, deletion, and educational tree diagrams unambiguous.
 Min-Heap duplicate values are allowed.
-Hash Table duplicate keys update the existing value.
+Hash Table duplicate keys are preserved as multiple entries. Searches return all values for a key, and deletes remove all entries for that key.
 2-3 Tree duplicate values are rejected.
 
 ## Round 2 QA Result
@@ -145,7 +146,7 @@ The final QA pass verified:
 
 - AVL insert without automatic balancing, pending rebalance, blocked insertion, Balance, all four rotation cases, search, delete, min/max, and restart
 - Min-Heap Add Raw, pending repair, blocked mutation, Sift Up, Extract Raw, Heapify Down, Peek Min, duplicates, and restart
-- Hash Table insert, search, delete, collisions, chaining, duplicate-key updates, missing keys, and restart
+- Hash Table insert, search, delete, collisions, chaining, duplicate-key accumulation, missing keys, and restart
 - 2-3 Tree normal insertion, overflow state, blocked insertion, split, promotion, root split, recursive upward repair, search, and restart
 - AVL, Min-Heap, Hash Table, and 2-3 Tree structural invariants after repair or mutation
 - Existing Round 1 GUI flows and automated tests

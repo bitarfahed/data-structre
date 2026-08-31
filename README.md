@@ -101,9 +101,9 @@ Implemented:
 - Min-Heap repair-pending state, heap validity checks, size, values, and repair index/value inspection
 - Min-Heap GUI selection, explanation, operation controls, and Restart support
 - Simple Min-Heap visualization with tree nodes, array indices, underlying array cells, and repair highlighting
-- Hash Table domain logic with fixed buckets and separate chaining
-- Hash Table insert, search, delete, duplicate-key update, and collision state
-- Hash Table GUI selection, explanation, operation controls, and Restart support
+- Hash Table domain logic with fixed buckets, separate chaining, and duplicate-key entries
+- Hash Table insert, search, delete, duplicate-key accumulation, and collision state
+- Hash Table GUI selection, explanation, operation controls, duplicate-key search results, and Restart support
 - Simple Hash Table visualization with bucket indices, chained entries, calculated bucket index, collision status, and affected-entry highlighting
 
 Known limitations:

@@ -31,14 +31,9 @@ class HashTable:
         self._size = 0
 
     def insert(self, key: int, value: int) -> bool:
-        """Insert a key-value pair, updating the value when the key already exists."""
+        """Insert a key-value pair, preserving duplicate keys as separate entries."""
         self._validate_key_value(key, value)
         bucket = self._bucket_for(key)
-        existing = self._find_entry(bucket, key)
-        if existing is not None:
-            existing.value = value
-            return False
-
         bucket.append(HashEntry(key, value))
         self._size += 1
         return True
@@ -48,17 +43,9 @@ class HashTable:
         self._validate_key_value(key, value)
         bucket_index = self.bucket_index(key)
         bucket = self._buckets[bucket_index]
-        existing_index = self._entry_index(bucket, key)
-        collision = bool(bucket and existing_index is None)
-        inserted = self.insert(key, value)
-        entry_index = self._entry_index(self._buckets[bucket_index], key)
-
-        if inserted:
-            message = f"Inserted key {key} with value {value}."
-            event_type = EventType.ADD
-        else:
-            message = f"Updated key {key} with value {value}."
-            event_type = EventType.UPDATE
+        collision = bool(bucket)
+        self.insert(key, value)
+        entry_index = len(self._buckets[bucket_index]) - 1
 
         return True, [
             self._step(
@@ -73,8 +60,8 @@ class HashTable:
                 },
             ),
             self._step(
-                event_type,
-                message,
+                EventType.ADD,
+                f"Inserted key {key} with value {value}.",
                 {
                     "key": key,
                     "value": value,
@@ -85,29 +72,28 @@ class HashTable:
             ),
         ]
 
-    def search(self, key: int) -> int | None:
-        """Return the value for key, or None when key is missing."""
+    def search(self, key: int) -> list[int]:
+        """Return all values for key, or an empty list when key is missing."""
         self._validate_key(key)
-        entry = self._find_entry(self._bucket_for(key), key)
-        if entry is None:
-            return None
-        return entry.value
+        return [entry.value for entry in self._bucket_for(key) if entry.key == key]
 
-    def search_with_steps(self, key: int) -> tuple[int | None, list[Step]]:
+    def search_with_steps(self, key: int) -> tuple[list[int], list[Step]]:
         """Search for a key and return observable steps."""
         self._validate_key(key)
         bucket_index = self.bucket_index(key)
         bucket = self._buckets[bucket_index]
-        entry_index = self._entry_index(bucket, key)
-        value = self.search(key)
+        entry_indexes = self._entry_indexes(bucket, key)
+        values = self.search(key)
         collision = len(bucket) > 1
 
-        if value is None:
+        if not values:
             message = f"Key {key} was not found."
+        elif len(values) == 1:
+            message = f"Found key {key} with value {values[0]}."
         else:
-            message = f"Found key {key} with value {value}."
+            message = f"Found key {key} with values {values}."
 
-        return value, [
+        return values, [
             self._step(
                 EventType.COMPARE,
                 f"Calculated bucket index {bucket_index} for key {key}.",
@@ -115,7 +101,8 @@ class HashTable:
                     "key": key,
                     "bucket_index": bucket_index,
                     "collision": collision,
-                    "entry_index": entry_index,
+                    "entry_index": entry_indexes[0] if entry_indexes else None,
+                    "entry_indexes": entry_indexes,
                 },
             ),
             self._step(
@@ -123,24 +110,27 @@ class HashTable:
                 message,
                 {
                     "key": key,
-                    "value": value,
+                    "values": values,
                     "bucket_index": bucket_index,
                     "collision": collision,
-                    "entry_index": entry_index,
+                    "entry_index": entry_indexes[0] if entry_indexes else None,
+                    "entry_indexes": entry_indexes,
                 },
             ),
         ]
 
     def delete(self, key: int) -> bool:
-        """Delete a key-value pair when it exists."""
+        """Delete all entries for key when any exist."""
         self._validate_key(key)
         bucket = self._bucket_for(key)
-        entry_index = self._entry_index(bucket, key)
-        if entry_index is None:
+        original_count = len(bucket)
+        kept_entries = [entry for entry in bucket if entry.key != key]
+        deleted_count = original_count - len(kept_entries)
+        if deleted_count == 0:
             return False
 
-        bucket.pop(entry_index)
-        self._size -= 1
+        bucket[:] = kept_entries
+        self._size -= deleted_count
         return True
 
     def delete_with_steps(self, key: int) -> tuple[bool, list[Step]]:
@@ -148,12 +138,16 @@ class HashTable:
         self._validate_key(key)
         bucket_index = self.bucket_index(key)
         bucket = self._buckets[bucket_index]
-        entry_index = self._entry_index(bucket, key)
+        entry_indexes = self._entry_indexes(bucket, key)
         collision = len(bucket) > 1
+        deleted_count = len(entry_indexes)
         deleted = self.delete(key)
 
         if deleted:
-            message = f"Deleted key {key}."
+            if deleted_count == 1:
+                message = f"Deleted 1 entry for key {key}."
+            else:
+                message = f"Deleted {deleted_count} entries for key {key}."
             event_type = EventType.REMOVE
         else:
             message = f"Delete skipped because key {key} was not found."
@@ -167,7 +161,8 @@ class HashTable:
                     "key": key,
                     "bucket_index": bucket_index,
                     "collision": collision,
-                    "entry_index": entry_index,
+                    "entry_index": entry_indexes[0] if entry_indexes else None,
+                    "entry_indexes": entry_indexes,
                 },
             ),
             self._step(
@@ -177,7 +172,9 @@ class HashTable:
                     "key": key,
                     "bucket_index": bucket_index,
                     "collision": collision,
-                    "entry_index": entry_index,
+                    "entry_index": entry_indexes[0] if entry_indexes else None,
+                    "entry_indexes": entry_indexes,
+                    "deleted_count": deleted_count,
                 },
             ),
         ]
@@ -202,10 +199,9 @@ class HashTable:
         return [[(entry.key, entry.value) for entry in bucket] for bucket in self._buckets]
 
     def collision_for_key(self, key: int) -> bool:
-        """Return True when key maps to a non-empty bucket without matching an existing key."""
+        """Return True when key maps to a non-empty bucket."""
         self._validate_key(key)
-        bucket = self._bucket_for(key)
-        return bool(bucket and self._find_entry(bucket, key) is None)
+        return bool(self._bucket_for(key))
 
     def display(self) -> str:
         """Return a readable bucket representation."""
@@ -224,18 +220,8 @@ class HashTable:
         return self._buckets[self.bucket_index(key)]
 
     @staticmethod
-    def _find_entry(bucket: list[HashEntry], key: int) -> HashEntry | None:
-        for entry in bucket:
-            if entry.key == key:
-                return entry
-        return None
-
-    @staticmethod
-    def _entry_index(bucket: list[HashEntry], key: int) -> int | None:
-        for index, entry in enumerate(bucket):
-            if entry.key == key:
-                return index
-        return None
+    def _entry_indexes(bucket: list[HashEntry], key: int) -> list[int]:
+        return [index for index, entry in enumerate(bucket) if entry.key == key]
 
     def _step(
         self,

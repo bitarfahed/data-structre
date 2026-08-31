@@ -458,37 +458,44 @@ def test_controller_runs_hash_table_insert_and_reports_collision() -> None:
     assert [entry.key for entry in snapshot.buckets[1].entries if entry.highlighted] == [9]
 
 
-def test_controller_runs_hash_table_duplicate_key_update() -> None:
+def test_controller_runs_hash_table_duplicate_key_insert() -> None:
     controller = VisualLabController()
 
     controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="10", index_text="1")
     result = controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="99", index_text="1")
 
     assert result.ok
-    assert result.message == "Updated key 1 with value 99."
+    assert result.message == "Inserted key 1 with value 99."
     snapshot = controller.snapshot(StructureKey.HASH_TABLE, result.steps[-1])
-    assert [(entry.key, entry.value) for entry in snapshot.buckets[1].entries] == [(1, 99)]
-    assert not snapshot.collision
+    assert [(entry.key, entry.value) for entry in snapshot.buckets[1].entries] == [(1, 10), (1, 99)]
+    assert snapshot.collision
+    assert [entry.entry_index for entry in snapshot.buckets[1].entries if entry.highlighted] == [1]
 
 
 def test_controller_runs_hash_table_search_and_delete() -> None:
     controller = VisualLabController()
 
     controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="10", index_text="1")
+    controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="20", index_text="1")
+    controller.run_operation(StructureKey.HASH_TABLE, "insert", value_text="90", index_text="9")
     found = controller.run_operation(StructureKey.HASH_TABLE, "search", index_text="1")
+    found_snapshot = controller.snapshot(StructureKey.HASH_TABLE, found.steps[-1])
     missing = controller.run_operation(StructureKey.HASH_TABLE, "search", index_text="2")
     deleted = controller.run_operation(StructureKey.HASH_TABLE, "delete", index_text="1")
     missing_delete = controller.run_operation(StructureKey.HASH_TABLE, "delete", index_text="1")
 
     assert found.ok
-    assert found.message == "Found key 1 with value 10."
+    assert found.message == "Found key 1 with values [10, 20]."
+    assert [entry.value for entry in found_snapshot.buckets[1].entries if entry.highlighted] == [10, 20]
     assert not missing.ok
     assert missing.message == "Key 2 was not found."
     assert deleted.ok
-    assert deleted.message == "Deleted key 1."
+    assert deleted.message == "Deleted 2 entries for key 1."
     assert not missing_delete.ok
     assert missing_delete.message == "Delete skipped because key 1 was not found."
-    assert controller.snapshot(StructureKey.HASH_TABLE).size == 0
+    snapshot = controller.snapshot(StructureKey.HASH_TABLE)
+    assert snapshot.size == 1
+    assert [(entry.key, entry.value) for entry in snapshot.buckets[1].entries] == [(9, 90)]
 
 
 def test_controller_accepts_negative_integer_hash_keys() -> None:

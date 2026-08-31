@@ -9,7 +9,7 @@ def test_insert_stores_integer_key_value_pair() -> None:
 
     assert table.insert(3, 30)
 
-    assert table.search(3) == 30
+    assert table.search(3) == [30]
     assert table.size == 1
     assert len(table) == 1
     assert table.bucket_contents()[3] == [(3, 30)]
@@ -32,27 +32,39 @@ def test_collisions_use_separate_chaining() -> None:
     assert table.insert(5, 50)
 
     assert table.bucket_contents()[1] == [(1, 10), (5, 50)]
-    assert table.search(1) == 10
-    assert table.search(5) == 50
+    assert table.search(1) == [10]
+    assert table.search(5) == [50]
 
 
-def test_duplicate_keys_update_existing_entry_without_growing_size() -> None:
+def test_duplicate_keys_are_preserved_as_multiple_entries() -> None:
     table = HashTable()
 
     assert table.insert(2, 20)
-    assert not table.insert(2, 99)
+    assert table.insert(2, 99)
 
-    assert table.search(2) == 99
-    assert table.size == 1
-    assert table.bucket_contents()[2] == [(2, 99)]
+    assert table.search(2) == [20, 99]
+    assert table.collision_for_key(2)
+    assert table.size == 2
+    assert table.bucket_contents()[2] == [(2, 20), (2, 99)]
 
 
-def test_search_missing_key_returns_none() -> None:
+def test_repeated_duplicate_insertions_accumulate_in_order() -> None:
+    table = HashTable(bucket_count=4)
+
+    for value in (1, 2, 3, 4):
+        assert table.insert(0, value)
+
+    assert table.search(0) == [1, 2, 3, 4]
+    assert table.bucket_contents()[0] == [(0, 1), (0, 2), (0, 3), (0, 4)]
+    assert table.size == 4
+
+
+def test_search_missing_key_returns_empty_list() -> None:
     table = HashTable()
 
     table.insert(1, 10)
 
-    assert table.search(9) is None
+    assert table.search(9) == []
 
 
 def test_delete_existing_key_removes_entry() -> None:
@@ -62,10 +74,26 @@ def test_delete_existing_key_removes_entry() -> None:
 
     assert table.delete(1)
 
-    assert table.search(1) is None
-    assert table.search(5) == 50
+    assert table.search(1) == []
+    assert table.search(5) == [50]
     assert table.bucket_contents()[1] == [(5, 50)]
     assert table.size == 1
+
+
+def test_delete_removes_all_entries_for_duplicate_key_only() -> None:
+    table = HashTable(bucket_count=4)
+    table.insert(1, 10)
+    table.insert(5, 50)
+    table.insert(1, 99)
+    table.insert(9, 90)
+
+    assert table.delete(1)
+
+    assert table.search(1) == []
+    assert table.search(5) == [50]
+    assert table.search(9) == [90]
+    assert table.bucket_contents()[1] == [(5, 50), (9, 90)]
+    assert table.size == 2
 
 
 def test_delete_missing_key_is_safe() -> None:
@@ -80,7 +108,7 @@ def test_delete_missing_key_is_safe() -> None:
 def test_empty_table_behavior_is_safe() -> None:
     table = HashTable()
 
-    assert table.search(1) is None
+    assert table.search(1) == []
     assert not table.delete(1)
     assert table.size == 0
     assert table.bucket_contents() == [[], [], [], [], [], [], [], []]
@@ -134,17 +162,18 @@ def test_insert_steps_expose_bucket_index_and_collision() -> None:
     assert steps[-1].metadata["buckets"] == [[], [(1, 10), (5, 50)], [], []]
 
 
-def test_duplicate_insert_steps_report_update() -> None:
+def test_duplicate_insert_steps_report_added_entry() -> None:
     table = HashTable()
     table.insert(2, 20)
 
     ok, steps = table.insert_with_steps(2, 99)
 
     assert ok
-    assert steps[-1].event_type is EventType.UPDATE
-    assert steps[-1].message == "Updated key 2 with value 99."
-    assert steps[-1].metadata["collision"] is False
-    assert table.search(2) == 99
+    assert steps[-1].event_type is EventType.ADD
+    assert steps[-1].message == "Inserted key 2 with value 99."
+    assert steps[-1].metadata["collision"] is True
+    assert steps[-1].metadata["entry_index"] == 1
+    assert table.search(2) == [20, 99]
 
 
 def test_search_steps_highlight_found_and_missing_bucket() -> None:
@@ -155,12 +184,12 @@ def test_search_steps_highlight_found_and_missing_bucket() -> None:
     found, found_steps = table.search_with_steps(5)
     missing, missing_steps = table.search_with_steps(9)
 
-    assert found == 50
+    assert found == [50]
     assert found_steps[-1].message == "Found key 5 with value 50."
     assert found_steps[-1].metadata["bucket_index"] == 1
     assert found_steps[-1].metadata["entry_index"] == 1
     assert found_steps[-1].metadata["collision"] is True
-    assert missing is None
+    assert missing == []
     assert missing_steps[-1].message == "Key 9 was not found."
     assert missing_steps[-1].metadata["bucket_index"] == 1
     assert missing_steps[-1].metadata["entry_index"] is None
@@ -178,6 +207,21 @@ def test_delete_steps_expose_bucket_and_entry() -> None:
     assert steps[-1].metadata["bucket_index"] == 1
     assert steps[-1].metadata["entry_index"] == 1
     assert table.bucket_contents()[1] == [(1, 10)]
+
+
+def test_delete_steps_report_all_removed_duplicate_entries() -> None:
+    table = HashTable(bucket_count=4)
+    table.insert(1, 10)
+    table.insert(5, 50)
+    table.insert(1, 99)
+
+    deleted, steps = table.delete_with_steps(1)
+
+    assert deleted
+    assert steps[-1].message == "Deleted 2 entries for key 1."
+    assert steps[-1].metadata["entry_indexes"] == [0, 2]
+    assert steps[-1].metadata["deleted_count"] == 2
+    assert table.bucket_contents()[1] == [(5, 50)]
 
 
 def test_display_representation() -> None:
