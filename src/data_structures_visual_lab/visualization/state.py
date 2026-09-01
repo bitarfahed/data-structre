@@ -6,6 +6,7 @@ from data_structures_visual_lab.domain.data_structures import (
     AVLNode,
     AVLTree,
     DynamicArray,
+    Graph,
     HashTable,
     LinkedList,
     MinHeap,
@@ -77,6 +78,25 @@ class VisualMultiKeyTreeNode:
 
 
 @dataclass(frozen=True)
+class VisualGraphNode:
+    """One graph vertex to render."""
+
+    value: int
+    highlighted: bool = False
+
+
+@dataclass(frozen=True)
+class VisualGraphEdge:
+    """One weighted graph edge to render."""
+
+    source: int
+    destination: int
+    weight: int
+    directed: bool
+    highlighted: bool = False
+
+
+@dataclass(frozen=True)
 class VisualizationState:
     """A structure snapshot plus the current operation message."""
 
@@ -120,6 +140,10 @@ class VisualizationState:
     left_partition_range: tuple[int, int] | None = None
     right_partition_range: tuple[int, int] | None = None
     active_heap_range: tuple[int, int] | None = None
+    graph_type: str | None = None
+    graph_nodes: tuple[VisualGraphNode, ...] = ()
+    graph_edges: tuple[VisualGraphEdge, ...] = ()
+    adjacency: dict[int, tuple[tuple[int, int], ...]] | None = None
 
 
 def build_algorithm_visualization_state(
@@ -202,7 +226,7 @@ def build_algorithm_visualization_state(
 
 def build_visualization_state(
     structure_name: str,
-    structure: Stack | Queue | LinkedList | DynamicArray | AVLTree | MinHeap | HashTable | TwoThreeTree,
+    structure: Stack | Queue | LinkedList | DynamicArray | AVLTree | MinHeap | HashTable | TwoThreeTree | Graph,
     step: Step | None = None,
 ) -> VisualizationState:
     """Build a renderer-friendly state from a domain structure and optional step."""
@@ -303,6 +327,30 @@ def build_visualization_state(
             multi_key_tree_edges=edges,
             tree_valid=structure.is_valid(),
             invalid_node_id=structure.invalid_node_id,
+        )
+
+    if isinstance(structure, Graph):
+        highlight_vertices = _int_list(metadata.get("highlight_vertices"))
+        highlight_edges = _edge_set(metadata.get("highlight_edges"))
+        nodes = tuple(
+            VisualGraphNode(
+                value=vertex,
+                highlighted=vertex in highlight_vertices,
+            )
+            for vertex in structure.vertices()
+        )
+        edges = _graph_edges(structure, highlight_edges)
+        return VisualizationState(
+            structure_name=structure_name,
+            values=(),
+            message=message,
+            size=structure.vertex_count(),
+            event_type=step.event_type if step is not None else None,
+            metadata=metadata,
+            graph_type=structure.graph_type,
+            graph_nodes=nodes,
+            graph_edges=edges,
+            adjacency=structure.adjacency_list(),
         )
 
     if isinstance(structure, DynamicArray):
@@ -551,6 +599,43 @@ def _int_list(value: object) -> set[int]:
     if not isinstance(value, list):
         return set()
     return {item for item in value if type(item) is int}
+
+
+def _edge_set(value: object) -> set[tuple[int, int]]:
+    if not isinstance(value, list):
+        return set()
+    edges: set[tuple[int, int]] = set()
+    for item in value:
+        if (
+            isinstance(item, tuple)
+            and len(item) == 2
+            and type(item[0]) is int
+            and type(item[1]) is int
+        ):
+            edges.add(item)
+    return edges
+
+
+def _graph_edges(structure: Graph, highlight_edges: set[tuple[int, int]]) -> tuple[VisualGraphEdge, ...]:
+    edges: list[VisualGraphEdge] = []
+    seen_undirected: set[frozenset[int]] = set()
+    for source, neighbors in structure.adjacency_list().items():
+        for destination, weight in neighbors:
+            if not structure.directed:
+                edge_key = frozenset({source, destination})
+                if edge_key in seen_undirected:
+                    continue
+                seen_undirected.add(edge_key)
+            edges.append(
+                VisualGraphEdge(
+                    source=source,
+                    destination=destination,
+                    weight=weight,
+                    directed=structure.directed,
+                    highlighted=(source, destination) in highlight_edges or (destination, source) in highlight_edges,
+                )
+            )
+    return tuple(edges)
 
 
 def _two_three_nodes_and_edges(

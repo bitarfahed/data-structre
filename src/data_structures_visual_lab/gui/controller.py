@@ -18,6 +18,7 @@ from data_structures_visual_lab.domain.algorithms import (
 from data_structures_visual_lab.domain.data_structures import (
     AVLTree,
     DynamicArray,
+    Graph,
     HashTable,
     LinkedList,
     MinHeap,
@@ -44,6 +45,7 @@ class StructureKey(str, Enum):
     MIN_HEAP = "Min-Heap"
     HASH_TABLE = "Hash Table"
     TWO_THREE_TREE = "2-3 Tree"
+    GRAPH = "Graph"
     BINARY_SEARCH = "Binary Search"
     BUBBLE_SORT = "Bubble Sort"
     SELECTION_SORT = "Selection Sort"
@@ -97,6 +99,10 @@ STRUCTURE_EXPLANATIONS: dict[StructureKey, str] = {
     StructureKey.TWO_THREE_TREE: (
         "A 2-3 tree keeps all leaves at the same depth. Each node normally stores one or two keys, "
         "and this version separates raw leaf insertion from split and promotion repair."
+    ),
+    StructureKey.GRAPH: (
+        "A graph stores vertices and weighted edges. This builder supports directed and undirected graphs "
+        "using an adjacency list."
     ),
     StructureKey.BINARY_SEARCH: (
         "Binary Search repeatedly checks the middle of an ascending sorted array, then discards the half "
@@ -193,6 +199,28 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
         OperationSpec("repair", "repair()"),
         OperationSpec("search", "search(value)", needs_value=True),
     ),
+    StructureKey.GRAPH: (
+        OperationSpec("add_vertex", "Add Vertex", needs_value=True, value_label="Vertex"),
+        OperationSpec("remove_vertex", "Remove Vertex", needs_value=True, value_label="Vertex"),
+        OperationSpec(
+            "add_edge",
+            "Add Edge",
+            needs_value=True,
+            needs_index=True,
+            index_required=True,
+            value_label="Destination",
+            index_label="Source",
+        ),
+        OperationSpec(
+            "remove_edge",
+            "Remove Edge",
+            needs_value=True,
+            needs_index=True,
+            index_required=True,
+            value_label="Destination",
+            index_label="Source",
+        ),
+    ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
             "load_array",
@@ -242,6 +270,7 @@ class VisualLabController:
             StructureKey.MIN_HEAP: MinHeap(),
             StructureKey.HASH_TABLE: HashTable(),
             StructureKey.TWO_THREE_TREE: TwoThreeTree(),
+            StructureKey.GRAPH: Graph(),
         }
         self._binary_search_array: tuple[int, ...] = ()
         self._binary_search_array_loaded = False
@@ -317,9 +346,66 @@ class VisualLabController:
             self._structures[structure_key] = HashTable()
         elif structure_key is StructureKey.TWO_THREE_TREE:
             self._structures[structure_key] = TwoThreeTree()
+        elif structure_key is StructureKey.GRAPH:
+            current = self._structures[structure_key]
+            self._structures[structure_key] = Graph(directed=current.directed)
         elif structure_key is StructureKey.BINARY_SEARCH:
             self._binary_search_array = ()
             self._binary_search_array_loaded = False
+
+    def set_graph_directed(self, directed: bool) -> None:
+        """Create a new empty graph using the selected graph type."""
+        self._structures[StructureKey.GRAPH] = Graph(directed=directed)
+
+    def graph_directed(self) -> bool:
+        """Return the selected graph direction mode."""
+        graph = self._structures[StructureKey.GRAPH]
+        return graph.directed
+
+    def run_graph_operation(
+        self,
+        operation_key: str,
+        vertex_text: str = "",
+        source_text: str = "",
+        destination_text: str = "",
+        weight_text: str = "",
+    ) -> OperationResult:
+        """Run a graph operation with graph-specific input fields."""
+        graph = self._structures[StructureKey.GRAPH]
+        try:
+            if operation_key == "add_vertex":
+                vertex = self._parse_required_integer(vertex_text, "Vertex")
+                if isinstance(vertex, str):
+                    return OperationResult(False, vertex, [])
+                ok, steps = graph.add_vertex_with_steps(vertex)
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "remove_vertex":
+                vertex = self._parse_required_integer(vertex_text, "Vertex")
+                if isinstance(vertex, str):
+                    return OperationResult(False, vertex, [])
+                ok, steps = graph.remove_vertex_with_steps(vertex)
+                return OperationResult(ok, steps[-1].message, steps)
+
+            source = self._parse_required_integer(source_text, "Source")
+            destination = self._parse_required_integer(destination_text, "Destination")
+            if isinstance(source, str):
+                return OperationResult(False, source, [])
+            if isinstance(destination, str):
+                return OperationResult(False, destination, [])
+
+            if operation_key == "add_edge":
+                weight = self._parse_optional_weight(weight_text)
+                if isinstance(weight, str):
+                    return OperationResult(False, weight, [])
+                ok, steps = graph.add_edge_with_steps(source, destination, weight)
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "remove_edge":
+                ok, steps = graph.remove_edge_with_steps(source, destination)
+                return OperationResult(ok, steps[-1].message, steps)
+        except (TypeError, ValueError) as error:
+            return OperationResult(False, str(error), [])
+
+        return OperationResult(False, f"Unsupported graph operation: {operation_key}", [])
 
     def run_operation(
         self,
@@ -472,6 +558,19 @@ class VisualLabController:
             ok, steps = structure.search_with_steps(_require_int(value))
             return OperationResult(ok, steps[-1].message, steps)
 
+        if isinstance(structure, Graph):
+            if operation_key == "add_vertex":
+                ok, steps = structure.add_vertex_with_steps(_require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "remove_vertex":
+                ok, steps = structure.remove_vertex_with_steps(_require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "add_edge":
+                ok, steps = structure.add_edge_with_steps(_require_int(index), _require_int(value))
+                return OperationResult(ok, steps[-1].message, steps)
+            ok, steps = structure.remove_edge_with_steps(_require_int(index), _require_int(value))
+            return OperationResult(ok, steps[-1].message, steps)
+
         if operation_key == "add":
             steps = structure.add_with_steps(_require_int(value))
             return OperationResult(True, steps[-1].message, steps)
@@ -506,6 +605,25 @@ class VisualLabController:
         if not result.ok:
             return result.message
         return result.values
+
+    @staticmethod
+    def _parse_required_integer(text: str, label: str) -> int | str:
+        stripped = text.strip()
+        if not stripped:
+            return f"Enter an integer {label.lower()}."
+        return _parse_integer(stripped, f"{label} must be an integer.")
+
+    @staticmethod
+    def _parse_optional_weight(text: str) -> int | str:
+        stripped = text.strip()
+        if not stripped:
+            return 1
+        parsed = _parse_integer(stripped, "Weight must be an integer.")
+        if isinstance(parsed, str):
+            return parsed
+        if parsed < 0:
+            return "Weight must be greater than or equal to 0."
+        return parsed
 
 
 def _parse_integer(text: str, error_message: str) -> int | str:

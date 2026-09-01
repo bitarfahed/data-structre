@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import tkinter as tk
 from tkinter import ttk
 
@@ -30,6 +31,11 @@ class VisualLabApp(tk.Tk):
         self.value_input = tk.StringVar()
         self.index_input = tk.StringVar()
         self.array_input = tk.StringVar()
+        self.graph_type_input = tk.StringVar(value="undirected")
+        self.graph_vertex_input = tk.StringVar()
+        self.graph_source_input = tk.StringVar()
+        self.graph_destination_input = tk.StringVar()
+        self.graph_weight_input = tk.StringVar()
         self.status_text = tk.StringVar(value="Choose a structure to begin.")
         self._algorithm_after_id: str | None = None
 
@@ -104,6 +110,9 @@ class VisualLabApp(tk.Tk):
         structure_key = self._current_structure_key()
         if structure_key is StructureKey.BINARY_SEARCH:
             self._show_binary_search_controls()
+            return
+        if structure_key is StructureKey.GRAPH:
+            self._show_graph_controls()
             return
 
         operations = self.controller.operations_for(structure_key)
@@ -194,6 +203,108 @@ class VisualLabApp(tk.Tk):
             state = tk.NORMAL if self.controller.binary_search_array_loaded() else tk.DISABLED
             self.search_button.configure(state=state)
 
+    def _show_graph_controls(self) -> None:
+        if self.graph_type_input.get() not in {"directed", "undirected"}:
+            self.graph_type_input.set("directed" if self.controller.graph_directed() else "undirected")
+        operations = self.controller.operations_for(StructureKey.GRAPH)
+        operation_keys = [operation.key for operation in operations]
+        if self.selected_operation.get() not in operation_keys:
+            self.selected_operation.set(operations[0].key)
+
+        ttk.Label(self.controls, text="Type").grid(row=0, column=0, padx=(0, 4))
+        ttk.Radiobutton(
+            self.controls,
+            text="Undirected",
+            value="undirected",
+            variable=self.graph_type_input,
+            command=self._set_graph_type,
+        ).grid(row=0, column=1, padx=(0, 4))
+        ttk.Radiobutton(
+            self.controls,
+            text="Directed",
+            value="directed",
+            variable=self.graph_type_input,
+            command=self._set_graph_type,
+        ).grid(row=0, column=2, padx=(0, 10))
+
+        ttk.Label(self.controls, text="Operation").grid(row=0, column=3, padx=(0, 4))
+        self.graph_operation_menu = ttk.Combobox(
+            self.controls,
+            state="readonly",
+            width=18,
+            textvariable=self.selected_operation,
+            values=operation_keys,
+        )
+        self.graph_operation_menu.grid(row=0, column=4, padx=(0, 10))
+        self.graph_operation_menu.bind("<<ComboboxSelected>>", lambda _event: self._refresh_graph_operation_fields())
+
+        self.graph_vertex_label = ttk.Label(self.controls, text="Vertex")
+        self.graph_vertex_entry = ttk.Entry(self.controls, width=8, textvariable=self.graph_vertex_input)
+        self.graph_source_label = ttk.Label(self.controls, text="Source")
+        self.graph_source_entry = ttk.Entry(self.controls, width=8, textvariable=self.graph_source_input)
+        self.graph_destination_label = ttk.Label(self.controls, text="Destination")
+        self.graph_destination_entry = ttk.Entry(self.controls, width=8, textvariable=self.graph_destination_input)
+        self.graph_weight_label = ttk.Label(self.controls, text="Weight")
+        self.graph_weight_entry = ttk.Entry(self.controls, width=8, textvariable=self.graph_weight_input)
+        self.run_button = ttk.Button(self.controls, text="Run", command=self._run_graph_operation)
+        self.restart_button = ttk.Button(self.controls, text="Restart", command=self._restart_structure)
+        self.run_button.grid(row=1, column=6, padx=(0, 6), pady=(6, 0))
+        self.restart_button.grid(row=1, column=7, sticky="w", pady=(6, 0))
+        self._refresh_graph_operation_fields()
+
+    def _set_graph_type(self) -> None:
+        directed = self.graph_type_input.get() == "directed"
+        self.controller.set_graph_directed(directed)
+        self._clear_graph_inputs()
+        self.status_text.set(f"Graph reset as {'directed' if directed else 'undirected'}.")
+        self._draw_state(self.controller.snapshot(StructureKey.GRAPH))
+
+    def _refresh_graph_operation_fields(self) -> None:
+        for widget in (
+            self.graph_vertex_label,
+            self.graph_vertex_entry,
+            self.graph_source_label,
+            self.graph_source_entry,
+            self.graph_destination_label,
+            self.graph_destination_entry,
+            self.graph_weight_label,
+            self.graph_weight_entry,
+        ):
+            widget.grid_remove()
+
+        operation_key = self.selected_operation.get()
+        if operation_key in {"add_vertex", "remove_vertex"}:
+            self.graph_vertex_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
+            self.graph_vertex_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
+        else:
+            self.graph_source_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
+            self.graph_source_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
+            self.graph_destination_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
+            self.graph_destination_entry.grid(row=1, column=3, padx=(0, 10), pady=(6, 0))
+            if operation_key == "add_edge":
+                self.graph_weight_label.grid(row=1, column=4, padx=(0, 4), pady=(6, 0))
+                self.graph_weight_entry.grid(row=1, column=5, padx=(0, 10), pady=(6, 0))
+
+        self.status_text.set("Choose a graph operation and enter integer inputs.")
+
+    def _run_graph_operation(self) -> None:
+        result = self.controller.run_graph_operation(
+            self.selected_operation.get(),
+            vertex_text=self.graph_vertex_input.get(),
+            source_text=self.graph_source_input.get(),
+            destination_text=self.graph_destination_input.get(),
+            weight_text=self.graph_weight_input.get(),
+        )
+        self.status_text.set(result.message)
+        step = result.steps[-1] if result.steps else None
+        self._draw_state(self.controller.snapshot(StructureKey.GRAPH, step))
+
+    def _clear_graph_inputs(self) -> None:
+        self.graph_vertex_input.set("")
+        self.graph_source_input.set("")
+        self.graph_destination_input.set("")
+        self.graph_weight_input.set("")
+
     def _refresh_operation_fields(self, update_status: bool = True) -> None:
         operation = self._current_operation()
         self.value_label.grid_remove()
@@ -273,6 +384,7 @@ class VisualLabApp(tk.Tk):
         self.value_input.set("")
         self.index_input.set("")
         self.array_input.set("")
+        self._clear_graph_inputs()
         self.status_text.set(f"{structure_key.value} reset to empty.")
         self._show_operations()
         self._draw_state(self.controller.snapshot(structure_key))
@@ -319,6 +431,8 @@ class VisualLabApp(tk.Tk):
             self._draw_hash_table(state, width)
         elif state.structure_name == StructureKey.TWO_THREE_TREE.value:
             self._draw_two_three_tree(state, width)
+        elif state.structure_name == StructureKey.GRAPH.value:
+            self._draw_graph(state, width)
         else:
             self._draw_algorithm_array(state, x=40, y=135)
 
@@ -600,6 +714,64 @@ class VisualLabApp(tk.Tk):
             for node in state.multi_key_tree_nodes
         }
 
+    def _draw_graph(self, state: VisualizationState, width: int) -> None:
+        self.canvas.create_text(
+            20,
+            76,
+            anchor="w",
+            text=f"type: {state.graph_type or 'undirected'}    vertices: {len(state.graph_nodes)}    edges: {len(state.graph_edges)}",
+            fill="#333",
+            font=("Segoe UI", 10, "bold"),
+        )
+        if not state.graph_nodes:
+            self.canvas.create_text(width // 2, 185, text="empty graph", fill="#666")
+            return
+
+        positions = self._graph_positions(state, width)
+        radius = 23
+        for edge in state.graph_edges:
+            source_x, source_y = positions[edge.source]
+            destination_x, destination_y = positions[edge.destination]
+            line_fill = "#9f2d20" if edge.highlighted else "#555"
+            line_width = 2 if edge.highlighted else 1
+            line_options = {"fill": line_fill, "width": line_width}
+            if edge.directed:
+                line_options["arrow"] = tk.LAST
+            start_x, start_y, end_x, end_y = _shortened_line(
+                source_x,
+                source_y,
+                destination_x,
+                destination_y,
+                radius + 2,
+            )
+            self.canvas.create_line(start_x, start_y, end_x, end_y, **line_options)
+            mid_x = (source_x + destination_x) // 2
+            mid_y = (source_y + destination_y) // 2
+            self.canvas.create_text(mid_x, mid_y - 10, text=str(edge.weight), fill="#7a4a00", font=("Segoe UI", 9, "bold"))
+
+        for node in state.graph_nodes:
+            x, y = positions[node.value]
+            node_fill = "#ffe08a" if node.highlighted else "#e8f1ff"
+            self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=node_fill, outline="#2b4c7e")
+            self.canvas.create_text(x, y, text=str(node.value), font=("Segoe UI", 10, "bold"))
+
+    def _graph_positions(self, state: VisualizationState, width: int) -> dict[int, tuple[int, int]]:
+        nodes = state.graph_nodes
+        if len(nodes) == 1:
+            return {nodes[0].value: (width // 2, 190)}
+
+        center_x = width // 2
+        center_y = 195
+        radius = min(145, max(80, width // 5))
+        positions: dict[int, tuple[int, int]] = {}
+        for index, node in enumerate(nodes):
+            angle = (2 * math.pi * index / len(nodes)) - (math.pi / 2)
+            positions[node.value] = (
+                int(center_x + radius * math.cos(angle)),
+                int(center_y + radius * math.sin(angle)),
+            )
+        return positions
+
     def _draw_algorithm_array(self, state: VisualizationState, x: int, y: int) -> None:
         if state.target is not None:
             self.canvas.create_text(x, y - 36, anchor="w", text=f"target: {state.target}", fill="#333")
@@ -767,6 +939,24 @@ def check_runtime() -> str:
 def _summarize_steps(steps: list[object]) -> str:
     messages = [step.message for step in steps if hasattr(step, "message")]
     return " ".join(messages)
+
+
+def _shortened_line(
+    source_x: int,
+    source_y: int,
+    destination_x: int,
+    destination_y: int,
+    padding: int,
+) -> tuple[int, int, int, int]:
+    dx = destination_x - source_x
+    dy = destination_y - source_y
+    distance = math.hypot(dx, dy)
+    if distance == 0:
+        return source_x, source_y, destination_x, destination_y
+
+    offset_x = int((dx / distance) * padding)
+    offset_y = int((dy / distance) * padding)
+    return source_x + offset_x, source_y + offset_y, destination_x - offset_x, destination_y - offset_y
 
 
 def _is_algorithm_key(structure_key: StructureKey) -> bool:

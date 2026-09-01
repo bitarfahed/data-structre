@@ -258,6 +258,48 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app._restart_structure()
         assert app.controller.snapshot(StructureKey.TWO_THREE_TREE).size == 0
 
+        app.selected_structure.set(StructureKey.GRAPH.value)
+        app._show_structure_selection()
+        assert "graph" in app.explanation_label.cget("text").lower()
+        app._show_operations()
+        assert app.graph_type_input.get() == "undirected"
+        app.selected_operation.set("add_vertex")
+        app._refresh_graph_operation_fields()
+        app.graph_vertex_input.set("1")
+        app._run_graph_operation()
+        app.graph_vertex_input.set("2")
+        app._run_graph_operation()
+        app.selected_operation.set("add_edge")
+        app._refresh_graph_operation_fields()
+        app.graph_source_input.set("1")
+        app.graph_destination_input.set("2")
+        app.graph_weight_input.set("4")
+        app._run_graph_operation()
+        graph_snapshot = app.controller.snapshot(StructureKey.GRAPH)
+        assert graph_snapshot.graph_type == "undirected"
+        assert [(edge.source, edge.destination, edge.weight, edge.directed) for edge in graph_snapshot.graph_edges] == [
+            (1, 2, 4, False)
+        ]
+        assert app.canvas.find_all()
+        app.graph_weight_input.set("-1")
+        app._run_graph_operation()
+        assert app.status_text.get() == "Weight must be greater than or equal to 0."
+        app.graph_type_input.set("directed")
+        app._set_graph_type()
+        assert app.controller.graph_directed()
+        assert app.controller.snapshot(StructureKey.GRAPH).graph_edges == ()
+        app.graph_vertex_input.set("3")
+        app.selected_operation.set("add_vertex")
+        app._refresh_graph_operation_fields()
+        app._run_graph_operation()
+        app._restart_structure()
+        assert app.controller.graph_directed()
+        assert app.controller.snapshot(StructureKey.GRAPH).graph_nodes == ()
+        assert app.graph_vertex_input.get() == ""
+        assert app.graph_source_input.get() == ""
+        assert app.graph_destination_input.get() == ""
+        assert app.graph_weight_input.get() == ""
+
         app.selected_structure.set(StructureKey.BINARY_SEARCH.value)
         app._show_structure_selection()
         assert "binary search" in app.explanation_label.cget("text").lower()

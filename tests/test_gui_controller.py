@@ -14,6 +14,7 @@ def test_controller_lists_structures_and_operations() -> None:
         StructureKey.MIN_HEAP,
         StructureKey.HASH_TABLE,
         StructureKey.TWO_THREE_TREE,
+        StructureKey.GRAPH,
         StructureKey.BINARY_SEARCH,
         StructureKey.BUBBLE_SORT,
         StructureKey.SELECTION_SORT,
@@ -63,6 +64,12 @@ def test_controller_lists_structures_and_operations() -> None:
         "insert_raw",
         "repair",
         "search",
+    ]
+    assert [operation.key for operation in controller.operations_for(StructureKey.GRAPH)] == [
+        "add_vertex",
+        "remove_vertex",
+        "add_edge",
+        "remove_edge",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "load_array",
@@ -405,6 +412,82 @@ def test_controller_reset_clears_two_three_repair_state() -> None:
     assert snapshot.multi_key_tree_nodes == ()
     assert snapshot.tree_valid
     assert not snapshot.repair_pending
+
+
+def test_controller_runs_graph_builder_operations() -> None:
+    controller = VisualLabController()
+
+    first_vertex = controller.run_graph_operation("add_vertex", vertex_text="1")
+    second_vertex = controller.run_graph_operation("add_vertex", vertex_text="2")
+    edge_result = controller.run_graph_operation("add_edge", source_text="1", destination_text="2", weight_text="7")
+    snapshot = controller.snapshot(StructureKey.GRAPH, edge_result.steps[-1])
+
+    assert first_vertex.ok
+    assert second_vertex.ok
+    assert edge_result.ok
+    assert edge_result.message == "Added edge 1 -> 2 with weight 7."
+    assert snapshot.graph_type == "undirected"
+    assert [node.value for node in snapshot.graph_nodes] == [1, 2]
+    assert [(edge.source, edge.destination, edge.weight, edge.directed) for edge in snapshot.graph_edges] == [
+        (1, 2, 7, False)
+    ]
+    assert snapshot.graph_edges[0].highlighted
+
+
+def test_controller_graph_directed_mode_preserves_edge_direction() -> None:
+    controller = VisualLabController()
+
+    controller.set_graph_directed(True)
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+    controller.run_graph_operation("add_vertex", vertex_text="2")
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2")
+    snapshot = controller.snapshot(StructureKey.GRAPH)
+
+    assert controller.graph_directed()
+    assert snapshot.graph_type == "directed"
+    assert [(edge.source, edge.destination, edge.directed) for edge in snapshot.graph_edges] == [(1, 2, True)]
+    assert snapshot.adjacency == {1: ((2, 1),), 2: ()}
+
+
+def test_controller_graph_validation_messages_are_clear() -> None:
+    controller = VisualLabController()
+
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+    duplicate_vertex = controller.run_graph_operation("add_vertex", vertex_text="1")
+    missing_destination = controller.run_graph_operation("add_edge", source_text="1", destination_text="2")
+    self_loop = controller.run_graph_operation("add_edge", source_text="1", destination_text="1")
+    invalid_weight = controller.run_graph_operation("add_edge", source_text="1", destination_text="2", weight_text="bad")
+    negative_weight = controller.run_graph_operation("add_edge", source_text="1", destination_text="2", weight_text="-1")
+    invalid_vertex = controller.run_graph_operation("add_vertex", vertex_text="bad")
+
+    assert not duplicate_vertex.ok
+    assert duplicate_vertex.message == "Add vertex skipped because vertex 1 already exists."
+    assert not missing_destination.ok
+    assert missing_destination.message == "Add edge skipped because destination vertex 2 does not exist."
+    assert not self_loop.ok
+    assert self_loop.message == "Add edge skipped because self-loops are not supported."
+    assert not invalid_weight.ok
+    assert invalid_weight.message == "Weight must be an integer."
+    assert not negative_weight.ok
+    assert negative_weight.message == "Weight must be greater than or equal to 0."
+    assert not invalid_vertex.ok
+    assert invalid_vertex.message == "Vertex must be an integer."
+
+
+def test_controller_graph_restart_preserves_selected_type() -> None:
+    controller = VisualLabController()
+    controller.set_graph_directed(True)
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+    controller.run_graph_operation("add_vertex", vertex_text="2")
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2")
+
+    controller.reset_structure(StructureKey.GRAPH)
+    snapshot = controller.snapshot(StructureKey.GRAPH)
+
+    assert controller.graph_directed()
+    assert snapshot.graph_type == "directed"
+    assert snapshot.graph_nodes == ()
+    assert snapshot.graph_edges == ()
 
 
 def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:

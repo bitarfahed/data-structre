@@ -1,6 +1,6 @@
 # Round 4 Graph Design
 
-Round 4 starts the graph foundation for future graph visualizations and algorithms. This step adds only domain infrastructure. It does not add GUI support and does not implement BFS, DFS, Dijkstra, Connected Components, or any other graph algorithm.
+Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure and a simple graph builder GUI. It does not implement BFS, DFS, Dijkstra, Connected Components, or any other graph algorithm.
 
 ## Implemented Domain Model
 
@@ -13,6 +13,20 @@ Round 4 starts the graph foundation for future graph visualizations and algorith
 - Edge operations: `add_edge(source, destination, weight=1)`, `remove_edge(source, destination)`
 - Queries: `has_vertex(vertex)`, `has_edge(source, destination)`, `neighbors(vertex)`, `vertex_count()`, `edge_count()`
 - Visualization-ready inspection: `graph_type`, `directed`, `vertices()`, `adjacency_list()`, and `edge_weight(source, destination)`
+- Observable operation steps for GUI status and highlighting
+
+## GUI Builder
+
+The Graph workspace supports:
+
+- Directed or undirected graph selection
+- Add Vertex
+- Remove Vertex
+- Add Edge
+- Remove Edge
+- Restart
+
+The visualization uses deterministic circular node placement. This keeps small educational graphs readable without introducing a complex layout engine. Directed graphs draw arrows, undirected graphs draw a single connection, and all edges show their weights.
 
 ## Architecture Boundary
 
@@ -48,8 +62,7 @@ Our Round 4 graph decisions are:
 
 ## Known Limitations
 
-- No graph GUI exists yet.
-- No graph Step/Event integration exists yet.
+- No graph algorithm visualization exists yet.
 - No graph algorithms are implemented yet.
 - The graph does not resize, compact, or optimize storage for large inputs.
 - Edge weights can be inspected and updated only by removing and re-adding an edge.

@@ -832,3 +832,26 @@ Important implementation direction:
 - No external graph libraries are used.
 - No adjacency matrix is implemented.
 - Graph algorithms remain deferred.
+
+## Round 4 Graph GUI Builder
+
+Prompt goal: add Graph to the GUI so users can build directed and undirected weighted graphs without implementing graph algorithms.
+
+Work completed:
+
+- Added Graph to the structure-selection screen.
+- Added a short Graph explanation before the workspace.
+- Added a directed/undirected type selector.
+- Added GUI operations for Add Vertex, Remove Vertex, Add Edge, Remove Edge, and Restart.
+- Added Graph-specific integer parsing for vertex, source, destination, and optional weight inputs.
+- Reused the existing Graph domain object for all graph rules and mutations.
+- Added visualization state for graph nodes, weighted graph edges, graph type, and adjacency snapshots.
+- Drew vertices as labeled nodes and edges as weighted connections, with arrows for directed graphs.
+- Used deterministic circular placement for small educational graphs.
+- Added controller and GUI tests for graph operations, directed mode, undirected mode, validation, visualization state, and restart.
+
+Important implementation direction:
+
+- The GUI does not duplicate graph algorithms or graph mutation rules.
+- Restart preserves the selected graph type and creates a new empty graph.
+- BFS, DFS, Dijkstra, Connected Components, and other graph algorithms remain deferred.

@@ -1,6 +1,7 @@
 from data_structures_visual_lab.domain.data_structures import (
     AVLTree,
     DynamicArray,
+    Graph,
     HashTable,
     LinkedList,
     MinHeap,
@@ -242,3 +243,21 @@ def test_two_three_visualization_state_includes_multikey_nodes_and_repair_data()
     assert state.multi_key_tree_nodes[0].overflowing
     assert state.multi_key_tree_nodes[0].highlighted
     assert state.multi_key_tree_nodes[0].highlighted_key == 15
+
+
+def test_graph_visualization_state_includes_nodes_edges_weights_and_type() -> None:
+    graph = Graph(directed=True)
+    graph.add_vertex(1)
+    graph.add_vertex(2)
+    _ok, steps = graph.add_edge_with_steps(1, 2, weight=5)
+
+    state = build_visualization_state("Graph", graph, steps[-1])
+
+    assert state.graph_type == "directed"
+    assert [node.value for node in state.graph_nodes] == [1, 2]
+    assert [node.value for node in state.graph_nodes if node.highlighted] == [1, 2]
+    assert [(edge.source, edge.destination, edge.weight, edge.directed) for edge in state.graph_edges] == [
+        (1, 2, 5, True)
+    ]
+    assert state.graph_edges[0].highlighted
+    assert state.adjacency == {1: ((2, 5),), 2: ()}

@@ -274,7 +274,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 4 Scope
 
-Round 4 starts with graph domain infrastructure only. GUI support and graph algorithms are intentionally deferred.
+Round 4 starts with graph domain infrastructure and a simple graph builder GUI. Graph algorithms are intentionally deferred.
 
 Implemented:
 
@@ -293,15 +293,18 @@ Implemented:
 - `vertex_count()`
 - `edge_count()`
 - Visualization-ready inspection through graph type, vertex list, weighted adjacency list, and edge weights
+- GUI structure selection and educational explanation
+- Directed/undirected graph type selector
+- GUI operations for Add Vertex, Remove Vertex, Add Edge, Remove Edge, and Restart
+- Deterministic circular graph visualization with node labels, edge weights, and directed arrows
 
 Round 4 design decisions and intentionally deferred production alternatives are documented in `docs/ROUND_4_GRAPHS.md`.
 
 Deferred intentionally:
 
-- Graph GUI
 - BFS
 - DFS
 - Dijkstra
 - Connected Components
 - Additional graph algorithms
-- Step/Event integration for graph operations
+- Step/Event integration for graph algorithms
