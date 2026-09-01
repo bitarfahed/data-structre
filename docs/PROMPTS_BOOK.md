@@ -810,3 +810,25 @@ Important implementation direction:
 - Binary Search array state is owned by the GUI controller, not by the canvas drawing code.
 - Invalid or unsorted Load Array attempts do not replace the previous valid loaded array.
 - Restart clears the loaded array, target, result state, and visualization.
+
+## Round 4 Graph Domain Infrastructure
+
+Prompt goal: add custom graph domain infrastructure for future graph visualizations and algorithms without implementing GUI or algorithms.
+
+Work completed:
+
+- Added `graph.py` with a custom `Graph` domain model.
+- Supported directed and undirected graph modes.
+- Used a weighted adjacency-list representation.
+- Added non-negative integer edge weights for future Dijkstra work.
+- Added vertex operations, edge operations, and query methods.
+- Exposed deterministic vertex and adjacency-list snapshots for future visualization.
+- Added pytest coverage for vertex behavior, edge behavior, weights, counts, directed and undirected behavior, missing vertices, self-loops, duplicate edges, duplicate vertices, and invalid input.
+- Added dedicated Round 4 graph design documentation.
+
+Important implementation direction:
+
+- Graph logic remains independent from GUI and visualization code.
+- No external graph libraries are used.
+- No adjacency matrix is implemented.
+- Graph algorithms remain deferred.

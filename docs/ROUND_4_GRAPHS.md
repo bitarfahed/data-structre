@@ -1,0 +1,55 @@
+# Round 4 Graph Design
+
+Round 4 starts the graph foundation for future graph visualizations and algorithms. This step adds only domain infrastructure. It does not add GUI support and does not implement BFS, DFS, Dijkstra, Connected Components, or any other graph algorithm.
+
+## Implemented Domain Model
+
+- `Graph`
+- Directed and undirected graph modes
+- Weighted edges with non-negative integer weights
+- Adjacency-list storage
+- Integer-only vertices
+- Vertex operations: `add_vertex(vertex)`, `remove_vertex(vertex)`
+- Edge operations: `add_edge(source, destination, weight=1)`, `remove_edge(source, destination)`
+- Queries: `has_vertex(vertex)`, `has_edge(source, destination)`, `neighbors(vertex)`, `vertex_count()`, `edge_count()`
+- Visualization-ready inspection: `graph_type`, `directed`, `vertices()`, `adjacency_list()`, and `edge_weight(source, destination)`
+
+## Architecture Boundary
+
+The graph implementation lives in the domain data-structures package and has no dependency on GUI, Tkinter, visualization rendering, or graph algorithm modules.
+
+The graph exposes deterministic snapshots of vertices and weighted adjacency data so a future visualization layer can render the structure without owning graph behavior.
+
+## Educational Edge-Case Decisions
+
+בחרנו במקרים פשוטים כי רוצים ללמוד מבלי להרחיב ל-edge cases שלא מוסיפים ערך לימודי.
+
+Our Round 4 graph decisions are:
+
+- Use an adjacency list instead of an adjacency matrix. This matches the way most graph algorithms teach neighbor traversal.
+- Vertices are integers only. This keeps labels, tests, and future algorithm inputs consistent with earlier rounds.
+- Duplicate vertices are rejected. Each vertex has one adjacency entry.
+- Duplicate edges are rejected. Re-adding the same edge does not overwrite or add another edge.
+- Self-loops are not supported. This keeps first graph diagrams focused on relationships between distinct vertices.
+- Parallel edges are not supported. Each source-destination pair has at most one edge.
+- Edge weights must be non-negative integers. This prepares the project for Dijkstra without introducing negative-weight behavior.
+- Only directed and undirected graphs are supported. The graph type is explicit at construction time.
+- Missing vertices and missing edges are handled safely by returning `False` or an empty neighbor list where appropriate.
+
+## Deferred Production-Oriented Alternatives
+
+- Adjacency matrix: useful when graphs are dense or constant-time edge lookup is the central requirement, but it adds storage overhead and is less natural for teaching neighbor traversal in sparse examples.
+- Generic vertex types: useful in larger systems where vertices may be strings, objects, or domain identifiers, but integer-only vertices keep parsing and visualization simple.
+- Parallel edges and multigraphs: useful for transportation, routing, and network models with multiple relationships between the same endpoints, but they complicate edge identity before the core graph model is established.
+- Self-loops: useful in state machines and some graph-theory examples, but they add visual and algorithmic edge cases that are not needed for the first graph round.
+- Negative weights: useful for algorithms such as Bellman-Ford, but they are incompatible with standard Dijkstra assumptions and are intentionally excluded for now.
+- Dynamic graph optimizations: useful for large, frequently changing graphs, but the project targets small educational examples.
+- Immutable graph representations: useful for concurrent systems, reproducible transformations, and functional-style algorithm pipelines, but mutable operations are easier to demonstrate interactively in this project.
+
+## Known Limitations
+
+- No graph GUI exists yet.
+- No graph Step/Event integration exists yet.
+- No graph algorithms are implemented yet.
+- The graph does not resize, compact, or optimize storage for large inputs.
+- Edge weights can be inspected and updated only by removing and re-adding an edge.

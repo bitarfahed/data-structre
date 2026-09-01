@@ -59,6 +59,7 @@ The project foundation is in place:
 
 Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
 Round 3 is implemented and QA-verified for Binary Search, Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort, and shared array-algorithm infrastructure.
+Round 4 graph domain infrastructure has started with a GUI-independent weighted adjacency-list graph.
 
 ## Round 1 Status
 
@@ -159,3 +160,24 @@ Known limitations:
 - Additional searching and sorting algorithms are not implemented yet.
 - The GUI does not provide Play, Next Step, Previous Step, or detailed animation controls.
 - The visualizer is intended for small learning examples rather than large production-sized arrays.
+
+## Round 4 Status
+
+Round 4 graph domain infrastructure is in place.
+
+Implemented:
+
+- Custom `Graph` domain model
+- Directed and undirected graph modes
+- Weighted edges with non-negative integer weights
+- Adjacency-list representation
+- Integer-only vertices
+- Add/remove vertex and edge operations
+- Vertex, edge, neighbor, vertex-count, and edge-count queries
+- Visualization-ready graph type, vertex list, weighted adjacency list, and edge-weight inspection
+
+Known limitations:
+
+- No graph GUI exists yet.
+- No graph algorithms are implemented yet.
+- No graph Step/Event integration exists yet.

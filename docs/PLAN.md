@@ -271,3 +271,37 @@ Remaining limitations are intentionally deferred:
 - Production-oriented pivot strategies and recursion-depth fallbacks
 - Large-array pagination, limits, or virtualization
 - Generic comparable values beyond integers
+
+## Round 4 Scope
+
+Round 4 starts with graph domain infrastructure only. GUI support and graph algorithms are intentionally deferred.
+
+Implemented:
+
+- `Graph`
+- Directed and undirected graph modes
+- Weighted edges with non-negative integer weights
+- Adjacency-list representation
+- Integer-only vertices
+- `add_vertex(vertex)`
+- `remove_vertex(vertex)`
+- `add_edge(source, destination, weight=1)`
+- `remove_edge(source, destination)`
+- `has_vertex(vertex)`
+- `has_edge(source, destination)`
+- `neighbors(vertex)`
+- `vertex_count()`
+- `edge_count()`
+- Visualization-ready inspection through graph type, vertex list, weighted adjacency list, and edge weights
+
+Round 4 design decisions and intentionally deferred production alternatives are documented in `docs/ROUND_4_GRAPHS.md`.
+
+Deferred intentionally:
+
+- Graph GUI
+- BFS
+- DFS
+- Dijkstra
+- Connected Components
+- Additional graph algorithms
+- Step/Event integration for graph operations

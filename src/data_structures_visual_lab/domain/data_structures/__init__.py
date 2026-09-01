@@ -2,6 +2,7 @@
 
 from data_structures_visual_lab.domain.data_structures.avl_tree import AVLNode, AVLTree
 from data_structures_visual_lab.domain.data_structures.dynamic_array import DynamicArray
+from data_structures_visual_lab.domain.data_structures.graph import Graph
 from data_structures_visual_lab.domain.data_structures.hash_table import HashEntry, HashTable
 from data_structures_visual_lab.domain.data_structures.linked_list import LinkedList, Node
 from data_structures_visual_lab.domain.data_structures.min_heap import MinHeap
@@ -17,6 +18,7 @@ __all__ = [
     "AVLNode",
     "AVLTree",
     "DynamicArray",
+    "Graph",
     "HashEntry",
     "HashTable",
     "LinkedList",
