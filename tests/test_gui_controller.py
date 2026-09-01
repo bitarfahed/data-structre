@@ -76,6 +76,7 @@ def test_controller_lists_structures_and_operations() -> None:
         "connected_components",
         "cycle_detection",
         "topological_sort",
+        "prim_mst",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "load_array",
@@ -688,6 +689,41 @@ def test_controller_rejects_graph_topological_sort_for_undirected_graph() -> Non
     assert not result.ok
     assert result.message == "Topological Sort supports directed graphs only."
     assert result.steps == []
+
+
+def test_controller_runs_graph_prim_mst() -> None:
+    controller = VisualLabController()
+    for vertex in ("1", "2", "3"):
+        controller.run_graph_operation("add_vertex", vertex_text=vertex)
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2", weight_text="1")
+    controller.run_graph_operation("add_edge", source_text="2", destination_text="3", weight_text="2")
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="3", weight_text="5")
+
+    result = controller.run_graph_operation("prim_mst", vertex_text="1")
+    snapshot = controller.snapshot(StructureKey.GRAPH, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Prim's MST complete. Total weight: 3."
+    assert snapshot.mst_edges == ((1, 2, 1), (2, 3, 2))
+    assert snapshot.mst_total_weight == 3
+
+
+def test_controller_rejects_graph_prim_mst_invalid_inputs() -> None:
+    controller = VisualLabController()
+
+    empty = controller.run_graph_operation("prim_mst", vertex_text="1")
+    invalid = controller.run_graph_operation("prim_mst", vertex_text="bad")
+    controller.set_graph_directed(True)
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+    directed = controller.run_graph_operation("prim_mst", vertex_text="1")
+
+    assert not empty.ok
+    assert empty.message == "Prim's MST skipped because the graph is empty."
+    assert not invalid.ok
+    assert invalid.message == "Start must be an integer."
+    assert not directed.ok
+    assert directed.message == "Prim's MST supports undirected graphs only."
+    assert directed.steps == []
 
 
 def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:

@@ -1,6 +1,6 @@
 # Round 5 Graph Algorithms
 
-Round 5 extends the graph workspace with Cycle Detection and Topological Sort.
+Round 5 extends the graph workspace with Cycle Detection, Topological Sort, and Prim's Minimum Spanning Tree.
 
 ## Cycle Detection
 
@@ -52,9 +52,32 @@ DFS-based topological sorting is a valid alternative. It is compact and common i
 
 The Topological Sort execution steps expose indegrees, zero-indegree queue contents, the current selected vertex, processed vertices, examined edges, indegree updates, growing topological order, cycle/impossible state, and completion state.
 
+## Prim's Minimum Spanning Tree
+
+`prim_mst(graph, start_vertex)` builds one minimum spanning tree for a connected weighted undirected graph.
+
+Behavior:
+
+- Supports weighted undirected graphs only.
+- Rejects directed graphs with a clear message.
+- Rejects empty graphs safely.
+- Requires a valid start vertex.
+- Uses the graph's existing non-negative integer edge weights.
+- Grows the MST from the selected start vertex.
+- Selects the lowest-weight candidate edge that reaches a not-yet-included vertex.
+- Rejects candidate edges that would lead back into the already included MST set.
+- Returns the selected MST edges and total MST weight.
+- If the graph is disconnected, returns the reachable partial tree and reports that no spanning tree covers all vertices.
+
+Prim uses Python standard-library `heapq` as a priority queue because the learning target is the MST algorithm, not heap implementation. Candidate edge entries are ordered by weight, then source vertex, then destination vertex so equal-weight cases remain deterministic.
+
+Prim builds the MST incrementally from a start vertex. Other MST approaches such as Kruskal belong in separate algorithm modules and are intentionally not implemented in this step.
+
+The Prim execution steps expose the current vertex, included vertices, candidate edges, priority queue contents, selected minimum edge, rejected edges where encountered, growing MST edge set, current total weight, completion state, and disconnected-graph state.
+
 ## GUI Visualization
 
-The Graph workspace includes Cycle Detection and Topological Sort as no-input operations.
+The Graph workspace includes Cycle Detection and Topological Sort as no-input operations. Prim's MST uses a Start vertex input.
 
 Cycle Detection visualization shows:
 
@@ -75,6 +98,16 @@ Topological Sort visualization shows:
 - growing topological order
 - clear impossible result when a directed cycle prevents sorting
 
+Prim visualization shows:
+
+- current vertex
+- included MST vertices
+- candidate edges
+- selected MST edges
+- selected or rejected edge highlights
+- current and final total MST weight
+- clear disconnected-graph result when a full spanning tree does not exist
+
 ## Educational Decisions
 
 בחרנו במקרים פשוטים כי רוצים ללמוד מבלי להרחיב ל-edge cases שלא מוסיפים ערך לימודי.
@@ -89,6 +122,8 @@ Round 5 keeps graph algorithms focused on the existing graph model:
 - One detected cycle is enough for visualization.
 - One valid topological ordering is enough for visualization.
 - Kahn's algorithm is used for Topological Sort because its queue and indegree state are visible.
+- Prim is limited to weighted undirected graphs because MSTs are defined for undirected graphs in this educational round.
+- One deterministic MST result is enough when equal-weight alternatives exist.
 
 ## Deferred Production-Oriented Alternatives
 
@@ -98,6 +133,8 @@ Round 5 keeps graph algorithms focused on the existing graph model:
 - Self-loop cycle handling: useful in general graph libraries, but self-loops are intentionally unsupported by the current graph domain.
 - DFS-based topological sorting: useful as a compact alternative, but Kahn's algorithm exposes clearer queue and indegree state for this visualization.
 - Returning every possible topological order: useful for exhaustive dependency analysis, but not needed for the educational core.
+- Kruskal's MST algorithm: useful as an edge-sorting alternative and valuable for comparing MST strategies, but it should live in its own focused implementation rather than being folded into Prim.
+- Directed spanning-tree/arborescence algorithms: useful in specialized graph optimization, but they are a different topic from undirected MSTs.
 - Large-graph optimizations: useful in production graph processing, but this project targets small interactive examples.
 
 ## Known Limitations
@@ -106,4 +143,8 @@ Round 5 keeps graph algorithms focused on the existing graph model:
 - Cycle Detection follows the existing graph constraints: no self-loops and no parallel edges.
 - Topological Sort returns one valid order, not every possible order.
 - Topological Sort is directed-only.
+- Prim supports weighted undirected graphs only.
+- Prim reports disconnected graphs instead of producing a full MST.
+- Prim returns one deterministic MST when multiple equal-weight MSTs are possible.
+- Kruskal is not implemented yet.
 - Visualization is sequential and simple; it does not animate recursive call stack frames separately.

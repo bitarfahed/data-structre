@@ -14,6 +14,7 @@ from data_structures_visual_lab.domain.algorithms import (
     insertion_sort,
     merge_sort,
     parse_integer_array_text,
+    prim_mst,
     quick_sort,
     selection_sort,
     topological_sort,
@@ -239,6 +240,7 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
         OperationSpec("connected_components", "Connected Components"),
         OperationSpec("cycle_detection", "Cycle Detection"),
         OperationSpec("topological_sort", "Topological Sort"),
+        OperationSpec("prim_mst", "Prim MST", needs_value=True, value_label="Start"),
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
@@ -434,6 +436,12 @@ class VisualLabController:
                 return OperationResult(result.ok, result.message, result.steps)
             if operation_key == "topological_sort":
                 result = topological_sort(graph)
+                return OperationResult(result.ok, result.message, result.steps)
+            if operation_key == "prim_mst":
+                start = self._parse_required_integer(vertex_text, "Start")
+                if isinstance(start, str):
+                    return OperationResult(False, start, [])
+                result = prim_mst(graph, start)
                 return OperationResult(result.ok, result.message, result.steps)
 
             source = self._parse_required_integer(source_text, "Source")

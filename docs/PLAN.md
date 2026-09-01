@@ -336,7 +336,7 @@ Verified in final QA:
 
 ## Round 5 Scope
 
-Round 5 starts with Cycle Detection and Topological Sort for the existing Graph workspace. Prim, Kruskal, and other graph algorithms are intentionally deferred.
+Round 5 extends the existing Graph workspace with Cycle Detection, Topological Sort, and Prim's Minimum Spanning Tree. Kruskal and other graph algorithms are intentionally deferred.
 
 Implemented:
 
@@ -355,12 +355,16 @@ Implemented:
 - Disconnected DAG handling
 - Empty directed graph handling
 - Topological Sort GUI operation with indegree values, zero-indegree queue, processed vertices, examined edges, and growing order
+- `prim_mst(graph, start_vertex)`
+- Weighted-undirected-only Prim's Minimum Spanning Tree using a priority queue
+- Clear directed-graph, empty-graph, missing-start, and disconnected-graph validation
+- MST edge set and total weight result
+- Prim GUI operation with included vertices, candidate edges, selected MST edges, total weight, and disconnected-graph message
 
 Round 5 design decisions and deferred production-oriented alternatives are documented in `docs/ROUND_5_GRAPHS.md`.
 
 Deferred intentionally:
 
-- Prim
 - Kruskal
 - Returning every cycle in a graph
 - Returning every possible topological ordering

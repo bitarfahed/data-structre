@@ -99,6 +99,7 @@ class VisualGraphEdge:
     weight: int
     directed: bool
     highlighted: bool = False
+    mst: bool = False
 
 
 @dataclass(frozen=True)
@@ -173,6 +174,10 @@ class VisualizationState:
     processed_vertices: tuple[int, ...] = ()
     topological_order: tuple[int, ...] = ()
     topological_sort_possible: bool | None = None
+    candidate_edges: tuple[tuple[int, int, int], ...] = ()
+    mst_edges: tuple[tuple[int, int, int], ...] = ()
+    mst_total_weight: int | None = None
+    mst_disconnected: bool = False
 
 
 def build_algorithm_visualization_state(
@@ -387,6 +392,11 @@ def build_visualization_state(
         processed_vertices = _int_tuple(metadata.get("processed_vertices"))
         topological_order = _int_tuple(metadata.get("topological_order"))
         topological_sort_possible = _bool_or_none(metadata.get("topological_sort_possible"))
+        candidate_edges = _weighted_edge_tuple(metadata.get("candidate_edges"))
+        mst_edges = _weighted_edge_tuple(metadata.get("mst_edges"))
+        mst_edge_pairs = {(source, destination) for source, destination, _weight in mst_edges}
+        mst_total_weight = _int_or_none(metadata.get("mst_total_weight"))
+        mst_disconnected = metadata.get("mst_disconnected") is True
         nodes = tuple(
             VisualGraphNode(
                 value=vertex,
@@ -399,7 +409,7 @@ def build_visualization_state(
             )
             for vertex in structure.vertices()
         )
-        edges = _graph_edges(structure, highlight_edges)
+        edges = _graph_edges(structure, highlight_edges, mst_edge_pairs)
         return VisualizationState(
             structure_name=structure_name,
             values=(),
@@ -435,6 +445,10 @@ def build_visualization_state(
             processed_vertices=processed_vertices,
             topological_order=topological_order,
             topological_sort_possible=topological_sort_possible,
+            candidate_edges=candidate_edges,
+            mst_edges=mst_edges,
+            mst_total_weight=mst_total_weight,
+            mst_disconnected=mst_disconnected,
         )
 
     if isinstance(structure, DynamicArray):
@@ -808,6 +822,22 @@ def _edge_tuple(value: object) -> tuple[tuple[int, int], ...]:
     return tuple(edges)
 
 
+def _weighted_edge_tuple(value: object) -> tuple[tuple[int, int, int], ...]:
+    if not isinstance(value, list):
+        return ()
+    edges: list[tuple[int, int, int]] = []
+    for item in value:
+        if (
+            isinstance(item, tuple)
+            and len(item) == 3
+            and type(item[0]) is int
+            and type(item[1]) is int
+            and type(item[2]) is int
+        ):
+            edges.append(item)
+    return tuple(edges)
+
+
 def _edge_or_none(value: object) -> tuple[int, int] | None:
     if (
         isinstance(value, tuple)
@@ -819,9 +849,14 @@ def _edge_or_none(value: object) -> tuple[int, int] | None:
     return None
 
 
-def _graph_edges(structure: Graph, highlight_edges: set[tuple[int, int]]) -> tuple[VisualGraphEdge, ...]:
+def _graph_edges(
+    structure: Graph,
+    highlight_edges: set[tuple[int, int]],
+    mst_edges: set[tuple[int, int]] | None = None,
+) -> tuple[VisualGraphEdge, ...]:
     edges: list[VisualGraphEdge] = []
     seen_undirected: set[frozenset[int]] = set()
+    mst_edges = mst_edges or set()
     for source, neighbors in structure.adjacency_list().items():
         for destination, weight in neighbors:
             if not structure.directed:
@@ -836,6 +871,7 @@ def _graph_edges(structure: Graph, highlight_edges: set[tuple[int, int]]) -> tup
                     weight=weight,
                     directed=structure.directed,
                     highlighted=(source, destination) in highlight_edges or (destination, source) in highlight_edges,
+                    mst=(source, destination) in mst_edges or (destination, source) in mst_edges,
                 )
             )
     return tuple(edges)

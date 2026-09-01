@@ -1027,3 +1027,27 @@ Important implementation direction:
 - Kahn's algorithm was chosen for visualization clarity.
 - DFS-based topological sorting is valid but intentionally not used here.
 - Prim, Kruskal, and returning every possible topological order remain deferred.
+
+## Round 5 Prim's MST with GUI Visualization
+
+Prompt goal: implement Prim's Minimum Spanning Tree over the existing Graph domain object and add a simple GUI visualization.
+
+Work completed:
+
+- Added `prim_mst.py` as a graph algorithm module.
+- Implemented weighted-undirected-only Prim's MST using Python standard-library `heapq`.
+- Rejected directed graphs, empty graphs, missing start vertices, and invalid start input with clear messages.
+- Reported disconnected graphs without claiming a full spanning tree exists.
+- Returned selected MST edges and total MST weight.
+- Added execution steps for current vertex, included vertices, candidate edges, selected minimum edge, rejected stale/cyclic candidate edges where encountered, growing MST edge set, total weight, completion state, and disconnected state.
+- Added Prim MST as a Graph GUI operation with a Start input.
+- Reused the existing Graph domain object and did not duplicate MST logic in the GUI.
+- Extended graph visualization state and canvas drawing for MST edges, candidate edges, total weight, and disconnected-result messages.
+- Added pytest coverage for connected weighted graphs, equal-weight tie behavior, single-vertex graphs, disconnected graphs, invalid inputs, MST connectivity and acyclic behavior, controller integration, visualization state, package imports, and GUI smoke behavior.
+
+Important implementation direction:
+
+- Prim is independent from Tkinter and GUI code.
+- Candidate edges are ordered by weight, then source vertex, then destination vertex for deterministic educational output.
+- MST edges are visually distinguished from ordinary graph edges.
+- Kruskal remains intentionally deferred as a separate MST approach.

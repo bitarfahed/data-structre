@@ -278,8 +278,10 @@ class VisualLabApp(tk.Tk):
             widget.grid_remove()
 
         operation_key = self.selected_operation.get()
-        if operation_key in {"add_vertex", "remove_vertex", "bfs", "dfs", "dijkstra"}:
-            self.graph_vertex_label.configure(text="Start" if operation_key in {"bfs", "dfs", "dijkstra"} else "Vertex")
+        if operation_key in {"add_vertex", "remove_vertex", "bfs", "dfs", "dijkstra", "prim_mst"}:
+            self.graph_vertex_label.configure(
+                text="Start" if operation_key in {"bfs", "dfs", "dijkstra", "prim_mst"} else "Vertex"
+            )
             self.graph_vertex_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_vertex_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
             if operation_key == "dijkstra":
@@ -800,6 +802,14 @@ class VisualLabApp(tk.Tk):
             info_lines.append((f"indegree: {indegrees}", "#333"))
         if state.topological_sort_possible is False:
             info_lines.append(("topological sort impossible: cycle detected", "#9f2d20"))
+        if state.candidate_edges:
+            info_lines.append((f"candidate queue: {list(state.candidate_edges)}", "#2b4c7e"))
+        if state.mst_edges:
+            info_lines.append((f"MST edges: {list(state.mst_edges)}", "#1f6f43"))
+        if state.mst_total_weight is not None:
+            info_lines.append((f"MST weight: {state.mst_total_weight}", "#333"))
+        if state.mst_disconnected:
+            info_lines.append(("no spanning tree covers all vertices", "#9f2d20"))
         for index, (text, fill) in enumerate(info_lines):
             self.canvas.create_text(
                 20,
@@ -817,8 +827,14 @@ class VisualLabApp(tk.Tk):
         for edge in state.graph_edges:
             source_x, source_y = positions[edge.source]
             destination_x, destination_y = positions[edge.destination]
-            line_fill = "#9f2d20" if edge.highlighted else "#555"
-            line_width = 2 if edge.highlighted else 1
+            line_fill = "#555"
+            line_width = 1
+            if edge.mst:
+                line_fill = "#1f6f43"
+                line_width = 3
+            if edge.highlighted:
+                line_fill = "#9f2d20"
+                line_width = 3
             line_options = {"fill": line_fill, "width": line_width}
             if edge.directed:
                 line_options["arrow"] = tk.LAST

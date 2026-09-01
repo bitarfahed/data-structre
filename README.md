@@ -208,7 +208,7 @@ Known limitations:
 
 ## Round 5 Status
 
-Round 5 starts with Cycle Detection and Topological Sort for the existing Graph workspace.
+Round 5 extends the existing Graph workspace with Cycle Detection, Topological Sort, and Prim's Minimum Spanning Tree.
 
 Implemented:
 
@@ -225,9 +225,16 @@ Implemented:
 - Cycle rejection for directed graphs that cannot be topologically sorted
 - Topological Sort GUI operation
 - Simple topological visualization with indegree values, zero-indegree queue, processed vertices, examined edges, and growing order
+- Prim's MST domain algorithm for weighted undirected graphs
+- Priority-queue based MST construction from a selected start vertex
+- Disconnected-graph handling that reports no full spanning tree exists
+- Prim GUI operation
+- Simple MST visualization with included vertices, candidate edges, selected MST edges, and total weight
 
 Known limitations:
 
 - Cycle Detection returns one detected cycle, not all cycles.
 - Topological Sort returns one valid order, not every possible valid order.
+- Prim supports undirected graphs only and returns one deterministic MST for the selected start vertex.
+- Kruskal remains deferred as a separate MST approach.
 - The graph domain still intentionally rejects self-loops and parallel edges.
