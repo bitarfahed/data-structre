@@ -274,7 +274,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 4 Scope
 
-Round 4 starts with graph domain infrastructure, a simple graph builder GUI, BFS traversal, and DFS traversal. Dijkstra, Connected Components, and additional graph algorithms are intentionally deferred.
+Round 4 starts with graph domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, and Dijkstra shortest paths. Connected Components and additional graph algorithms are intentionally deferred.
 
 Implemented:
 
@@ -304,12 +304,16 @@ Implemented:
 - Iterative stack-based DFS traversal over the reachable component from the selected start vertex
 - DFS GUI operation with current vertex, visited vertices, stack contents, traversal order, and examined edge visualization
 - DFS uses the graph's sorted neighbor order when pushing neighbors onto the stack; because the stack is LIFO, the highest sorted neighbor is visited first
+- `dijkstra(graph, start_vertex, target_vertex=None)`
+- Dijkstra shortest-path traversal over non-negative weighted graphs
+- Optional shortest-path reconstruction when a target vertex is provided
+- Dijkstra GUI operation with current vertex, finalized vertices, tentative distances, priority queue contents, examined edge, relaxation updates, and final path visualization
+- Python standard-library `heapq` is used as Dijkstra's priority queue because heap implementation is not the learning target in this step
+- Negative weights remain unsupported; Bellman-Ford is a relevant alternative for negative-weight graphs and is intentionally outside the current scope
 
 Round 4 design decisions and intentionally deferred production alternatives are documented in `docs/ROUND_4_GRAPHS.md`.
 
 Deferred intentionally:
 
-- Dijkstra
 - Connected Components
 - Additional graph algorithms
-- Step/Event integration for graph algorithms

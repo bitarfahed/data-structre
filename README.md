@@ -59,7 +59,7 @@ The project foundation is in place:
 
 Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
 Round 3 is implemented and QA-verified for Binary Search, Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort, and shared array-algorithm infrastructure.
-Round 4 graph builder support has started with a weighted adjacency-list graph and a simple GUI workspace.
+Round 4 graph support has started with a weighted adjacency-list graph, a simple GUI workspace, BFS, DFS, and Dijkstra.
 
 ## Round 1 Status
 
@@ -181,7 +181,11 @@ Implemented:
 - BFS GUI operation with sequential current-vertex, visited-vertex, queue, traversal-order, and examined-edge visualization
 - DFS domain algorithm with iterative stack-based traversal from a selected start vertex
 - DFS GUI operation with sequential current-vertex, visited-vertex, stack, traversal-order, and examined-edge visualization
+- Dijkstra domain algorithm with non-negative weighted shortest paths from a selected start vertex
+- Optional Dijkstra target path reconstruction
+- Dijkstra GUI operation with current vertex, finalized vertices, tentative distances, priority queue, examined-edge, relaxation, and shortest-path visualization
 
 Known limitations:
 
-- Dijkstra, Connected Components, and other graph algorithms are not implemented yet.
+- Connected Components and graph algorithms beyond BFS, DFS, and Dijkstra are not implemented yet.
+- Dijkstra intentionally does not support negative edge weights; Bellman-Ford is the relevant alternative for that case and is outside the current scope.

@@ -16,6 +16,7 @@ from data_structures_visual_lab.domain.algorithms import (
     selection_sort,
     validate_ascending_sorted,
     dfs,
+    dijkstra,
 )
 from data_structures_visual_lab.domain.data_structures import (
     AVLTree,
@@ -224,6 +225,14 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
         ),
         OperationSpec("bfs", "BFS", needs_value=True, value_label="Start"),
         OperationSpec("dfs", "DFS", needs_value=True, value_label="Start"),
+        OperationSpec(
+            "dijkstra",
+            "Dijkstra",
+            needs_value=True,
+            needs_index=True,
+            value_label="Start",
+            index_label="Target",
+        ),
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
@@ -373,6 +382,7 @@ class VisualLabController:
         source_text: str = "",
         destination_text: str = "",
         weight_text: str = "",
+        target_text: str = "",
     ) -> OperationResult:
         """Run a graph operation with graph-specific input fields."""
         graph = self._structures[StructureKey.GRAPH]
@@ -400,6 +410,15 @@ class VisualLabController:
                 if isinstance(start, str):
                     return OperationResult(False, start, [])
                 result = dfs(graph, start)
+                return OperationResult(result.ok, result.message, result.steps)
+            if operation_key == "dijkstra":
+                start = self._parse_required_integer(vertex_text, "Start")
+                if isinstance(start, str):
+                    return OperationResult(False, start, [])
+                target = self._parse_optional_integer(target_text, "Target")
+                if isinstance(target, str):
+                    return OperationResult(False, target, [])
+                result = dijkstra(graph, start, target)
                 return OperationResult(result.ok, result.message, result.steps)
 
             source = self._parse_required_integer(source_text, "Source")
@@ -640,6 +659,13 @@ class VisualLabController:
         if parsed < 0:
             return "Weight must be greater than or equal to 0."
         return parsed
+
+    @staticmethod
+    def _parse_optional_integer(text: str, label: str) -> int | str | None:
+        stripped = text.strip()
+        if not stripped:
+            return None
+        return _parse_integer(stripped, f"{label} must be an integer.")
 
 
 def _parse_integer(text: str, error_message: str) -> int | str:

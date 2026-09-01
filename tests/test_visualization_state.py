@@ -13,6 +13,7 @@ from data_structures_visual_lab.domain.algorithms import binary_search
 from data_structures_visual_lab.domain.algorithms import bfs
 from data_structures_visual_lab.domain.algorithms import bubble_sort
 from data_structures_visual_lab.domain.algorithms import dfs
+from data_structures_visual_lab.domain.algorithms import dijkstra
 from data_structures_visual_lab.domain.algorithms import heap_sort
 from data_structures_visual_lab.domain.algorithms import merge_sort
 from data_structures_visual_lab.domain.algorithms import quick_sort
@@ -287,6 +288,29 @@ def test_graph_visualization_state_includes_bfs_queue_and_order() -> None:
     assert [(edge.source, edge.destination) for edge in state.graph_edges if edge.highlighted] == [(1, 2)]
 
 
+def test_graph_visualization_state_includes_dijkstra_distances_queue_and_path() -> None:
+    graph = Graph()
+    for vertex in (1, 2, 3):
+        graph.add_vertex(vertex)
+    graph.add_edge(1, 2, 4)
+    graph.add_edge(1, 3, 1)
+    graph.add_edge(3, 2, 2)
+    result = dijkstra(graph, 1, 2)
+    update_step = [step for step in result.steps if step.message == "Update vertex 3: distance becomes 1."][0]
+    complete_step = result.steps[-1]
+
+    update_state = build_visualization_state("Graph", graph, update_step)
+    complete_state = build_visualization_state("Graph", graph, complete_step)
+
+    assert update_state.current_vertex == 3
+    assert update_state.distances == {1: 0, 2: 4, 3: 1}
+    assert update_state.priority_queue == ((1, 3), (4, 2))
+    assert update_state.examined_edge == (1, 3)
+    assert [node.value for node in update_state.graph_nodes if node.current] == [3]
+    assert complete_state.shortest_path == (1, 3, 2)
+    assert [node.value for node in complete_state.graph_nodes if node.path] == [1, 2, 3]
+
+
 def test_graph_visualization_state_includes_dfs_stack_and_order() -> None:
     graph = Graph()
     for vertex in (1, 2, 3):
@@ -306,3 +330,5 @@ def test_graph_visualization_state_includes_dfs_stack_and_order() -> None:
     assert state.traversal_order == (1,)
     assert state.examined_edge == (1, 2)
     assert [node.value for node in state.graph_nodes if node.current] == [2]
+    assert [node.value for node in state.graph_nodes if node.visited] == [1, 2]
+    assert [(edge.source, edge.destination) for edge in state.graph_edges if edge.highlighted] == [(1, 2)]

@@ -72,6 +72,7 @@ def test_controller_lists_structures_and_operations() -> None:
         "remove_edge",
         "bfs",
         "dfs",
+        "dijkstra",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "load_array",
@@ -556,6 +557,46 @@ def test_controller_rejects_invalid_or_missing_graph_dfs_start() -> None:
     assert invalid.message == "Start must be an integer."
     assert not missing.ok
     assert missing.message == "DFS start vertex 9 does not exist."
+
+
+def test_controller_runs_graph_dijkstra_from_start_and_target() -> None:
+    controller = VisualLabController()
+    for vertex in ("1", "2", "3"):
+        controller.run_graph_operation("add_vertex", vertex_text=vertex)
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2", weight_text="4")
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="3", weight_text="1")
+    controller.run_graph_operation("add_edge", source_text="3", destination_text="2", weight_text="2")
+
+    result = controller.run_graph_operation("dijkstra", vertex_text="1", target_text="2")
+    snapshot = controller.snapshot(StructureKey.GRAPH, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Dijkstra complete. Shortest path to 2: [1, 3, 2] with distance 3."
+    assert snapshot.distances == {1: 0, 2: 3, 3: 1}
+    assert snapshot.shortest_path == (1, 3, 2)
+    assert [(edge.source, edge.destination) for edge in snapshot.graph_edges if edge.highlighted] == [(1, 3), (2, 3)]
+
+
+def test_controller_rejects_invalid_or_missing_graph_dijkstra_inputs() -> None:
+    controller = VisualLabController()
+
+    empty = controller.run_graph_operation("dijkstra", vertex_text="1")
+    invalid_start = controller.run_graph_operation("dijkstra", vertex_text="bad")
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+    invalid_target = controller.run_graph_operation("dijkstra", vertex_text="1", target_text="bad")
+    missing_start = controller.run_graph_operation("dijkstra", vertex_text="9")
+    missing_target = controller.run_graph_operation("dijkstra", vertex_text="1", target_text="9")
+
+    assert not empty.ok
+    assert empty.message == "Dijkstra skipped because the graph is empty."
+    assert not invalid_start.ok
+    assert invalid_start.message == "Start must be an integer."
+    assert not invalid_target.ok
+    assert invalid_target.message == "Target must be an integer."
+    assert not missing_start.ok
+    assert missing_start.message == "Dijkstra start vertex 9 does not exist."
+    assert not missing_target.ok
+    assert missing_target.message == "Dijkstra target vertex 9 does not exist."
 
 
 def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:

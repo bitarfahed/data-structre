@@ -85,6 +85,7 @@ class VisualGraphNode:
     highlighted: bool = False
     visited: bool = False
     current: bool = False
+    path: bool = False
 
 
 @dataclass(frozen=True)
@@ -153,6 +154,10 @@ class VisualizationState:
     visited_vertices: tuple[int, ...] = ()
     traversal_order: tuple[int, ...] = ()
     examined_edge: tuple[int, int] | None = None
+    distances: dict[int, int | None] | None = None
+    priority_queue: tuple[tuple[int, int], ...] = ()
+    predecessors: dict[int, int | None] | None = None
+    shortest_path: tuple[int, ...] = ()
 
 
 def build_algorithm_visualization_state(
@@ -348,12 +353,17 @@ def build_visualization_state(
         frontier = _str_or_none(metadata.get("frontier"))
         current_vertex = _int_or_none(metadata.get("current_vertex"))
         examined_edge = _edge_or_none(metadata.get("examined_edge"))
+        shortest_path = _int_tuple(metadata.get("shortest_path"))
+        distances = _distance_dict(metadata.get("distances"))
+        priority_queue = _priority_queue(metadata.get("priority_queue"))
+        predecessors = _predecessor_dict(metadata.get("predecessors"))
         nodes = tuple(
             VisualGraphNode(
                 value=vertex,
                 highlighted=vertex in highlight_vertices,
                 visited=vertex in visited_vertices,
                 current=vertex == current_vertex,
+                path=vertex in shortest_path,
             )
             for vertex in structure.vertices()
         )
@@ -376,6 +386,10 @@ def build_visualization_state(
             visited_vertices=visited_vertices,
             traversal_order=traversal_order,
             examined_edge=examined_edge,
+            distances=distances,
+            priority_queue=priority_queue,
+            predecessors=predecessors,
+            shortest_path=shortest_path,
         )
 
     if isinstance(structure, DynamicArray):
@@ -630,6 +644,41 @@ def _int_tuple(value: object) -> tuple[int, ...]:
     if not isinstance(value, list):
         return ()
     return tuple(item for item in value if type(item) is int)
+
+
+def _priority_queue(value: object) -> tuple[tuple[int, int], ...]:
+    if not isinstance(value, list):
+        return ()
+    entries: list[tuple[int, int]] = []
+    for item in value:
+        if (
+            isinstance(item, tuple)
+            and len(item) == 2
+            and type(item[0]) is int
+            and type(item[1]) is int
+        ):
+            entries.append(item)
+    return tuple(entries)
+
+
+def _distance_dict(value: object) -> dict[int, int | None] | None:
+    if not isinstance(value, dict):
+        return None
+    distances: dict[int, int | None] = {}
+    for key, distance in value.items():
+        if type(key) is int and (type(distance) is int or distance is None):
+            distances[key] = distance
+    return distances
+
+
+def _predecessor_dict(value: object) -> dict[int, int | None] | None:
+    if not isinstance(value, dict):
+        return None
+    predecessors: dict[int, int | None] = {}
+    for key, predecessor in value.items():
+        if type(key) is int and (type(predecessor) is int or predecessor is None):
+            predecessors[key] = predecessor
+    return predecessors
 
 
 def _str_or_none(value: object) -> str | None:

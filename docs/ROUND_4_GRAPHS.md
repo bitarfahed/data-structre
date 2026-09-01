@@ -1,6 +1,6 @@
 # Round 4 Graph Design
 
-Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure, a simple graph builder GUI, BFS traversal, and DFS traversal. It does not implement Dijkstra, Connected Components, or other graph algorithms yet.
+Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, and Dijkstra shortest paths. It does not implement Connected Components or other graph algorithms yet.
 
 ## Implemented Domain Model
 
@@ -61,6 +61,23 @@ Iterative DFS was chosen for this round because the explicit stack is easier to 
 
 The DFS execution steps expose the current vertex, stack contents, visited vertices, traversal order, examined edge, and completion state for GUI visualization.
 
+## Dijkstra
+
+`dijkstra(graph, start_vertex, target_vertex=None)` runs shortest-path search over the existing weighted `Graph` domain object.
+
+Behavior:
+
+- Computes shortest distances from the selected start vertex.
+- Works with directed and undirected graphs.
+- Requires non-negative edge weights.
+- Uses Python standard-library `heapq` as the priority queue because the learning target is Dijkstra, not heap implementation.
+- Keeps unreachable vertices at infinity in the visualization and as `None` in the domain result.
+- Reconstructs one shortest path when a target vertex is provided and reachable.
+- Rejects missing start or target vertices.
+- Handles empty graphs safely.
+
+The Dijkstra execution steps expose the current finalized vertex, tentative distances, priority queue contents, predecessor relationships, examined edge, relaxation attempts, distance updates, finalized vertices, completion state, and reconstructed path for GUI visualization.
+
 ## Architecture Boundary
 
 The graph implementation lives in the domain data-structures package and has no dependency on GUI, Tkinter, visualization rendering, or graph algorithm modules.
@@ -89,12 +106,12 @@ Our Round 4 graph decisions are:
 - Generic vertex types: useful in larger systems where vertices may be strings, objects, or domain identifiers, but integer-only vertices keep parsing and visualization simple.
 - Parallel edges and multigraphs: useful for transportation, routing, and network models with multiple relationships between the same endpoints, but they complicate edge identity before the core graph model is established.
 - Self-loops: useful in state machines and some graph-theory examples, but they add visual and algorithmic edge cases that are not needed for the first graph round.
-- Negative weights: useful for algorithms such as Bellman-Ford, but they are incompatible with standard Dijkstra assumptions and are intentionally excluded for now.
+- Negative weights: useful for algorithms such as Bellman-Ford, but they are incompatible with standard Dijkstra assumptions. Bellman-Ford is the production-oriented alternative for graphs that may contain negative weights, and it is intentionally outside the current scope.
 - Dynamic graph optimizations: useful for large, frequently changing graphs, but the project targets small educational examples.
 - Immutable graph representations: useful for concurrent systems, reproducible transformations, and functional-style algorithm pipelines, but mutable operations are easier to demonstrate interactively in this project.
 
 ## Known Limitations
 
-- Dijkstra, Connected Components, and other graph algorithms are not implemented yet.
+- Connected Components and other graph algorithms beyond BFS, DFS, and Dijkstra are not implemented yet.
 - The graph does not resize, compact, or optimize storage for large inputs.
 - Edge weights can be inspected and updated only by removing and re-adding an edge.

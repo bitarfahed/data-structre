@@ -36,6 +36,7 @@ class VisualLabApp(tk.Tk):
         self.graph_source_input = tk.StringVar()
         self.graph_destination_input = tk.StringVar()
         self.graph_weight_input = tk.StringVar()
+        self.graph_target_input = tk.StringVar()
         self.status_text = tk.StringVar(value="Choose a structure to begin.")
         self._algorithm_after_id: str | None = None
 
@@ -246,6 +247,8 @@ class VisualLabApp(tk.Tk):
         self.graph_destination_entry = ttk.Entry(self.controls, width=8, textvariable=self.graph_destination_input)
         self.graph_weight_label = ttk.Label(self.controls, text="Weight")
         self.graph_weight_entry = ttk.Entry(self.controls, width=8, textvariable=self.graph_weight_input)
+        self.graph_target_label = ttk.Label(self.controls, text="Target")
+        self.graph_target_entry = ttk.Entry(self.controls, width=8, textvariable=self.graph_target_input)
         self.run_button = ttk.Button(self.controls, text="Run", command=self._run_graph_operation)
         self.restart_button = ttk.Button(self.controls, text="Restart", command=self._restart_structure)
         self.run_button.grid(row=1, column=6, padx=(0, 6), pady=(6, 0))
@@ -269,14 +272,20 @@ class VisualLabApp(tk.Tk):
             self.graph_destination_entry,
             self.graph_weight_label,
             self.graph_weight_entry,
+            self.graph_target_label,
+            self.graph_target_entry,
         ):
             widget.grid_remove()
 
         operation_key = self.selected_operation.get()
-        if operation_key in {"add_vertex", "remove_vertex", "bfs", "dfs"}:
-            self.graph_vertex_label.configure(text="Start" if operation_key in {"bfs", "dfs"} else "Vertex")
+        if operation_key in {"add_vertex", "remove_vertex", "bfs", "dfs", "dijkstra"}:
+            self.graph_vertex_label.configure(text="Start" if operation_key in {"bfs", "dfs", "dijkstra"} else "Vertex")
             self.graph_vertex_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_vertex_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
+            if operation_key == "dijkstra":
+                self.graph_target_label.configure(text="Target")
+                self.graph_target_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
+                self.graph_target_entry.grid(row=1, column=3, padx=(0, 10), pady=(6, 0))
         else:
             self.graph_source_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_source_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
@@ -296,6 +305,7 @@ class VisualLabApp(tk.Tk):
             source_text=self.graph_source_input.get(),
             destination_text=self.graph_destination_input.get(),
             weight_text=self.graph_weight_input.get(),
+            target_text=self.graph_target_input.get(),
         )
         self.status_text.set(result.message)
         if result.steps and all(isinstance(step, AlgorithmStep) for step in result.steps):
@@ -324,6 +334,7 @@ class VisualLabApp(tk.Tk):
         self.graph_source_input.set("")
         self.graph_destination_input.set("")
         self.graph_weight_input.set("")
+        self.graph_target_input.set("")
 
     def _refresh_operation_fields(self, update_status: bool = True) -> None:
         operation = self._current_operation()
@@ -743,23 +754,32 @@ class VisualLabApp(tk.Tk):
             fill="#333",
             font=("Segoe UI", 10, "bold"),
         )
+        info_lines: list[tuple[str, str]] = []
         if state.queue or state.stack or state.traversal_order:
             frontier_label = state.frontier or ("stack" if state.stack else "queue")
             frontier_values = state.stack if frontier_label == "stack" else state.queue
-            self.canvas.create_text(
-                20,
-                98,
-                anchor="w",
-                text=f"{frontier_label}: {list(frontier_values)}    order: {list(state.traversal_order)}",
-                fill="#2b4c7e",
+            info_lines.append(
+                (f"{frontier_label}: {list(frontier_values)}    order: {list(state.traversal_order)}", "#2b4c7e")
             )
+        if state.priority_queue:
+            info_lines.append((f"priority queue: {list(state.priority_queue)}", "#2b4c7e"))
         if state.visited_vertices:
+            info_lines.append((f"finalized/visited: {list(state.visited_vertices)}", "#1f6f43"))
+        if state.distances:
+            distances = ", ".join(
+                f"{vertex}={'inf' if distance is None else distance}"
+                for vertex, distance in sorted(state.distances.items())
+            )
+            info_lines.append((f"distances: {distances}", "#333"))
+        if state.shortest_path:
+            info_lines.append((f"path: {list(state.shortest_path)}", "#1f6f43"))
+        for index, (text, fill) in enumerate(info_lines):
             self.canvas.create_text(
                 20,
-                120,
+                98 + index * 22,
                 anchor="w",
-                text=f"visited: {list(state.visited_vertices)}",
-                fill="#1f6f43",
+                text=text,
+                fill=fill,
             )
         if not state.graph_nodes:
             self.canvas.create_text(width // 2, 185, text="empty graph", fill="#666")
@@ -790,6 +810,8 @@ class VisualLabApp(tk.Tk):
         for node in state.graph_nodes:
             x, y = positions[node.value]
             node_fill = "#ffe08a" if node.highlighted else "#e8f1ff"
+            if node.path:
+                node_fill = "#c7e7ff"
             if node.visited:
                 node_fill = "#bfe8c1"
             if node.current:

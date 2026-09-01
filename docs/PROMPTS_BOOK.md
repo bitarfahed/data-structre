@@ -901,3 +901,29 @@ Important implementation direction:
 - The GUI consumes DFS steps and renders them sequentially.
 - Iterative DFS was chosen because the explicit stack is easier to visualize; recursive DFS remains a valid alternative but is intentionally deferred.
 - Dijkstra, Connected Components, and other graph algorithms remain deferred.
+
+## Round 4 Dijkstra with GUI Visualization
+
+Prompt goal: implement Dijkstra over the existing weighted Graph domain object and add a simple GUI visualization.
+
+Work completed:
+
+- Added `dijkstra.py` as a graph algorithm module.
+- Implemented Dijkstra using Python standard-library `heapq` for the priority queue.
+- Supported directed and undirected graphs through the existing Graph neighbor API.
+- Computed shortest distances from a selected start vertex.
+- Added optional target handling with shortest-path reconstruction.
+- Kept unreachable vertices as infinity in the GUI and `None` in the domain result.
+- Added validation for empty graphs, missing start vertices, missing explicit target vertices, invalid input, and non-negative edge-weight requirements.
+- Added Dijkstra execution steps for current/finalized vertex, tentative distances, priority queue contents, predecessor relationships, examined edge, relaxation attempts, distance updates, finalized vertices, completion state, and reconstructed path.
+- Added Dijkstra as a Graph GUI operation with Start and optional Target inputs.
+- Reused the existing Graph domain object and did not duplicate shortest-path logic in the GUI.
+- Extended graph visualization state and canvas drawing for Dijkstra distances, priority queue, finalized vertices, highlighted relaxation edges, and final shortest path.
+- Added pytest coverage for weighted shortest paths, directed and undirected graphs, alternative paths, zero-weight edges, unreachable vertices, invalid inputs, path reconstruction, controller integration, visualization state, package imports, and GUI smoke behavior.
+
+Important implementation direction:
+
+- Dijkstra is independent from Tkinter and GUI code.
+- The GUI consumes Dijkstra steps and renders them sequentially.
+- Dijkstra requires non-negative edge weights. Bellman-Ford is the relevant alternative for negative-weight graphs, but it is intentionally outside the current educational scope.
+- Connected Components and other graph algorithms remain deferred.

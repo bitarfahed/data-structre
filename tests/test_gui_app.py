@@ -297,6 +297,16 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app.after(3600, app.quit)
         app.mainloop()
         assert app.status_text.get() == "DFS complete. Traversal order: [1, 2]."
+        app.selected_operation.set("dijkstra")
+        app._refresh_graph_operation_fields()
+        app.graph_vertex_input.set("1")
+        app.graph_target_input.set("2")
+        app._run_graph_operation()
+        app.after(5000, app.quit)
+        app.mainloop()
+        assert app.status_text.get() == "Dijkstra complete. Shortest path to 2: [1, 2] with distance 4."
+        dijkstra_snapshot = app.controller.snapshot(StructureKey.GRAPH)
+        assert [node.value for node in dijkstra_snapshot.graph_nodes] == [1, 2]
         app.graph_weight_input.set("-1")
         app.selected_operation.set("add_edge")
         app._refresh_graph_operation_fields()
@@ -319,6 +329,7 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert app.graph_source_input.get() == ""
         assert app.graph_destination_input.get() == ""
         assert app.graph_weight_input.get() == ""
+        assert app.graph_target_input.get() == ""
 
         app.selected_structure.set(StructureKey.BINARY_SEARCH.value)
         app._show_structure_selection()
