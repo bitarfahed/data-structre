@@ -290,6 +290,13 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert app.status_text.get() == "BFS complete. Traversal order: [1, 2]."
         bfs_snapshot = app.controller.snapshot(StructureKey.GRAPH)
         assert [node.value for node in bfs_snapshot.graph_nodes] == [1, 2]
+        app.selected_operation.set("dfs")
+        app._refresh_graph_operation_fields()
+        app.graph_vertex_input.set("1")
+        app._run_graph_operation()
+        app.after(3600, app.quit)
+        app.mainloop()
+        assert app.status_text.get() == "DFS complete. Traversal order: [1, 2]."
         app.graph_weight_input.set("-1")
         app.selected_operation.set("add_edge")
         app._refresh_graph_operation_fields()

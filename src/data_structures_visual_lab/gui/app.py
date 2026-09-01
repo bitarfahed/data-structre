@@ -273,8 +273,8 @@ class VisualLabApp(tk.Tk):
             widget.grid_remove()
 
         operation_key = self.selected_operation.get()
-        if operation_key in {"add_vertex", "remove_vertex", "bfs"}:
-            self.graph_vertex_label.configure(text="Start" if operation_key == "bfs" else "Vertex")
+        if operation_key in {"add_vertex", "remove_vertex", "bfs", "dfs"}:
+            self.graph_vertex_label.configure(text="Start" if operation_key in {"bfs", "dfs"} else "Vertex")
             self.graph_vertex_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_vertex_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
         else:
@@ -743,12 +743,14 @@ class VisualLabApp(tk.Tk):
             fill="#333",
             font=("Segoe UI", 10, "bold"),
         )
-        if state.queue or state.traversal_order:
+        if state.queue or state.stack or state.traversal_order:
+            frontier_label = state.frontier or ("stack" if state.stack else "queue")
+            frontier_values = state.stack if frontier_label == "stack" else state.queue
             self.canvas.create_text(
                 20,
                 98,
                 anchor="w",
-                text=f"queue: {list(state.queue)}    order: {list(state.traversal_order)}",
+                text=f"{frontier_label}: {list(frontier_values)}    order: {list(state.traversal_order)}",
                 fill="#2b4c7e",
             )
         if state.visited_vertices:

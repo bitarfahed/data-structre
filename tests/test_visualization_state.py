@@ -12,6 +12,7 @@ from data_structures_visual_lab.domain.data_structures import (
 from data_structures_visual_lab.domain.algorithms import binary_search
 from data_structures_visual_lab.domain.algorithms import bfs
 from data_structures_visual_lab.domain.algorithms import bubble_sort
+from data_structures_visual_lab.domain.algorithms import dfs
 from data_structures_visual_lab.domain.algorithms import heap_sort
 from data_structures_visual_lab.domain.algorithms import merge_sort
 from data_structures_visual_lab.domain.algorithms import quick_sort
@@ -276,6 +277,7 @@ def test_graph_visualization_state_includes_bfs_queue_and_order() -> None:
     state = build_visualization_state("Graph", graph, discover_step)
 
     assert state.current_vertex == 2
+    assert state.frontier == "queue"
     assert state.queue == (2,)
     assert state.visited_vertices == (1, 2)
     assert state.traversal_order == (1,)
@@ -283,3 +285,24 @@ def test_graph_visualization_state_includes_bfs_queue_and_order() -> None:
     assert [node.value for node in state.graph_nodes if node.current] == [2]
     assert [node.value for node in state.graph_nodes if node.visited] == [1, 2]
     assert [(edge.source, edge.destination) for edge in state.graph_edges if edge.highlighted] == [(1, 2)]
+
+
+def test_graph_visualization_state_includes_dfs_stack_and_order() -> None:
+    graph = Graph()
+    for vertex in (1, 2, 3):
+        graph.add_vertex(vertex)
+    graph.add_edge(1, 2)
+    graph.add_edge(1, 3)
+    result = dfs(graph, 1)
+    discover_step = [step for step in result.steps if step.message == "Discovered vertex 2; push it onto the stack."][0]
+
+    state = build_visualization_state("Graph", graph, discover_step)
+
+    assert state.current_vertex == 2
+    assert state.frontier == "stack"
+    assert state.stack == (2,)
+    assert state.queue == ()
+    assert state.visited_vertices == (1, 2)
+    assert state.traversal_order == (1,)
+    assert state.examined_edge == (1, 2)
+    assert [node.value for node in state.graph_nodes if node.current] == [2]

@@ -1,17 +1,16 @@
-"""Breadth-first search over the Graph domain model."""
+"""Depth-first search over the Graph domain model."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from collections import deque
 
 from data_structures_visual_lab.domain.algorithms.state import AlgorithmEventType, AlgorithmStep, make_algorithm_step
 from data_structures_visual_lab.domain.data_structures import Graph
 
 
 @dataclass(frozen=True)
-class BFSResult:
-    """Result of running BFS."""
+class DFSResult:
+    """Result of running DFS."""
 
     ok: bool
     order: tuple[int, ...]
@@ -19,34 +18,34 @@ class BFSResult:
     steps: list[AlgorithmStep]
 
 
-def bfs(graph: Graph, start_vertex: int) -> BFSResult:
-    """Run queue-based BFS from a start vertex."""
+def dfs(graph: Graph, start_vertex: int) -> DFSResult:
+    """Run iterative stack-based DFS from a start vertex."""
     if not isinstance(graph, Graph):
-        return BFSResult(False, (), "BFS requires a Graph instance.", [])
+        return DFSResult(False, (), "DFS requires a Graph instance.", [])
     if type(start_vertex) is not int:
-        return BFSResult(False, (), "Start vertex must be an integer.", [])
+        return DFSResult(False, (), "Start vertex must be an integer.", [])
     if graph.vertex_count() == 0:
-        return BFSResult(False, (), "BFS skipped because the graph is empty.", [])
+        return DFSResult(False, (), "DFS skipped because the graph is empty.", [])
     if not graph.has_vertex(start_vertex):
-        return BFSResult(False, (), f"BFS start vertex {start_vertex} does not exist.", [])
+        return DFSResult(False, (), f"DFS start vertex {start_vertex} does not exist.", [])
 
     visited: set[int] = {start_vertex}
     order: list[int] = []
-    queue: deque[int] = deque([start_vertex])
+    stack = [start_vertex]
     steps = [
         _step(
             graph,
             AlgorithmEventType.VISIT,
-            f"Start BFS at vertex {start_vertex}.",
+            f"Start DFS at vertex {start_vertex}.",
             current_vertex=start_vertex,
-            queue=tuple(queue),
+            stack=tuple(stack),
             visited=tuple(sorted(visited)),
             traversal_order=tuple(order),
         )
     ]
 
-    while queue:
-        current = queue.popleft()
+    while stack:
+        current = stack.pop()
         order.append(current)
         steps.append(
             _step(
@@ -54,7 +53,7 @@ def bfs(graph: Graph, start_vertex: int) -> BFSResult:
                 AlgorithmEventType.VISIT,
                 f"Visit vertex {current}.",
                 current_vertex=current,
-                queue=tuple(queue),
+                stack=tuple(stack),
                 visited=tuple(sorted(visited)),
                 traversal_order=tuple(order),
             )
@@ -68,7 +67,7 @@ def bfs(graph: Graph, start_vertex: int) -> BFSResult:
                     AlgorithmEventType.COMPARE,
                     f"Examine edge {current} -> {neighbor}.",
                     current_vertex=current,
-                    queue=tuple(queue),
+                    stack=tuple(stack),
                     visited=tuple(sorted(visited)),
                     traversal_order=tuple(order),
                     examined_edge=examined_edge,
@@ -78,33 +77,33 @@ def bfs(graph: Graph, start_vertex: int) -> BFSResult:
                 continue
 
             visited.add(neighbor)
-            queue.append(neighbor)
+            stack.append(neighbor)
             steps.append(
                 _step(
                     graph,
                     AlgorithmEventType.MOVE,
-                    f"Discovered vertex {neighbor}; enqueue it.",
+                    f"Discovered vertex {neighbor}; push it onto the stack.",
                     current_vertex=neighbor,
-                    queue=tuple(queue),
+                    stack=tuple(stack),
                     visited=tuple(sorted(visited)),
                     traversal_order=tuple(order),
                     examined_edge=examined_edge,
                 )
             )
 
-    message = f"BFS complete. Traversal order: {order}."
+    message = f"DFS complete. Traversal order: {order}."
     steps.append(
         _step(
             graph,
             AlgorithmEventType.COMPLETE,
             message,
-            queue=(),
+            stack=(),
             visited=tuple(sorted(visited)),
             traversal_order=tuple(order),
             completed=True,
         )
     )
-    return BFSResult(True, tuple(order), message, steps)
+    return DFSResult(True, tuple(order), message, steps)
 
 
 def _step(
@@ -113,7 +112,7 @@ def _step(
     message: str,
     *,
     current_vertex: int | None = None,
-    queue: tuple[int, ...],
+    stack: tuple[int, ...],
     visited: tuple[int, ...],
     traversal_order: tuple[int, ...],
     examined_edge: tuple[int, int] | None = None,
@@ -127,8 +126,8 @@ def _step(
         "vertex_count": graph.vertex_count(),
         "edge_count": graph.edge_count(),
         "current_vertex": current_vertex,
-        "frontier": "queue",
-        "queue": list(queue),
+        "frontier": "stack",
+        "stack": list(stack),
         "visited_vertices": list(visited),
         "traversal_order": list(traversal_order),
         "highlight_vertices": [current_vertex] if current_vertex is not None else [],

@@ -15,6 +15,7 @@ from data_structures_visual_lab.domain.algorithms import (
     quick_sort,
     selection_sort,
     validate_ascending_sorted,
+    dfs,
 )
 from data_structures_visual_lab.domain.data_structures import (
     AVLTree,
@@ -222,6 +223,7 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
             index_label="Source",
         ),
         OperationSpec("bfs", "BFS", needs_value=True, value_label="Start"),
+        OperationSpec("dfs", "DFS", needs_value=True, value_label="Start"),
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
@@ -392,6 +394,12 @@ class VisualLabController:
                 if isinstance(start, str):
                     return OperationResult(False, start, [])
                 result = bfs(graph, start)
+                return OperationResult(result.ok, result.message, result.steps)
+            if operation_key == "dfs":
+                start = self._parse_required_integer(vertex_text, "Start")
+                if isinstance(start, str):
+                    return OperationResult(False, start, [])
+                result = dfs(graph, start)
                 return OperationResult(result.ok, result.message, result.steps)
 
             source = self._parse_required_integer(source_text, "Source")

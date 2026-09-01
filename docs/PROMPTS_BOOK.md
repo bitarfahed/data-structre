@@ -877,3 +877,27 @@ Important implementation direction:
 - BFS is independent from Tkinter and GUI code.
 - The GUI consumes BFS steps and renders them sequentially.
 - DFS, Dijkstra, Connected Components, and other graph algorithms remain deferred.
+
+## Round 4 DFS with GUI Visualization
+
+Prompt goal: implement iterative DFS over the existing Graph domain object and add a simple GUI visualization.
+
+Work completed:
+
+- Added `dfs.py` as a graph algorithm module.
+- Implemented iterative stack-based DFS from a selected start vertex.
+- Supported directed and undirected graph traversal using the existing graph neighbor API.
+- Limited traversal to the reachable component from the start vertex.
+- Used deterministic sorted neighbor order when pushing neighbors onto the stack.
+- Added DFS execution steps for current vertex, stack contents, visited vertices, traversal order, examined edge, and completion state.
+- Added DFS as a Graph GUI operation.
+- Reused the existing Graph domain object and did not duplicate traversal logic in the GUI.
+- Extended graph visualization state and canvas drawing for DFS stack/order/visited/current/examined-edge display.
+- Added pytest coverage for connected, directed, undirected, disconnected, single-vertex, empty-graph, invalid-start, deterministic-order, and step-state behavior.
+
+Important implementation direction:
+
+- DFS is independent from Tkinter and GUI code.
+- The GUI consumes DFS steps and renders them sequentially.
+- Iterative DFS was chosen because the explicit stack is easier to visualize; recursive DFS remains a valid alternative but is intentionally deferred.
+- Dijkstra, Connected Components, and other graph algorithms remain deferred.

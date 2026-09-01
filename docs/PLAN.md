@@ -274,7 +274,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 4 Scope
 
-Round 4 starts with graph domain infrastructure, a simple graph builder GUI, and BFS traversal. DFS, Dijkstra, Connected Components, and additional graph algorithms are intentionally deferred.
+Round 4 starts with graph domain infrastructure, a simple graph builder GUI, BFS traversal, and DFS traversal. Dijkstra, Connected Components, and additional graph algorithms are intentionally deferred.
 
 Implemented:
 
@@ -300,12 +300,15 @@ Implemented:
 - `bfs(graph, start_vertex)`
 - Queue-based BFS traversal over the reachable component from the selected start vertex
 - BFS GUI operation with current vertex, visited vertices, queue contents, traversal order, and examined edge visualization
+- `dfs(graph, start_vertex)`
+- Iterative stack-based DFS traversal over the reachable component from the selected start vertex
+- DFS GUI operation with current vertex, visited vertices, stack contents, traversal order, and examined edge visualization
+- DFS uses the graph's sorted neighbor order when pushing neighbors onto the stack; because the stack is LIFO, the highest sorted neighbor is visited first
 
 Round 4 design decisions and intentionally deferred production alternatives are documented in `docs/ROUND_4_GRAPHS.md`.
 
 Deferred intentionally:
 
-- DFS
 - Dijkstra
 - Connected Components
 - Additional graph algorithms

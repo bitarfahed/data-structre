@@ -148,6 +148,8 @@ class VisualizationState:
     adjacency: dict[int, tuple[tuple[int, int], ...]] | None = None
     current_vertex: int | None = None
     queue: tuple[int, ...] = ()
+    stack: tuple[int, ...] = ()
+    frontier: str | None = None
     visited_vertices: tuple[int, ...] = ()
     traversal_order: tuple[int, ...] = ()
     examined_edge: tuple[int, int] | None = None
@@ -342,6 +344,8 @@ def build_visualization_state(
         visited_vertices = _int_tuple(metadata.get("visited_vertices"))
         traversal_order = _int_tuple(metadata.get("traversal_order"))
         queue = _int_tuple(metadata.get("queue"))
+        stack = _int_tuple(metadata.get("stack"))
+        frontier = _str_or_none(metadata.get("frontier"))
         current_vertex = _int_or_none(metadata.get("current_vertex"))
         examined_edge = _edge_or_none(metadata.get("examined_edge"))
         nodes = tuple(
@@ -367,6 +371,8 @@ def build_visualization_state(
             adjacency=structure.adjacency_list(),
             current_vertex=current_vertex,
             queue=queue,
+            stack=stack,
+            frontier=frontier,
             visited_vertices=visited_vertices,
             traversal_order=traversal_order,
             examined_edge=examined_edge,
@@ -624,6 +630,10 @@ def _int_tuple(value: object) -> tuple[int, ...]:
     if not isinstance(value, list):
         return ()
     return tuple(item for item in value if type(item) is int)
+
+
+def _str_or_none(value: object) -> str | None:
+    return value if isinstance(value, str) else None
 
 
 def _step_metadata(step: Step | AlgorithmStep | None) -> dict[str, object]:

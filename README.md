@@ -179,7 +179,9 @@ Implemented:
 - Simple graph visualization with deterministic circular node placement, weighted edges, and directed arrows
 - BFS domain algorithm with queue-based traversal from a selected start vertex
 - BFS GUI operation with sequential current-vertex, visited-vertex, queue, traversal-order, and examined-edge visualization
+- DFS domain algorithm with iterative stack-based traversal from a selected start vertex
+- DFS GUI operation with sequential current-vertex, visited-vertex, stack, traversal-order, and examined-edge visualization
 
 Known limitations:
 
-- DFS, Dijkstra, Connected Components, and other graph algorithms are not implemented yet.
+- Dijkstra, Connected Components, and other graph algorithms are not implemented yet.

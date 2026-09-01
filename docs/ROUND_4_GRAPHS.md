@@ -1,6 +1,6 @@
 # Round 4 Graph Design
 
-Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure, a simple graph builder GUI, and BFS traversal. It does not implement DFS, Dijkstra, Connected Components, or other graph algorithms yet.
+Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure, a simple graph builder GUI, BFS traversal, and DFS traversal. It does not implement Dijkstra, Connected Components, or other graph algorithms yet.
 
 ## Implemented Domain Model
 
@@ -43,6 +43,24 @@ Behavior:
 
 The BFS execution steps expose the current vertex, queue contents, visited vertices, traversal order, examined edge, and completion state for GUI visualization.
 
+## DFS
+
+`dfs(graph, start_vertex)` runs iterative stack-based Depth-First Search over the existing `Graph` domain object.
+
+Behavior:
+
+- Traverses only vertices reachable from the selected start vertex.
+- Works with directed and undirected graphs.
+- Uses the graph's deterministic sorted neighbor order when pushing neighbors onto the stack.
+- Because the stack is LIFO, the highest sorted neighbor is visited first when multiple neighbors are discovered from the same vertex.
+- Does not automatically continue into disconnected components.
+- Rejects missing start vertices.
+- Handles empty graphs safely.
+
+Iterative DFS was chosen for this round because the explicit stack is easier to visualize in the GUI. Recursive DFS is a valid alternative and can be useful for compact textbook implementations, but it hides the call stack from the learner unless extra visualization infrastructure is added.
+
+The DFS execution steps expose the current vertex, stack contents, visited vertices, traversal order, examined edge, and completion state for GUI visualization.
+
 ## Architecture Boundary
 
 The graph implementation lives in the domain data-structures package and has no dependency on GUI, Tkinter, visualization rendering, or graph algorithm modules.
@@ -77,6 +95,6 @@ Our Round 4 graph decisions are:
 
 ## Known Limitations
 
-- DFS, Dijkstra, Connected Components, and other graph algorithms are not implemented yet.
+- Dijkstra, Connected Components, and other graph algorithms are not implemented yet.
 - The graph does not resize, compact, or optimize storage for large inputs.
 - Edge weights can be inspected and updated only by removing and re-adding an edge.
