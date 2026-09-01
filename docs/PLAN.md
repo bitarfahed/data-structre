@@ -274,7 +274,9 @@ Remaining limitations are intentionally deferred:
 
 ## Round 4 Scope
 
-Round 4 starts with graph domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, Dijkstra shortest paths, and Connected Components. Additional graph algorithms are intentionally deferred.
+Round 4 is stable enough to close.
+
+Round 4 includes graph domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, Dijkstra shortest paths, and Connected Components. Additional graph algorithms are intentionally deferred.
 
 Implemented:
 
@@ -321,3 +323,13 @@ Round 4 design decisions and intentionally deferred production alternatives are 
 Deferred intentionally:
 
 - Additional graph algorithms
+
+Verified in final QA:
+
+- Graph builder operations, directed and undirected behavior, weighted edges, invalid operations, and restart
+- BFS queue, visited state, traversal order, connected/disconnected behavior, directed/undirected behavior, invalid starts, and empty graph handling
+- DFS stack, visited state, deterministic traversal policy, connected/disconnected behavior, directed/undirected behavior, invalid starts, and empty graph handling
+- Dijkstra weighted directed and undirected graphs, alternative paths, relaxation behavior, tentative distances, priority queue state, unreachable vertices, zero-weight edges, shortest-path reconstruction, invalid start/target, and no-path results
+- Connected Components one-component, multi-component, isolated-vertex, completely disconnected, empty graph, directed rejection, count, and membership behavior
+- Graph domain constraints for integer-only vertices, duplicate vertices, duplicate edges, rejected self-loops, rejected parallel edges, rejected negative weights, and incident-edge cleanup after vertex removal
+- Compatibility with Round 1, Round 2, and Round 3 automated tests and representative GUI flows

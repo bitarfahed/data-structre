@@ -163,7 +163,9 @@ Known limitations:
 
 ## Round 4 Status
 
-Round 4 graph domain infrastructure and GUI builder are in place.
+Round 4 is stable enough to close.
+
+Graph domain infrastructure, GUI builder support, and graph algorithms are in place.
 
 Implemented:
 
@@ -186,6 +188,17 @@ Implemented:
 - Dijkstra GUI operation with current vertex, finalized vertices, tentative distances, priority queue, examined-edge, relaxation, and shortest-path visualization
 - Connected Components domain algorithm for undirected graphs
 - Connected Components GUI operation with component count, component membership, visited vertices, examined-edge highlighting, and visually distinct component colors
+
+Verified coverage includes:
+
+- Graph add/remove vertex and edge operations
+- Directed and undirected weighted graph behavior
+- Graph constraints for integer vertices, duplicate vertices/edges, self-loops, missing vertices, and negative weights
+- BFS queue, visited-state, traversal-order, connected/disconnected, directed/undirected, invalid-start, and empty-graph behavior
+- DFS stack, visited-state, deterministic traversal, connected/disconnected, directed/undirected, invalid-start, and empty-graph behavior
+- Dijkstra directed/undirected weighted shortest paths, alternative paths, relaxation, tentative distances, priority queue state, zero-weight edges, unreachable vertices, invalid start/target, no-path result, and path reconstruction
+- Connected Components one-component, multi-component, isolated-vertex, disconnected, empty-graph, directed-rejection, count, and membership behavior
+- Compatibility with existing Round 1, Round 2, and Round 3 tests and representative GUI flows
 
 Known limitations:
 

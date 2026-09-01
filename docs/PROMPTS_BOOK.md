@@ -951,3 +951,27 @@ Important implementation direction:
 - Connected Components is independent from Tkinter and GUI code.
 - The GUI consumes Connected Components steps and renders them sequentially.
 - Directed strongly/weakly connected component algorithms remain intentionally outside this step.
+
+## Round 4 Final QA and Stabilization
+
+Prompt goal: verify and stabilize Round 4 graph infrastructure, graph GUI builder behavior, BFS, DFS, Dijkstra, Connected Components, and compatibility with Rounds 1-3.
+
+Work completed:
+
+- Ran the full automated test suite.
+- Manually verified the Graph GUI builder flow for add/remove vertex, add/remove edge, directed graphs, undirected graphs, weighted edges, invalid operations, and restart.
+- Manually verified BFS GUI behavior for connected and disconnected traversal, directed and undirected behavior, queue state, visited state, traversal order, invalid start vertices, and empty graphs.
+- Manually verified DFS GUI behavior for connected and disconnected traversal, directed and undirected behavior, stack state, visited state, deterministic traversal policy, invalid start vertices, and empty graphs.
+- Manually verified Dijkstra GUI behavior for weighted directed and undirected graphs, alternative paths, relaxation behavior, tentative distances, priority queue state, unreachable vertices, zero-weight edges, shortest-path reconstruction, invalid start/target, and no-path results.
+- Manually verified Connected Components GUI behavior for one component, multiple components, isolated vertices, completely disconnected graphs, empty graphs, directed graph rejection, and correct component count/membership.
+- Confirmed graph domain constraints for integer-only vertices, duplicate vertices, duplicate edges, self-loop rejection, parallel-edge rejection, negative-weight rejection, and incident-edge cleanup after vertex removal.
+- Confirmed graph algorithms remain independent from GUI code and the GUI does not duplicate graph algorithm logic.
+- Confirmed Round 1, Round 2, and Round 3 tests remain green and representative GUI flows still work.
+- Updated README and plan documentation to record Round 4 as stable enough to close.
+
+Important implementation direction:
+
+- No new graph algorithms were added during this QA pass.
+- No source-code bugs were found during final QA.
+- Remaining limitations are documented as intentional educational scope decisions.
+- Round 4 is stable enough to close.
