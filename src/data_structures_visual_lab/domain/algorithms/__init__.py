@@ -19,6 +19,7 @@ from data_structures_visual_lab.domain.algorithms.connected_components import (
     ConnectedComponentsResult,
     connected_components,
 )
+from data_structures_visual_lab.domain.algorithms.cycle_detection import CycleDetectionResult, detect_cycle
 from data_structures_visual_lab.domain.algorithms.dfs import DFSResult, dfs
 from data_structures_visual_lab.domain.algorithms.dijkstra import DijkstraResult, dijkstra
 from data_structures_visual_lab.domain.algorithms.heap_sort import heap_sort
@@ -35,6 +36,7 @@ __all__ = [
     "BFSResult",
     "BinarySearchResult",
     "ConnectedComponentsResult",
+    "CycleDetectionResult",
     "DFSResult",
     "DijkstraResult",
     "SortResult",
@@ -42,6 +44,7 @@ __all__ = [
     "binary_search",
     "bubble_sort",
     "connected_components",
+    "detect_cycle",
     "dfs",
     "dijkstra",
     "heap_sort",

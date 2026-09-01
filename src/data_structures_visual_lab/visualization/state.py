@@ -87,6 +87,7 @@ class VisualGraphNode:
     current: bool = False
     path: bool = False
     component_id: int | None = None
+    cycle: bool = False
 
 
 @dataclass(frozen=True)
@@ -163,6 +164,10 @@ class VisualizationState:
     current_component_vertices: tuple[int, ...] = ()
     completed_components: tuple[tuple[int, ...], ...] = ()
     component_count: int | None = None
+    traversal_path: tuple[int, ...] = ()
+    cycle_detected: bool = False
+    cycle_vertices: tuple[int, ...] = ()
+    cycle_edges: tuple[tuple[int, int], ...] = ()
 
 
 def build_algorithm_visualization_state(
@@ -368,6 +373,10 @@ def build_visualization_state(
         components = _components_tuple(metadata.get("components"))
         component_count = _int_or_none(metadata.get("component_count"))
         component_by_vertex = _component_by_vertex(completed_components, current_component_vertices, current_component)
+        traversal_path = _int_tuple(metadata.get("traversal_path"))
+        cycle_vertices = _int_tuple(metadata.get("cycle_vertices"))
+        cycle_edges = _edge_tuple(metadata.get("cycle_edges"))
+        cycle_detected = metadata.get("cycle_detected") is True
         nodes = tuple(
             VisualGraphNode(
                 value=vertex,
@@ -376,6 +385,7 @@ def build_visualization_state(
                 current=vertex == current_vertex,
                 path=vertex in shortest_path,
                 component_id=component_by_vertex.get(vertex),
+                cycle=vertex in cycle_vertices,
             )
             for vertex in structure.vertices()
         )
@@ -406,6 +416,10 @@ def build_visualization_state(
             current_component_vertices=current_component_vertices,
             completed_components=completed_components,
             component_count=component_count if component_count is not None else (len(components) if components else None),
+            traversal_path=traversal_path,
+            cycle_detected=cycle_detected,
+            cycle_vertices=cycle_vertices,
+            cycle_edges=cycle_edges,
         )
 
     if isinstance(structure, DynamicArray):
@@ -748,6 +762,21 @@ def _edge_set(value: object) -> set[tuple[int, int]]:
         ):
             edges.add(item)
     return edges
+
+
+def _edge_tuple(value: object) -> tuple[tuple[int, int], ...]:
+    if not isinstance(value, list):
+        return ()
+    edges: list[tuple[int, int]] = []
+    for item in value:
+        if (
+            isinstance(item, tuple)
+            and len(item) == 2
+            and type(item[0]) is int
+            and type(item[1]) is int
+        ):
+            edges.append(item)
+    return tuple(edges)
 
 
 def _edge_or_none(value: object) -> tuple[int, int] | None:

@@ -333,3 +333,27 @@ Verified in final QA:
 - Connected Components one-component, multi-component, isolated-vertex, completely disconnected, empty graph, directed rejection, count, and membership behavior
 - Graph domain constraints for integer-only vertices, duplicate vertices, duplicate edges, rejected self-loops, rejected parallel edges, rejected negative weights, and incident-edge cleanup after vertex removal
 - Compatibility with Round 1, Round 2, and Round 3 automated tests and representative GUI flows
+
+## Round 5 Scope
+
+Round 5 starts with Cycle Detection for the existing Graph workspace. Topological Sort, Prim, Kruskal, and other graph algorithms are intentionally deferred.
+
+Implemented:
+
+- `detect_cycle(graph)`
+- Cycle Detection for undirected graphs using DFS with parent tracking
+- Cycle Detection for directed graphs using DFS vertex-state tracking
+- Disconnected graph handling by checking every component
+- Empty graph handling
+- One detected cycle returned as vertices and edges where practical
+- Cycle Detection GUI operation
+- Simple visualization of current vertex, visited vertices, traversal path, examined edge, cycle/no-cycle result, and detected-cycle highlighting
+
+Round 5 design decisions and deferred production-oriented alternatives are documented in `docs/ROUND_5_GRAPHS.md`.
+
+Deferred intentionally:
+
+- Topological Sort
+- Prim
+- Kruskal
+- Returning every cycle in a graph

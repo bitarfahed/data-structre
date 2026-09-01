@@ -13,6 +13,7 @@ from data_structures_visual_lab.domain.algorithms import binary_search
 from data_structures_visual_lab.domain.algorithms import bfs
 from data_structures_visual_lab.domain.algorithms import bubble_sort
 from data_structures_visual_lab.domain.algorithms import connected_components
+from data_structures_visual_lab.domain.algorithms import detect_cycle
 from data_structures_visual_lab.domain.algorithms import dfs
 from data_structures_visual_lab.domain.algorithms import dijkstra
 from data_structures_visual_lab.domain.algorithms import heap_sort
@@ -326,6 +327,29 @@ def test_graph_visualization_state_includes_connected_components() -> None:
     assert state.component_count == 2
     assert [node.value for node in state.graph_nodes if node.component_id == 1] == [1, 2]
     assert [node.value for node in state.graph_nodes if node.component_id == 2] == [3]
+
+
+def test_graph_visualization_state_includes_cycle_detection() -> None:
+    graph = Graph(directed=True)
+    for vertex in (1, 2, 3):
+        graph.add_vertex(vertex)
+    graph.add_edge(1, 2)
+    graph.add_edge(2, 3)
+    graph.add_edge(3, 1)
+    result = detect_cycle(graph)
+    final_step = result.steps[-1]
+
+    state = build_visualization_state("Graph", graph, final_step)
+
+    assert state.cycle_detected
+    assert state.cycle_vertices == (1, 2, 3, 1)
+    assert state.cycle_edges == ((1, 2), (2, 3), (3, 1))
+    assert [node.value for node in state.graph_nodes if node.cycle] == [1, 2, 3]
+    assert [(edge.source, edge.destination) for edge in state.graph_edges if edge.highlighted] == [
+        (1, 2),
+        (2, 3),
+        (3, 1),
+    ]
 
 
 def test_graph_visualization_state_includes_dfs_stack_and_order() -> None:

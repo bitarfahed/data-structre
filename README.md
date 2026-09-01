@@ -202,6 +202,26 @@ Verified coverage includes:
 
 Known limitations:
 
-- Graph algorithms beyond BFS, DFS, Dijkstra, and Connected Components are not implemented yet.
+- Graph algorithms beyond BFS, DFS, Dijkstra, Connected Components, and Cycle Detection are not implemented yet.
 - Dijkstra intentionally does not support negative edge weights; Bellman-Ford is the relevant alternative for that case and is outside the current scope.
 - Connected Components is intentionally undirected-only; directed strongly/weakly connected components are outside the current scope.
+
+## Round 5 Status
+
+Round 5 starts with Cycle Detection for the existing Graph workspace.
+
+Implemented:
+
+- Cycle Detection domain algorithm
+- Undirected cycle detection using DFS with parent tracking
+- Directed cycle detection using DFS vertex-state tracking
+- Disconnected-graph handling across all components
+- Empty-graph handling
+- Detected cycle vertices and edges where practical
+- Cycle Detection GUI operation
+- Simple cycle visualization with current vertex, traversal path, examined edge, and detected-cycle highlighting
+
+Known limitations:
+
+- Cycle Detection returns one detected cycle, not all cycles.
+- The graph domain still intentionally rejects self-loops and parallel edges.

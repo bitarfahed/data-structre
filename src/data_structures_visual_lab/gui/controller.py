@@ -9,6 +9,7 @@ from data_structures_visual_lab.domain.algorithms import (
     binary_search,
     bubble_sort,
     connected_components,
+    detect_cycle,
     heap_sort,
     insertion_sort,
     merge_sort,
@@ -235,6 +236,7 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
             index_label="Target",
         ),
         OperationSpec("connected_components", "Connected Components"),
+        OperationSpec("cycle_detection", "Cycle Detection"),
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
@@ -424,6 +426,9 @@ class VisualLabController:
                 return OperationResult(result.ok, result.message, result.steps)
             if operation_key == "connected_components":
                 result = connected_components(graph)
+                return OperationResult(result.ok, result.message, result.steps)
+            if operation_key == "cycle_detection":
+                result = detect_cycle(graph)
                 return OperationResult(result.ok, result.message, result.steps)
 
             source = self._parse_required_integer(source_text, "Source")

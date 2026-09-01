@@ -313,6 +313,12 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app.after(3600, app.quit)
         app.mainloop()
         assert app.status_text.get() == "Connected Components complete. Component count: 1."
+        app.selected_operation.set("cycle_detection")
+        app._refresh_graph_operation_fields()
+        app._run_graph_operation()
+        app.after(5000, app.quit)
+        app.mainloop()
+        assert app.status_text.get() == "Cycle Detection complete. No cycle found."
         app.graph_weight_input.set("-1")
         app.selected_operation.set("add_edge")
         app._refresh_graph_operation_fields()

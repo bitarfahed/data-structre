@@ -286,7 +286,7 @@ class VisualLabApp(tk.Tk):
                 self.graph_target_label.configure(text="Target")
                 self.graph_target_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
                 self.graph_target_entry.grid(row=1, column=3, padx=(0, 10), pady=(6, 0))
-        elif operation_key != "connected_components":
+        elif operation_key not in {"connected_components", "cycle_detection"}:
             self.graph_source_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_source_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
             self.graph_destination_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
@@ -784,6 +784,10 @@ class VisualLabApp(tk.Tk):
             info_lines.append(
                 (f"component {state.current_component}: {list(state.current_component_vertices)}", "#2b4c7e")
             )
+        if state.traversal_path:
+            info_lines.append((f"path: {list(state.traversal_path)}", "#7a4a00"))
+        if state.cycle_detected:
+            info_lines.append((f"cycle: {list(state.cycle_vertices)}", "#9f2d20"))
         for index, (text, fill) in enumerate(info_lines):
             self.canvas.create_text(
                 20,
@@ -827,6 +831,8 @@ class VisualLabApp(tk.Tk):
                 node_fill = "#bfe8c1"
             if node.component_id is not None:
                 node_fill = _component_color(node.component_id)
+            if node.cycle:
+                node_fill = "#ffd1cc"
             if node.current:
                 node_fill = "#ffe08a"
             self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=node_fill, outline="#2b4c7e")

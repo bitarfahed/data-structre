@@ -975,3 +975,29 @@ Important implementation direction:
 - No source-code bugs were found during final QA.
 - Remaining limitations are documented as intentional educational scope decisions.
 - Round 4 is stable enough to close.
+
+## Round 5 Cycle Detection with GUI Visualization
+
+Prompt goal: implement Cycle Detection over the existing Graph domain object and add a simple GUI visualization.
+
+Work completed:
+
+- Added `cycle_detection.py` as a graph algorithm module.
+- Implemented undirected cycle detection using DFS with parent tracking.
+- Implemented directed cycle detection using DFS vertex-state tracking.
+- Checked all disconnected components instead of stopping at the first root component.
+- Handled empty graphs safely.
+- Returned whether a cycle exists.
+- Returned one detected cycle as vertices and edges where practical.
+- Added execution steps for current vertex, visited vertices, traversal path, examined edge, cycle-detected state, detected cycle vertices, and detected cycle edges.
+- Added Cycle Detection as a no-input Graph GUI operation.
+- Reused the existing Graph domain object and did not duplicate detection logic in the GUI.
+- Extended graph visualization state and canvas drawing for traversal path, cycle result text, and cycle highlighting.
+- Added pytest coverage for undirected cycles, undirected acyclic graphs, directed cycles, directed DAGs, disconnected graphs with one cyclic component, single-vertex graphs, empty graphs, deterministic cycle metadata, controller integration, visualization state, package imports, and GUI smoke behavior.
+- Added dedicated Round 5 graph documentation.
+
+Important implementation direction:
+
+- Cycle Detection is independent from Tkinter and GUI code.
+- The GUI consumes Cycle Detection steps and renders them sequentially.
+- Topological Sort, Prim, Kruskal, and returning every cycle remain intentionally deferred.

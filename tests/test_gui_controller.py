@@ -74,6 +74,7 @@ def test_controller_lists_structures_and_operations() -> None:
         "dfs",
         "dijkstra",
         "connected_components",
+        "cycle_detection",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "load_array",
@@ -627,6 +628,37 @@ def test_controller_rejects_graph_connected_components_for_directed_graph() -> N
     assert not result.ok
     assert result.message == "Connected Components supports undirected graphs only."
     assert result.steps == []
+
+
+def test_controller_runs_graph_cycle_detection() -> None:
+    controller = VisualLabController()
+    for vertex in ("1", "2", "3"):
+        controller.run_graph_operation("add_vertex", vertex_text=vertex)
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2")
+    controller.run_graph_operation("add_edge", source_text="2", destination_text="3")
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="3")
+
+    result = controller.run_graph_operation("cycle_detection")
+    snapshot = controller.snapshot(StructureKey.GRAPH, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Cycle Detection complete. Cycle found: [1, 2, 3, 1]."
+    assert snapshot.cycle_detected
+    assert snapshot.cycle_vertices == (1, 2, 3, 1)
+    assert [node.value for node in snapshot.graph_nodes if node.cycle] == [1, 2, 3]
+
+
+def test_controller_runs_graph_cycle_detection_without_cycle() -> None:
+    controller = VisualLabController()
+    for vertex in ("1", "2", "3"):
+        controller.run_graph_operation("add_vertex", vertex_text=vertex)
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2")
+    controller.run_graph_operation("add_edge", source_text="2", destination_text="3")
+
+    result = controller.run_graph_operation("cycle_detection")
+
+    assert result.ok
+    assert result.message == "Cycle Detection complete. No cycle found."
 
 
 def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:
