@@ -12,6 +12,7 @@ from data_structures_visual_lab.domain.algorithms.validation import (
     validate_ascending_sorted,
     validate_integer_array,
 )
+from data_structures_visual_lab.domain.algorithms.bfs import BFSResult, bfs
 from data_structures_visual_lab.domain.algorithms.binary_search import BinarySearchResult, binary_search
 from data_structures_visual_lab.domain.algorithms.bubble_sort import SortResult, bubble_sort
 from data_structures_visual_lab.domain.algorithms.heap_sort import heap_sort
@@ -25,8 +26,10 @@ __all__ = [
     "AlgorithmState",
     "AlgorithmStep",
     "ArrayValidationResult",
+    "BFSResult",
     "BinarySearchResult",
     "SortResult",
+    "bfs",
     "binary_search",
     "bubble_sort",
     "heap_sort",

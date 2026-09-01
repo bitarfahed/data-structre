@@ -273,7 +273,8 @@ class VisualLabApp(tk.Tk):
             widget.grid_remove()
 
         operation_key = self.selected_operation.get()
-        if operation_key in {"add_vertex", "remove_vertex"}:
+        if operation_key in {"add_vertex", "remove_vertex", "bfs"}:
+            self.graph_vertex_label.configure(text="Start" if operation_key == "bfs" else "Vertex")
             self.graph_vertex_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_vertex_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
         else:
@@ -288,6 +289,7 @@ class VisualLabApp(tk.Tk):
         self.status_text.set("Choose a graph operation and enter integer inputs.")
 
     def _run_graph_operation(self) -> None:
+        self._cancel_algorithm_playback()
         result = self.controller.run_graph_operation(
             self.selected_operation.get(),
             vertex_text=self.graph_vertex_input.get(),
@@ -296,8 +298,26 @@ class VisualLabApp(tk.Tk):
             weight_text=self.graph_weight_input.get(),
         )
         self.status_text.set(result.message)
+        if result.steps and all(isinstance(step, AlgorithmStep) for step in result.steps):
+            self._show_graph_steps([step for step in result.steps if isinstance(step, AlgorithmStep)], result.message)
+            return
+
         step = result.steps[-1] if result.steps else None
         self._draw_state(self.controller.snapshot(StructureKey.GRAPH, step))
+
+    def _show_graph_steps(self, steps: list[AlgorithmStep], final_message: str, index: int = 0) -> None:
+        if not steps:
+            self.status_text.set(final_message)
+            self._draw_state(self.controller.snapshot(StructureKey.GRAPH))
+            return
+
+        step = steps[index]
+        self.status_text.set(step.message if index < len(steps) - 1 else final_message)
+        self._draw_state(self.controller.snapshot(StructureKey.GRAPH, step))
+        if index < len(steps) - 1:
+            self._algorithm_after_id = self.after(500, lambda: self._show_graph_steps(steps, final_message, index + 1))
+        else:
+            self._algorithm_after_id = None
 
     def _clear_graph_inputs(self) -> None:
         self.graph_vertex_input.set("")
@@ -723,6 +743,22 @@ class VisualLabApp(tk.Tk):
             fill="#333",
             font=("Segoe UI", 10, "bold"),
         )
+        if state.queue or state.traversal_order:
+            self.canvas.create_text(
+                20,
+                98,
+                anchor="w",
+                text=f"queue: {list(state.queue)}    order: {list(state.traversal_order)}",
+                fill="#2b4c7e",
+            )
+        if state.visited_vertices:
+            self.canvas.create_text(
+                20,
+                120,
+                anchor="w",
+                text=f"visited: {list(state.visited_vertices)}",
+                fill="#1f6f43",
+            )
         if not state.graph_nodes:
             self.canvas.create_text(width // 2, 185, text="empty graph", fill="#666")
             return
@@ -752,6 +788,10 @@ class VisualLabApp(tk.Tk):
         for node in state.graph_nodes:
             x, y = positions[node.value]
             node_fill = "#ffe08a" if node.highlighted else "#e8f1ff"
+            if node.visited:
+                node_fill = "#bfe8c1"
+            if node.current:
+                node_fill = "#ffe08a"
             self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=node_fill, outline="#2b4c7e")
             self.canvas.create_text(x, y, text=str(node.value), font=("Segoe UI", 10, "bold"))
 

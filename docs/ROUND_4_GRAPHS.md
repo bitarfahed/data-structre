@@ -1,6 +1,6 @@
 # Round 4 Graph Design
 
-Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure and a simple graph builder GUI. It does not implement BFS, DFS, Dijkstra, Connected Components, or any other graph algorithm.
+Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure, a simple graph builder GUI, and BFS traversal. It does not implement DFS, Dijkstra, Connected Components, or other graph algorithms yet.
 
 ## Implemented Domain Model
 
@@ -27,6 +27,21 @@ The Graph workspace supports:
 - Restart
 
 The visualization uses deterministic circular node placement. This keeps small educational graphs readable without introducing a complex layout engine. Directed graphs draw arrows, undirected graphs draw a single connection, and all edges show their weights.
+
+## BFS
+
+`bfs(graph, start_vertex)` runs queue-based Breadth-First Search over the existing `Graph` domain object.
+
+Behavior:
+
+- Traverses only vertices reachable from the selected start vertex.
+- Works with directed and undirected graphs.
+- Uses the graph's deterministic sorted neighbor order.
+- Does not automatically continue into disconnected components.
+- Rejects missing start vertices.
+- Handles empty graphs safely.
+
+The BFS execution steps expose the current vertex, queue contents, visited vertices, traversal order, examined edge, and completion state for GUI visualization.
 
 ## Architecture Boundary
 
@@ -62,7 +77,6 @@ Our Round 4 graph decisions are:
 
 ## Known Limitations
 
-- No graph algorithm visualization exists yet.
-- No graph algorithms are implemented yet.
+- DFS, Dijkstra, Connected Components, and other graph algorithms are not implemented yet.
 - The graph does not resize, compact, or optimize storage for large inputs.
 - Edge weights can be inspected and updated only by removing and re-adding an edge.

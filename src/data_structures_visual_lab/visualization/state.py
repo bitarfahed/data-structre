@@ -83,6 +83,8 @@ class VisualGraphNode:
 
     value: int
     highlighted: bool = False
+    visited: bool = False
+    current: bool = False
 
 
 @dataclass(frozen=True)
@@ -144,6 +146,11 @@ class VisualizationState:
     graph_nodes: tuple[VisualGraphNode, ...] = ()
     graph_edges: tuple[VisualGraphEdge, ...] = ()
     adjacency: dict[int, tuple[tuple[int, int], ...]] | None = None
+    current_vertex: int | None = None
+    queue: tuple[int, ...] = ()
+    visited_vertices: tuple[int, ...] = ()
+    traversal_order: tuple[int, ...] = ()
+    examined_edge: tuple[int, int] | None = None
 
 
 def build_algorithm_visualization_state(
@@ -230,7 +237,7 @@ def build_visualization_state(
     step: Step | None = None,
 ) -> VisualizationState:
     """Build a renderer-friendly state from a domain structure and optional step."""
-    metadata = step.metadata if step is not None else {}
+    metadata = _step_metadata(step)
     highlight_indexes = _highlight_indexes(metadata)
     moved_indexes = _moved_indexes(metadata)
     message = step.message if step is not None else str(structure)
@@ -332,10 +339,17 @@ def build_visualization_state(
     if isinstance(structure, Graph):
         highlight_vertices = _int_list(metadata.get("highlight_vertices"))
         highlight_edges = _edge_set(metadata.get("highlight_edges"))
+        visited_vertices = _int_tuple(metadata.get("visited_vertices"))
+        traversal_order = _int_tuple(metadata.get("traversal_order"))
+        queue = _int_tuple(metadata.get("queue"))
+        current_vertex = _int_or_none(metadata.get("current_vertex"))
+        examined_edge = _edge_or_none(metadata.get("examined_edge"))
         nodes = tuple(
             VisualGraphNode(
                 value=vertex,
                 highlighted=vertex in highlight_vertices,
+                visited=vertex in visited_vertices,
+                current=vertex == current_vertex,
             )
             for vertex in structure.vertices()
         )
@@ -351,6 +365,11 @@ def build_visualization_state(
             graph_nodes=nodes,
             graph_edges=edges,
             adjacency=structure.adjacency_list(),
+            current_vertex=current_vertex,
+            queue=queue,
+            visited_vertices=visited_vertices,
+            traversal_order=traversal_order,
+            examined_edge=examined_edge,
         )
 
     if isinstance(structure, DynamicArray):
@@ -601,6 +620,20 @@ def _int_list(value: object) -> set[int]:
     return {item for item in value if type(item) is int}
 
 
+def _int_tuple(value: object) -> tuple[int, ...]:
+    if not isinstance(value, list):
+        return ()
+    return tuple(item for item in value if type(item) is int)
+
+
+def _step_metadata(step: Step | AlgorithmStep | None) -> dict[str, object]:
+    if step is None:
+        return {}
+    if isinstance(step, AlgorithmStep):
+        return step.state.metadata
+    return step.metadata
+
+
 def _edge_set(value: object) -> set[tuple[int, int]]:
     if not isinstance(value, list):
         return set()
@@ -614,6 +647,17 @@ def _edge_set(value: object) -> set[tuple[int, int]]:
         ):
             edges.add(item)
     return edges
+
+
+def _edge_or_none(value: object) -> tuple[int, int] | None:
+    if (
+        isinstance(value, tuple)
+        and len(value) == 2
+        and type(value[0]) is int
+        and type(value[1]) is int
+    ):
+        return value
+    return None
 
 
 def _graph_edges(structure: Graph, highlight_edges: set[tuple[int, int]]) -> tuple[VisualGraphEdge, ...]:

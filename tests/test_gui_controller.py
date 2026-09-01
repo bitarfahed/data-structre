@@ -70,6 +70,7 @@ def test_controller_lists_structures_and_operations() -> None:
         "remove_vertex",
         "add_edge",
         "remove_edge",
+        "bfs",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "load_array",
@@ -488,6 +489,39 @@ def test_controller_graph_restart_preserves_selected_type() -> None:
     assert snapshot.graph_type == "directed"
     assert snapshot.graph_nodes == ()
     assert snapshot.graph_edges == ()
+
+
+def test_controller_runs_graph_bfs_from_start_vertex() -> None:
+    controller = VisualLabController()
+    for vertex in ("1", "2", "3", "4"):
+        controller.run_graph_operation("add_vertex", vertex_text=vertex)
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2")
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="3")
+
+    result = controller.run_graph_operation("bfs", vertex_text="1")
+    snapshot = controller.snapshot(StructureKey.GRAPH, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "BFS complete. Traversal order: [1, 2, 3]."
+    assert snapshot.traversal_order == (1, 2, 3)
+    assert snapshot.visited_vertices == (1, 2, 3)
+    assert [node.value for node in snapshot.graph_nodes if node.visited] == [1, 2, 3]
+
+
+def test_controller_rejects_invalid_or_missing_graph_bfs_start() -> None:
+    controller = VisualLabController()
+
+    empty = controller.run_graph_operation("bfs", vertex_text="1")
+    invalid = controller.run_graph_operation("bfs", vertex_text="bad")
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+    missing = controller.run_graph_operation("bfs", vertex_text="9")
+
+    assert not empty.ok
+    assert empty.message == "BFS skipped because the graph is empty."
+    assert not invalid.ok
+    assert invalid.message == "Start must be an integer."
+    assert not missing.ok
+    assert missing.message == "BFS start vertex 9 does not exist."
 
 
 def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:

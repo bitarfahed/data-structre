@@ -855,3 +855,25 @@ Important implementation direction:
 - The GUI does not duplicate graph algorithms or graph mutation rules.
 - Restart preserves the selected graph type and creates a new empty graph.
 - BFS, DFS, Dijkstra, Connected Components, and other graph algorithms remain deferred.
+
+## Round 4 BFS with GUI Visualization
+
+Prompt goal: implement BFS over the existing Graph domain object and add a simple GUI visualization.
+
+Work completed:
+
+- Added `bfs.py` as a graph algorithm module.
+- Implemented queue-based BFS from a selected start vertex.
+- Supported directed and undirected graph traversal using the existing graph neighbor API.
+- Limited traversal to the reachable component from the start vertex.
+- Added BFS execution steps for current vertex, queue contents, visited vertices, traversal order, examined edge, and completion state.
+- Added BFS as a Graph GUI operation.
+- Reused the existing Graph domain object and did not duplicate traversal logic in the GUI.
+- Extended graph visualization state and canvas drawing for BFS queue/order/visited/current/examined-edge display.
+- Added pytest coverage for connected, directed, undirected, disconnected, single-vertex, empty-graph, invalid-start, deterministic-order, and step-state behavior.
+
+Important implementation direction:
+
+- BFS is independent from Tkinter and GUI code.
+- The GUI consumes BFS steps and renders them sequentially.
+- DFS, Dijkstra, Connected Components, and other graph algorithms remain deferred.

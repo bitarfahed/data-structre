@@ -281,7 +281,20 @@ def test_gui_main_flows_for_supported_structures() -> None:
             (1, 2, 4, False)
         ]
         assert app.canvas.find_all()
+        app.selected_operation.set("bfs")
+        app._refresh_graph_operation_fields()
+        app.graph_vertex_input.set("1")
+        app._run_graph_operation()
+        app.after(3600, app.quit)
+        app.mainloop()
+        assert app.status_text.get() == "BFS complete. Traversal order: [1, 2]."
+        bfs_snapshot = app.controller.snapshot(StructureKey.GRAPH)
+        assert [node.value for node in bfs_snapshot.graph_nodes] == [1, 2]
         app.graph_weight_input.set("-1")
+        app.selected_operation.set("add_edge")
+        app._refresh_graph_operation_fields()
+        app.graph_source_input.set("1")
+        app.graph_destination_input.set("2")
         app._run_graph_operation()
         assert app.status_text.get() == "Weight must be greater than or equal to 0."
         app.graph_type_input.set("directed")

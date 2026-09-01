@@ -5,6 +5,7 @@ from enum import Enum
 
 from data_structures_visual_lab.domain.algorithms import (
     AlgorithmStep,
+    bfs,
     binary_search,
     bubble_sort,
     heap_sort,
@@ -220,6 +221,7 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
             value_label="Destination",
             index_label="Source",
         ),
+        OperationSpec("bfs", "BFS", needs_value=True, value_label="Start"),
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
@@ -385,6 +387,12 @@ class VisualLabController:
                     return OperationResult(False, vertex, [])
                 ok, steps = graph.remove_vertex_with_steps(vertex)
                 return OperationResult(ok, steps[-1].message, steps)
+            if operation_key == "bfs":
+                start = self._parse_required_integer(vertex_text, "Start")
+                if isinstance(start, str):
+                    return OperationResult(False, start, [])
+                result = bfs(graph, start)
+                return OperationResult(result.ok, result.message, result.steps)
 
             source = self._parse_required_integer(source_text, "Source")
             destination = self._parse_required_integer(destination_text, "Destination")

@@ -177,8 +177,9 @@ Implemented:
 - Visualization-ready graph type, vertex list, weighted adjacency list, and edge-weight inspection
 - Graph GUI selection, explanation, directed/undirected type selector, operation controls, and Restart support
 - Simple graph visualization with deterministic circular node placement, weighted edges, and directed arrows
+- BFS domain algorithm with queue-based traversal from a selected start vertex
+- BFS GUI operation with sequential current-vertex, visited-vertex, queue, traversal-order, and examined-edge visualization
 
 Known limitations:
 
-- No graph algorithms are implemented yet.
-- No graph traversal/pathfinding Step/Event algorithm integration exists yet.
+- DFS, Dijkstra, Connected Components, and other graph algorithms are not implemented yet.
