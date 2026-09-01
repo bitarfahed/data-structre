@@ -75,6 +75,7 @@ def test_controller_lists_structures_and_operations() -> None:
         "dijkstra",
         "connected_components",
         "cycle_detection",
+        "topological_sort",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "load_array",
@@ -659,6 +660,34 @@ def test_controller_runs_graph_cycle_detection_without_cycle() -> None:
 
     assert result.ok
     assert result.message == "Cycle Detection complete. No cycle found."
+
+
+def test_controller_runs_graph_topological_sort() -> None:
+    controller = VisualLabController()
+    controller.set_graph_directed(True)
+    for vertex in ("1", "2", "3"):
+        controller.run_graph_operation("add_vertex", vertex_text=vertex)
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2")
+    controller.run_graph_operation("add_edge", source_text="2", destination_text="3")
+
+    result = controller.run_graph_operation("topological_sort")
+    snapshot = controller.snapshot(StructureKey.GRAPH, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Topological Sort complete. Order: [1, 2, 3]."
+    assert snapshot.topological_order == (1, 2, 3)
+    assert snapshot.indegrees == {1: 0, 2: 0, 3: 0}
+
+
+def test_controller_rejects_graph_topological_sort_for_undirected_graph() -> None:
+    controller = VisualLabController()
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+
+    result = controller.run_graph_operation("topological_sort")
+
+    assert not result.ok
+    assert result.message == "Topological Sort supports directed graphs only."
+    assert result.steps == []
 
 
 def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:

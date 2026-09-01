@@ -168,6 +168,11 @@ class VisualizationState:
     cycle_detected: bool = False
     cycle_vertices: tuple[int, ...] = ()
     cycle_edges: tuple[tuple[int, int], ...] = ()
+    indegrees: dict[int, int] | None = None
+    zero_indegree_queue: tuple[int, ...] = ()
+    processed_vertices: tuple[int, ...] = ()
+    topological_order: tuple[int, ...] = ()
+    topological_sort_possible: bool | None = None
 
 
 def build_algorithm_visualization_state(
@@ -377,6 +382,11 @@ def build_visualization_state(
         cycle_vertices = _int_tuple(metadata.get("cycle_vertices"))
         cycle_edges = _edge_tuple(metadata.get("cycle_edges"))
         cycle_detected = metadata.get("cycle_detected") is True
+        indegrees = _int_dict(metadata.get("indegrees"))
+        zero_indegree_queue = _int_tuple(metadata.get("zero_indegree_queue"))
+        processed_vertices = _int_tuple(metadata.get("processed_vertices"))
+        topological_order = _int_tuple(metadata.get("topological_order"))
+        topological_sort_possible = _bool_or_none(metadata.get("topological_sort_possible"))
         nodes = tuple(
             VisualGraphNode(
                 value=vertex,
@@ -420,6 +430,11 @@ def build_visualization_state(
             cycle_detected=cycle_detected,
             cycle_vertices=cycle_vertices,
             cycle_edges=cycle_edges,
+            indegrees=indegrees,
+            zero_indegree_queue=zero_indegree_queue,
+            processed_vertices=processed_vertices,
+            topological_order=topological_order,
+            topological_sort_possible=topological_sort_possible,
         )
 
     if isinstance(structure, DynamicArray):
@@ -709,6 +724,20 @@ def _predecessor_dict(value: object) -> dict[int, int | None] | None:
         if type(key) is int and (type(predecessor) is int or predecessor is None):
             predecessors[key] = predecessor
     return predecessors
+
+
+def _int_dict(value: object) -> dict[int, int] | None:
+    if not isinstance(value, dict):
+        return None
+    result: dict[int, int] = {}
+    for key, item in value.items():
+        if type(key) is int and type(item) is int:
+            result[key] = item
+    return result
+
+
+def _bool_or_none(value: object) -> bool | None:
+    return value if type(value) is bool else None
 
 
 def _components_tuple(value: object) -> tuple[tuple[int, ...], ...]:

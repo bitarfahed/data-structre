@@ -336,7 +336,7 @@ Verified in final QA:
 
 ## Round 5 Scope
 
-Round 5 starts with Cycle Detection for the existing Graph workspace. Topological Sort, Prim, Kruskal, and other graph algorithms are intentionally deferred.
+Round 5 starts with Cycle Detection and Topological Sort for the existing Graph workspace. Prim, Kruskal, and other graph algorithms are intentionally deferred.
 
 Implemented:
 
@@ -348,12 +348,19 @@ Implemented:
 - One detected cycle returned as vertices and edges where practical
 - Cycle Detection GUI operation
 - Simple visualization of current vertex, visited vertices, traversal path, examined edge, cycle/no-cycle result, and detected-cycle highlighting
+- `topological_sort(graph)`
+- Directed-only Topological Sort using Kahn's algorithm
+- Indegree and zero-indegree queue state exposed for visualization
+- Directed cycle handling with a clear impossible result and no false ordering
+- Disconnected DAG handling
+- Empty directed graph handling
+- Topological Sort GUI operation with indegree values, zero-indegree queue, processed vertices, examined edges, and growing order
 
 Round 5 design decisions and deferred production-oriented alternatives are documented in `docs/ROUND_5_GRAPHS.md`.
 
 Deferred intentionally:
 
-- Topological Sort
 - Prim
 - Kruskal
 - Returning every cycle in a graph
+- Returning every possible topological ordering

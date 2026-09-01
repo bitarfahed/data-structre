@@ -28,6 +28,7 @@ def test_package_layers_import() -> None:
         "data_structures_visual_lab.domain.algorithms.quick_sort",
         "data_structures_visual_lab.domain.algorithms.selection_sort",
         "data_structures_visual_lab.domain.algorithms.state",
+        "data_structures_visual_lab.domain.algorithms.topological_sort",
         "data_structures_visual_lab.domain.algorithms.validation",
         "data_structures_visual_lab.events",
         "data_structures_visual_lab.events.steps",

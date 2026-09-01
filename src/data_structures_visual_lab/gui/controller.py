@@ -16,6 +16,7 @@ from data_structures_visual_lab.domain.algorithms import (
     parse_integer_array_text,
     quick_sort,
     selection_sort,
+    topological_sort,
     validate_ascending_sorted,
     dfs,
     dijkstra,
@@ -237,6 +238,7 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
         ),
         OperationSpec("connected_components", "Connected Components"),
         OperationSpec("cycle_detection", "Cycle Detection"),
+        OperationSpec("topological_sort", "Topological Sort"),
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
@@ -429,6 +431,9 @@ class VisualLabController:
                 return OperationResult(result.ok, result.message, result.steps)
             if operation_key == "cycle_detection":
                 result = detect_cycle(graph)
+                return OperationResult(result.ok, result.message, result.steps)
+            if operation_key == "topological_sort":
+                result = topological_sort(graph)
                 return OperationResult(result.ok, result.message, result.steps)
 
             source = self._parse_required_integer(source_text, "Source")

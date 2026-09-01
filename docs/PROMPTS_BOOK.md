@@ -1001,3 +1001,29 @@ Important implementation direction:
 - Cycle Detection is independent from Tkinter and GUI code.
 - The GUI consumes Cycle Detection steps and renders them sequentially.
 - Topological Sort, Prim, Kruskal, and returning every cycle remain intentionally deferred.
+
+## Round 5 Topological Sort with GUI Visualization
+
+Prompt goal: implement Topological Sort over the existing Graph domain object and add a simple GUI visualization.
+
+Work completed:
+
+- Added `topological_sort.py` as a graph algorithm module.
+- Implemented directed-only Topological Sort using Kahn's algorithm.
+- Rejected undirected graphs with a clear message.
+- Detected directed cycles and returned an impossible result instead of a false ordering.
+- Handled disconnected DAGs, single-vertex graphs, and empty directed graphs.
+- Used deterministic sorted vertex and neighbor order through the existing Graph API.
+- Added execution steps for indegrees, zero-indegree queue contents, selected vertex, processed vertices, examined edges, indegree updates, growing topological order, cycle/impossible state, and completion state.
+- Added Topological Sort as a no-input Graph GUI operation.
+- Reused the existing Graph domain object and did not duplicate sorting logic in the GUI.
+- Extended graph visualization state and canvas drawing for indegree values, zero-indegree queue, processed vertices, and topological order.
+- Added pytest coverage for simple DAGs, DAGs with multiple valid orders, disconnected DAGs, directed cycles, single-vertex graphs, empty directed graphs, undirected rejection, ordering validity, controller integration, visualization state, package imports, and GUI smoke behavior.
+
+Important implementation direction:
+
+- Topological Sort is independent from Tkinter and GUI code.
+- The GUI consumes Topological Sort steps and renders them sequentially.
+- Kahn's algorithm was chosen for visualization clarity.
+- DFS-based topological sorting is valid but intentionally not used here.
+- Prim, Kruskal, and returning every possible topological order remain deferred.

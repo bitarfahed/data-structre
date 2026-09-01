@@ -27,6 +27,7 @@ from data_structures_visual_lab.domain.algorithms.insertion_sort import insertio
 from data_structures_visual_lab.domain.algorithms.merge_sort import merge_sort
 from data_structures_visual_lab.domain.algorithms.quick_sort import quick_sort
 from data_structures_visual_lab.domain.algorithms.selection_sort import selection_sort
+from data_structures_visual_lab.domain.algorithms.topological_sort import TopologicalSortResult, topological_sort
 
 __all__ = [
     "AlgorithmEventType",
@@ -40,6 +41,7 @@ __all__ = [
     "DFSResult",
     "DijkstraResult",
     "SortResult",
+    "TopologicalSortResult",
     "bfs",
     "binary_search",
     "bubble_sort",
@@ -54,6 +56,7 @@ __all__ = [
     "parse_integer_array_text",
     "quick_sort",
     "selection_sort",
+    "topological_sort",
     "validate_ascending_sorted",
     "validate_integer_array",
 ]

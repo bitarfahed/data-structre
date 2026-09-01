@@ -19,6 +19,7 @@ from data_structures_visual_lab.domain.algorithms import dijkstra
 from data_structures_visual_lab.domain.algorithms import heap_sort
 from data_structures_visual_lab.domain.algorithms import merge_sort
 from data_structures_visual_lab.domain.algorithms import quick_sort
+from data_structures_visual_lab.domain.algorithms import topological_sort
 from data_structures_visual_lab.events import EventType, Step
 from data_structures_visual_lab.visualization import build_algorithm_visualization_state, build_visualization_state
 
@@ -350,6 +351,25 @@ def test_graph_visualization_state_includes_cycle_detection() -> None:
         (2, 3),
         (3, 1),
     ]
+
+
+def test_graph_visualization_state_includes_topological_sort() -> None:
+    graph = Graph(directed=True)
+    for vertex in (1, 2, 3):
+        graph.add_vertex(vertex)
+    graph.add_edge(1, 2)
+    graph.add_edge(1, 3)
+    result = topological_sort(graph)
+    queue_step = [step for step in result.steps if step.message == "Vertex 2 now has indegree 0; add it to the queue."][0]
+
+    state = build_visualization_state("Graph", graph, queue_step)
+
+    assert state.indegrees == {1: 0, 2: 0, 3: 1}
+    assert state.zero_indegree_queue == (2,)
+    assert state.topological_order == (1,)
+    assert state.processed_vertices == (1,)
+    assert state.examined_edge == (1, 2)
+    assert [node.value for node in state.graph_nodes if node.current] == [2]
 
 
 def test_graph_visualization_state_includes_dfs_stack_and_order() -> None:

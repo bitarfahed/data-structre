@@ -202,13 +202,13 @@ Verified coverage includes:
 
 Known limitations:
 
-- Graph algorithms beyond BFS, DFS, Dijkstra, Connected Components, and Cycle Detection are not implemented yet.
+- Graph algorithms beyond BFS, DFS, Dijkstra, Connected Components, Cycle Detection, and Topological Sort are not implemented yet.
 - Dijkstra intentionally does not support negative edge weights; Bellman-Ford is the relevant alternative for that case and is outside the current scope.
 - Connected Components is intentionally undirected-only; directed strongly/weakly connected components are outside the current scope.
 
 ## Round 5 Status
 
-Round 5 starts with Cycle Detection for the existing Graph workspace.
+Round 5 starts with Cycle Detection and Topological Sort for the existing Graph workspace.
 
 Implemented:
 
@@ -220,8 +220,14 @@ Implemented:
 - Detected cycle vertices and edges where practical
 - Cycle Detection GUI operation
 - Simple cycle visualization with current vertex, traversal path, examined edge, and detected-cycle highlighting
+- Topological Sort domain algorithm for directed acyclic graphs
+- Kahn's algorithm using indegree tracking and a zero-indegree queue
+- Cycle rejection for directed graphs that cannot be topologically sorted
+- Topological Sort GUI operation
+- Simple topological visualization with indegree values, zero-indegree queue, processed vertices, examined edges, and growing order
 
 Known limitations:
 
 - Cycle Detection returns one detected cycle, not all cycles.
+- Topological Sort returns one valid order, not every possible valid order.
 - The graph domain still intentionally rejects self-loops and parallel edges.

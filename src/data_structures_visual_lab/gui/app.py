@@ -286,7 +286,7 @@ class VisualLabApp(tk.Tk):
                 self.graph_target_label.configure(text="Target")
                 self.graph_target_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
                 self.graph_target_entry.grid(row=1, column=3, padx=(0, 10), pady=(6, 0))
-        elif operation_key not in {"connected_components", "cycle_detection"}:
+        elif operation_key not in {"connected_components", "cycle_detection", "topological_sort"}:
             self.graph_source_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_source_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
             self.graph_destination_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
@@ -788,6 +788,18 @@ class VisualLabApp(tk.Tk):
             info_lines.append((f"path: {list(state.traversal_path)}", "#7a4a00"))
         if state.cycle_detected:
             info_lines.append((f"cycle: {list(state.cycle_vertices)}", "#9f2d20"))
+        if state.zero_indegree_queue or state.topological_order:
+            info_lines.append(
+                (
+                    f"zero-indegree queue: {list(state.zero_indegree_queue)}    order: {list(state.topological_order)}",
+                    "#2b4c7e",
+                )
+            )
+        if state.indegrees:
+            indegrees = ", ".join(f"{vertex}={indegree}" for vertex, indegree in sorted(state.indegrees.items()))
+            info_lines.append((f"indegree: {indegrees}", "#333"))
+        if state.topological_sort_possible is False:
+            info_lines.append(("topological sort impossible: cycle detected", "#9f2d20"))
         for index, (text, fill) in enumerate(info_lines):
             self.canvas.create_text(
                 20,
@@ -837,6 +849,8 @@ class VisualLabApp(tk.Tk):
                 node_fill = "#ffe08a"
             self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=node_fill, outline="#2b4c7e")
             self.canvas.create_text(x, y, text=str(node.value), font=("Segoe UI", 10, "bold"))
+            if state.indegrees and node.value in state.indegrees:
+                self.canvas.create_text(x, y + 34, text=f"in:{state.indegrees[node.value]}", fill="#333")
 
     def _graph_positions(self, state: VisualizationState, width: int) -> dict[int, tuple[int, int]]:
         nodes = state.graph_nodes
