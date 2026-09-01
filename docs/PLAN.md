@@ -274,7 +274,7 @@ Remaining limitations are intentionally deferred:
 
 ## Round 4 Scope
 
-Round 4 starts with graph domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, and Dijkstra shortest paths. Connected Components and additional graph algorithms are intentionally deferred.
+Round 4 starts with graph domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, Dijkstra shortest paths, and Connected Components. Additional graph algorithms are intentionally deferred.
 
 Implemented:
 
@@ -310,10 +310,14 @@ Implemented:
 - Dijkstra GUI operation with current vertex, finalized vertices, tentative distances, priority queue contents, examined edge, relaxation updates, and final path visualization
 - Python standard-library `heapq` is used as Dijkstra's priority queue because heap implementation is not the learning target in this step
 - Negative weights remain unsupported; Bellman-Ford is a relevant alternative for negative-weight graphs and is intentionally outside the current scope
+- `connected_components(graph)`
+- BFS-based Connected Components for undirected graphs
+- Isolated vertices are returned as single-vertex components
+- Directed graphs are rejected clearly because strongly connected and weakly connected components are separate concepts
+- Connected Components GUI operation with component count, component membership, current vertex, visited vertices, examined edges, and visually distinct component colors
 
 Round 4 design decisions and intentionally deferred production alternatives are documented in `docs/ROUND_4_GRAPHS.md`.
 
 Deferred intentionally:
 
-- Connected Components
 - Additional graph algorithms

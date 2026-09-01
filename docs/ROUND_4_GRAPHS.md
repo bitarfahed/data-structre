@@ -1,6 +1,6 @@
 # Round 4 Graph Design
 
-Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, and Dijkstra shortest paths. It does not implement Connected Components or other graph algorithms yet.
+Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, Dijkstra shortest paths, and Connected Components. It does not implement other graph algorithms yet.
 
 ## Implemented Domain Model
 
@@ -78,6 +78,22 @@ Behavior:
 
 The Dijkstra execution steps expose the current finalized vertex, tentative distances, priority queue contents, predecessor relationships, examined edge, relaxation attempts, distance updates, finalized vertices, completion state, and reconstructed path for GUI visualization.
 
+## Connected Components
+
+`connected_components(graph)` finds every connected component in an undirected `Graph`.
+
+Behavior:
+
+- Supports undirected graphs only.
+- Rejects directed graphs with a clear message.
+- Uses a simple BFS-based traversal.
+- Finds every component in the graph.
+- Handles isolated vertices as single-vertex components.
+- Handles empty graphs safely with component count `0`.
+- Uses the graph's deterministic sorted vertex and neighbor order.
+
+The Connected Components execution steps expose the current component number, current vertex, visited vertices, vertices discovered in the current component, completed components, examined edge, completion state, and final component count for GUI visualization.
+
 ## Architecture Boundary
 
 The graph implementation lives in the domain data-structures package and has no dependency on GUI, Tkinter, visualization rendering, or graph algorithm modules.
@@ -99,6 +115,7 @@ Our Round 4 graph decisions are:
 - Edge weights must be non-negative integers. This prepares the project for Dijkstra without introducing negative-weight behavior.
 - Only directed and undirected graphs are supported. The graph type is explicit at construction time.
 - Missing vertices and missing edges are handled safely by returning `False` or an empty neighbor list where appropriate.
+- Connected Components is intentionally undirected-only. Directed graphs need related but distinct concepts such as weakly connected or strongly connected components, which are outside this step.
 
 ## Deferred Production-Oriented Alternatives
 
@@ -109,9 +126,10 @@ Our Round 4 graph decisions are:
 - Negative weights: useful for algorithms such as Bellman-Ford, but they are incompatible with standard Dijkstra assumptions. Bellman-Ford is the production-oriented alternative for graphs that may contain negative weights, and it is intentionally outside the current scope.
 - Dynamic graph optimizations: useful for large, frequently changing graphs, but the project targets small educational examples.
 - Immutable graph representations: useful for concurrent systems, reproducible transformations, and functional-style algorithm pipelines, but mutable operations are easier to demonstrate interactively in this project.
+- Strongly connected components for directed graphs: useful for directed dependency and reachability analysis, but this round keeps Connected Components focused on the simpler undirected concept.
 
 ## Known Limitations
 
-- Connected Components and other graph algorithms beyond BFS, DFS, and Dijkstra are not implemented yet.
+- Graph algorithms beyond BFS, DFS, Dijkstra, and Connected Components are not implemented yet.
 - The graph does not resize, compact, or optimize storage for large inputs.
 - Edge weights can be inspected and updated only by removing and re-adding an edge.

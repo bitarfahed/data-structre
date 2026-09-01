@@ -73,6 +73,7 @@ def test_controller_lists_structures_and_operations() -> None:
         "bfs",
         "dfs",
         "dijkstra",
+        "connected_components",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "load_array",
@@ -597,6 +598,35 @@ def test_controller_rejects_invalid_or_missing_graph_dijkstra_inputs() -> None:
     assert missing_start.message == "Dijkstra start vertex 9 does not exist."
     assert not missing_target.ok
     assert missing_target.message == "Dijkstra target vertex 9 does not exist."
+
+
+def test_controller_runs_graph_connected_components() -> None:
+    controller = VisualLabController()
+    for vertex in ("1", "2", "3"):
+        controller.run_graph_operation("add_vertex", vertex_text=vertex)
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2")
+
+    result = controller.run_graph_operation("connected_components")
+    snapshot = controller.snapshot(StructureKey.GRAPH, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Connected Components complete. Component count: 2."
+    assert snapshot.completed_components == ((1, 2), (3,))
+    assert snapshot.component_count == 2
+    assert [node.value for node in snapshot.graph_nodes if node.component_id == 1] == [1, 2]
+    assert [node.value for node in snapshot.graph_nodes if node.component_id == 2] == [3]
+
+
+def test_controller_rejects_graph_connected_components_for_directed_graph() -> None:
+    controller = VisualLabController()
+    controller.set_graph_directed(True)
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+
+    result = controller.run_graph_operation("connected_components")
+
+    assert not result.ok
+    assert result.message == "Connected Components supports undirected graphs only."
+    assert result.steps == []
 
 
 def test_controller_runs_min_heap_add_raw_and_marks_pending_repair() -> None:

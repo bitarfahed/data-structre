@@ -59,7 +59,7 @@ The project foundation is in place:
 
 Round 2 is implemented and QA-verified for AVL Tree, Min-Heap, Hash Table, and 2-3 Tree support.
 Round 3 is implemented and QA-verified for Binary Search, Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort, and shared array-algorithm infrastructure.
-Round 4 graph support has started with a weighted adjacency-list graph, a simple GUI workspace, BFS, DFS, and Dijkstra.
+Round 4 graph support has started with a weighted adjacency-list graph, a simple GUI workspace, BFS, DFS, Dijkstra, and Connected Components.
 
 ## Round 1 Status
 
@@ -184,8 +184,11 @@ Implemented:
 - Dijkstra domain algorithm with non-negative weighted shortest paths from a selected start vertex
 - Optional Dijkstra target path reconstruction
 - Dijkstra GUI operation with current vertex, finalized vertices, tentative distances, priority queue, examined-edge, relaxation, and shortest-path visualization
+- Connected Components domain algorithm for undirected graphs
+- Connected Components GUI operation with component count, component membership, visited vertices, examined-edge highlighting, and visually distinct component colors
 
 Known limitations:
 
-- Connected Components and graph algorithms beyond BFS, DFS, and Dijkstra are not implemented yet.
+- Graph algorithms beyond BFS, DFS, Dijkstra, and Connected Components are not implemented yet.
 - Dijkstra intentionally does not support negative edge weights; Bellman-Ford is the relevant alternative for that case and is outside the current scope.
+- Connected Components is intentionally undirected-only; directed strongly/weakly connected components are outside the current scope.

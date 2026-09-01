@@ -286,7 +286,7 @@ class VisualLabApp(tk.Tk):
                 self.graph_target_label.configure(text="Target")
                 self.graph_target_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
                 self.graph_target_entry.grid(row=1, column=3, padx=(0, 10), pady=(6, 0))
-        else:
+        elif operation_key != "connected_components":
             self.graph_source_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_source_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
             self.graph_destination_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
@@ -773,6 +773,17 @@ class VisualLabApp(tk.Tk):
             info_lines.append((f"distances: {distances}", "#333"))
         if state.shortest_path:
             info_lines.append((f"path: {list(state.shortest_path)}", "#1f6f43"))
+        if state.component_count is not None:
+            info_lines.append((f"component count: {state.component_count}", "#333"))
+        if state.completed_components:
+            components = "; ".join(
+                f"{index}: {list(component)}" for index, component in enumerate(state.completed_components, start=1)
+            )
+            info_lines.append((f"components: {components}", "#2b4c7e"))
+        elif state.current_component_vertices:
+            info_lines.append(
+                (f"component {state.current_component}: {list(state.current_component_vertices)}", "#2b4c7e")
+            )
         for index, (text, fill) in enumerate(info_lines):
             self.canvas.create_text(
                 20,
@@ -814,6 +825,8 @@ class VisualLabApp(tk.Tk):
                 node_fill = "#c7e7ff"
             if node.visited:
                 node_fill = "#bfe8c1"
+            if node.component_id is not None:
+                node_fill = _component_color(node.component_id)
             if node.current:
                 node_fill = "#ffe08a"
             self.canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fill=node_fill, outline="#2b4c7e")
@@ -1021,6 +1034,11 @@ def _shortened_line(
     offset_x = int((dx / distance) * padding)
     offset_y = int((dy / distance) * padding)
     return source_x + offset_x, source_y + offset_y, destination_x - offset_x, destination_y - offset_y
+
+
+def _component_color(component_id: int) -> str:
+    colors = ("#c7e7ff", "#ffd8a8", "#d7f0c2", "#f5c7d7", "#ddd1ff", "#fff2a8")
+    return colors[(component_id - 1) % len(colors)]
 
 
 def _is_algorithm_key(structure_key: StructureKey) -> bool:

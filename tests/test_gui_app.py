@@ -307,6 +307,12 @@ def test_gui_main_flows_for_supported_structures() -> None:
         assert app.status_text.get() == "Dijkstra complete. Shortest path to 2: [1, 2] with distance 4."
         dijkstra_snapshot = app.controller.snapshot(StructureKey.GRAPH)
         assert [node.value for node in dijkstra_snapshot.graph_nodes] == [1, 2]
+        app.selected_operation.set("connected_components")
+        app._refresh_graph_operation_fields()
+        app._run_graph_operation()
+        app.after(3600, app.quit)
+        app.mainloop()
+        assert app.status_text.get() == "Connected Components complete. Component count: 1."
         app.graph_weight_input.set("-1")
         app.selected_operation.set("add_edge")
         app._refresh_graph_operation_fields()

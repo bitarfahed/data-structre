@@ -12,6 +12,7 @@ from data_structures_visual_lab.domain.data_structures import (
 from data_structures_visual_lab.domain.algorithms import binary_search
 from data_structures_visual_lab.domain.algorithms import bfs
 from data_structures_visual_lab.domain.algorithms import bubble_sort
+from data_structures_visual_lab.domain.algorithms import connected_components
 from data_structures_visual_lab.domain.algorithms import dfs
 from data_structures_visual_lab.domain.algorithms import dijkstra
 from data_structures_visual_lab.domain.algorithms import heap_sort
@@ -309,6 +310,22 @@ def test_graph_visualization_state_includes_dijkstra_distances_queue_and_path() 
     assert [node.value for node in update_state.graph_nodes if node.current] == [3]
     assert complete_state.shortest_path == (1, 3, 2)
     assert [node.value for node in complete_state.graph_nodes if node.path] == [1, 2, 3]
+
+
+def test_graph_visualization_state_includes_connected_components() -> None:
+    graph = Graph()
+    for vertex in (1, 2, 3):
+        graph.add_vertex(vertex)
+    graph.add_edge(1, 2)
+    result = connected_components(graph)
+    final_step = result.steps[-1]
+
+    state = build_visualization_state("Graph", graph, final_step)
+
+    assert state.completed_components == ((1, 2), (3,))
+    assert state.component_count == 2
+    assert [node.value for node in state.graph_nodes if node.component_id == 1] == [1, 2]
+    assert [node.value for node in state.graph_nodes if node.component_id == 2] == [3]
 
 
 def test_graph_visualization_state_includes_dfs_stack_and_order() -> None:

@@ -8,6 +8,7 @@ from data_structures_visual_lab.domain.algorithms import (
     bfs,
     binary_search,
     bubble_sort,
+    connected_components,
     heap_sort,
     insertion_sort,
     merge_sort,
@@ -233,6 +234,7 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
             value_label="Start",
             index_label="Target",
         ),
+        OperationSpec("connected_components", "Connected Components"),
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
@@ -419,6 +421,9 @@ class VisualLabController:
                 if isinstance(target, str):
                     return OperationResult(False, target, [])
                 result = dijkstra(graph, start, target)
+                return OperationResult(result.ok, result.message, result.steps)
+            if operation_key == "connected_components":
+                result = connected_components(graph)
                 return OperationResult(result.ok, result.message, result.steps)
 
             source = self._parse_required_integer(source_text, "Source")

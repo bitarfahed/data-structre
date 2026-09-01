@@ -86,6 +86,7 @@ class VisualGraphNode:
     visited: bool = False
     current: bool = False
     path: bool = False
+    component_id: int | None = None
 
 
 @dataclass(frozen=True)
@@ -158,6 +159,10 @@ class VisualizationState:
     priority_queue: tuple[tuple[int, int], ...] = ()
     predecessors: dict[int, int | None] | None = None
     shortest_path: tuple[int, ...] = ()
+    current_component: int | None = None
+    current_component_vertices: tuple[int, ...] = ()
+    completed_components: tuple[tuple[int, ...], ...] = ()
+    component_count: int | None = None
 
 
 def build_algorithm_visualization_state(
@@ -357,6 +362,12 @@ def build_visualization_state(
         distances = _distance_dict(metadata.get("distances"))
         priority_queue = _priority_queue(metadata.get("priority_queue"))
         predecessors = _predecessor_dict(metadata.get("predecessors"))
+        current_component = _int_or_none(metadata.get("current_component"))
+        current_component_vertices = _int_tuple(metadata.get("current_component_vertices"))
+        completed_components = _components_tuple(metadata.get("completed_components"))
+        components = _components_tuple(metadata.get("components"))
+        component_count = _int_or_none(metadata.get("component_count"))
+        component_by_vertex = _component_by_vertex(completed_components, current_component_vertices, current_component)
         nodes = tuple(
             VisualGraphNode(
                 value=vertex,
@@ -364,6 +375,7 @@ def build_visualization_state(
                 visited=vertex in visited_vertices,
                 current=vertex == current_vertex,
                 path=vertex in shortest_path,
+                component_id=component_by_vertex.get(vertex),
             )
             for vertex in structure.vertices()
         )
@@ -390,6 +402,10 @@ def build_visualization_state(
             priority_queue=priority_queue,
             predecessors=predecessors,
             shortest_path=shortest_path,
+            current_component=current_component,
+            current_component_vertices=current_component_vertices,
+            completed_components=completed_components,
+            component_count=component_count if component_count is not None else (len(components) if components else None),
         )
 
     if isinstance(structure, DynamicArray):
@@ -679,6 +695,32 @@ def _predecessor_dict(value: object) -> dict[int, int | None] | None:
         if type(key) is int and (type(predecessor) is int or predecessor is None):
             predecessors[key] = predecessor
     return predecessors
+
+
+def _components_tuple(value: object) -> tuple[tuple[int, ...], ...]:
+    if not isinstance(value, list):
+        return ()
+    components: list[tuple[int, ...]] = []
+    for component in value:
+        if isinstance(component, list):
+            vertices = tuple(vertex for vertex in component if type(vertex) is int)
+            components.append(vertices)
+    return tuple(components)
+
+
+def _component_by_vertex(
+    completed_components: tuple[tuple[int, ...], ...],
+    current_component_vertices: tuple[int, ...],
+    current_component: int | None,
+) -> dict[int, int]:
+    component_by_vertex: dict[int, int] = {}
+    for index, component in enumerate(completed_components, start=1):
+        for vertex in component:
+            component_by_vertex[vertex] = index
+    if current_component is not None:
+        for vertex in current_component_vertices:
+            component_by_vertex[vertex] = current_component
+    return component_by_vertex
 
 
 def _str_or_none(value: object) -> str | None:

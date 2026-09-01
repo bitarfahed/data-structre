@@ -18,6 +18,7 @@ def test_package_layers_import() -> None:
         "data_structures_visual_lab.domain.algorithms.bfs",
         "data_structures_visual_lab.domain.algorithms.binary_search",
         "data_structures_visual_lab.domain.algorithms.bubble_sort",
+        "data_structures_visual_lab.domain.algorithms.connected_components",
         "data_structures_visual_lab.domain.algorithms.dfs",
         "data_structures_visual_lab.domain.algorithms.dijkstra",
         "data_structures_visual_lab.domain.algorithms.heap_sort",
