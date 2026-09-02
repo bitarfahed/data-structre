@@ -1050,4 +1050,29 @@ Important implementation direction:
 - Prim is independent from Tkinter and GUI code.
 - Candidate edges are ordered by weight, then source vertex, then destination vertex for deterministic educational output.
 - MST edges are visually distinguished from ordinary graph edges.
-- Kruskal remains intentionally deferred as a separate MST approach.
+- Kruskal was intentionally deferred during the Prim step and is implemented in the next Round 5 entry as a separate MST approach.
+
+## Round 5 Kruskal's MST with GUI Visualization
+
+Prompt goal: implement Kruskal's Minimum Spanning Tree over the existing Graph domain object and add a simple GUI visualization.
+
+Work completed:
+
+- Added `kruskal_mst.py` as a graph algorithm module.
+- Implemented weighted-undirected-only Kruskal's MST by sorting graph edges from lowest to highest weight.
+- Added an internal Union-Find structure for cycle prevention.
+- Rejected directed graphs and empty graphs with clear messages.
+- Reported disconnected graphs without claiming a full spanning tree exists.
+- Returned selected MST edges and total MST weight.
+- Added execution steps for sorted edges, current edge, disjoint sets, accepted MST edges, rejected cycle edges, growing total weight, completion state, and disconnected state.
+- Added Kruskal MST as a Graph GUI operation.
+- Reused the existing Graph domain object and did not duplicate MST logic in the GUI.
+- Extended graph visualization state and canvas drawing for sorted edges, disjoint sets, rejected edges, MST edges, total weight, and disconnected-result messages.
+- Added pytest coverage for connected weighted graphs, equal-weight tie behavior, cycle rejection, single-vertex graphs, disconnected graphs, directed rejection, MST connectivity and acyclic behavior, Union-Find behavior, controller integration, visualization state, package imports, and GUI smoke behavior.
+
+Important implementation direction:
+
+- Kruskal is independent from Tkinter and GUI code.
+- Equal-weight edges are processed deterministically by weight, source vertex, and destination vertex.
+- Union-Find remains internal because no other current algorithm needs it.
+- Kruskal differs from Prim by selecting globally sorted edges rather than growing from a selected start vertex.

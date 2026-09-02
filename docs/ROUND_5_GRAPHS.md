@@ -1,6 +1,6 @@
 # Round 5 Graph Algorithms
 
-Round 5 extends the graph workspace with Cycle Detection, Topological Sort, and Prim's Minimum Spanning Tree.
+Round 5 extends the graph workspace with Cycle Detection, Topological Sort, Prim's Minimum Spanning Tree, and Kruskal's Minimum Spanning Tree.
 
 ## Cycle Detection
 
@@ -71,13 +71,36 @@ Behavior:
 
 Prim uses Python standard-library `heapq` as a priority queue because the learning target is the MST algorithm, not heap implementation. Candidate edge entries are ordered by weight, then source vertex, then destination vertex so equal-weight cases remain deterministic.
 
-Prim builds the MST incrementally from a start vertex. Other MST approaches such as Kruskal belong in separate algorithm modules and are intentionally not implemented in this step.
+Prim builds the MST incrementally from a start vertex. Kruskal is implemented separately because it teaches a different MST strategy based on globally sorted edges and disjoint sets.
 
 The Prim execution steps expose the current vertex, included vertices, candidate edges, priority queue contents, selected minimum edge, rejected edges where encountered, growing MST edge set, current total weight, completion state, and disconnected-graph state.
 
+## Kruskal's Minimum Spanning Tree
+
+`kruskal_mst(graph)` builds one minimum spanning tree for a connected weighted undirected graph.
+
+Behavior:
+
+- Supports weighted undirected graphs only.
+- Rejects directed graphs with a clear message.
+- Rejects empty graphs safely.
+- Uses the graph's existing non-negative integer edge weights.
+- Sorts all graph edges by weight.
+- Processes edges from smallest to largest.
+- Accepts an edge only when it connects two currently separate components.
+- Rejects an edge when it would create a cycle.
+- Returns the selected MST edges and total MST weight.
+- If the graph is disconnected, returns the reachable spanning forest and reports that no single spanning tree covers all vertices.
+
+Kruskal uses a small internal Union-Find structure for cycle prevention. Union-Find tracks component representatives, merges separate components, and rejects unions between vertices already in the same component.
+
+Kruskal grows the MST by globally selecting low-weight edges. Prim grows the MST from a selected start vertex by repeatedly choosing the best candidate edge leaving the current tree. Both find an MST for connected weighted undirected graphs, but they expose different educational state: Kruskal emphasizes sorted edges and disjoint sets, while Prim emphasizes a local candidate priority queue around a growing tree.
+
+The Kruskal execution steps expose the sorted edge list, the current edge under consideration, current disjoint sets, accepted MST edges, rejected cycle edges, current total weight, completion state, and disconnected-graph state.
+
 ## GUI Visualization
 
-The Graph workspace includes Cycle Detection and Topological Sort as no-input operations. Prim's MST uses a Start vertex input.
+The Graph workspace includes Cycle Detection, Topological Sort, and Kruskal's MST as no-input operations. Prim's MST uses a Start vertex input.
 
 Cycle Detection visualization shows:
 
@@ -108,6 +131,16 @@ Prim visualization shows:
 - current and final total MST weight
 - clear disconnected-graph result when a full spanning tree does not exist
 
+Kruskal visualization shows:
+
+- sorted edge list
+- current edge under consideration
+- current disjoint sets
+- accepted MST edges
+- rejected cycle edges
+- current and final total MST weight
+- clear disconnected-graph result when a full spanning tree does not exist
+
 ## Educational Decisions
 
 בחרנו במקרים פשוטים כי רוצים ללמוד מבלי להרחיב ל-edge cases שלא מוסיפים ערך לימודי.
@@ -124,6 +157,8 @@ Round 5 keeps graph algorithms focused on the existing graph model:
 - Kahn's algorithm is used for Topological Sort because its queue and indegree state are visible.
 - Prim is limited to weighted undirected graphs because MSTs are defined for undirected graphs in this educational round.
 - One deterministic MST result is enough when equal-weight alternatives exist.
+- Kruskal is also limited to weighted undirected graphs.
+- Union-Find is kept internal to Kruskal because no other current algorithm needs it.
 
 ## Deferred Production-Oriented Alternatives
 
@@ -133,7 +168,7 @@ Round 5 keeps graph algorithms focused on the existing graph model:
 - Self-loop cycle handling: useful in general graph libraries, but self-loops are intentionally unsupported by the current graph domain.
 - DFS-based topological sorting: useful as a compact alternative, but Kahn's algorithm exposes clearer queue and indegree state for this visualization.
 - Returning every possible topological order: useful for exhaustive dependency analysis, but not needed for the educational core.
-- Kruskal's MST algorithm: useful as an edge-sorting alternative and valuable for comparing MST strategies, but it should live in its own focused implementation rather than being folded into Prim.
+- Reusing Union-Find as a public shared module: useful when several algorithms need it, but one internal implementation is simpler for the current scope.
 - Directed spanning-tree/arborescence algorithms: useful in specialized graph optimization, but they are a different topic from undirected MSTs.
 - Large-graph optimizations: useful in production graph processing, but this project targets small interactive examples.
 
@@ -146,5 +181,7 @@ Round 5 keeps graph algorithms focused on the existing graph model:
 - Prim supports weighted undirected graphs only.
 - Prim reports disconnected graphs instead of producing a full MST.
 - Prim returns one deterministic MST when multiple equal-weight MSTs are possible.
-- Kruskal is not implemented yet.
+- Kruskal supports weighted undirected graphs only.
+- Kruskal reports disconnected graphs instead of producing a full MST.
+- Kruskal returns one deterministic MST when multiple equal-weight MSTs are possible.
 - Visualization is sequential and simple; it does not animate recursive call stack frames separately.

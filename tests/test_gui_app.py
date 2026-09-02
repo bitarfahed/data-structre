@@ -328,6 +328,13 @@ def test_gui_main_flows_for_supported_structures() -> None:
         app.mainloop()
         assert app.status_text.get() == "Prim's MST complete. Total weight: 4."
         assert app.canvas.find_all()
+        app.selected_operation.set("kruskal_mst")
+        app._refresh_graph_operation_fields()
+        app._run_graph_operation()
+        app.after(5000, app.quit)
+        app.mainloop()
+        assert app.status_text.get() == "Kruskal's MST complete. Total weight: 4."
+        assert app.canvas.find_all()
         app.graph_type_input.set("directed")
         app._set_graph_type()
         for vertex in ("1", "2", "3"):

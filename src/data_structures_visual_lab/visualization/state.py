@@ -175,7 +175,10 @@ class VisualizationState:
     topological_order: tuple[int, ...] = ()
     topological_sort_possible: bool | None = None
     candidate_edges: tuple[tuple[int, int, int], ...] = ()
+    sorted_edges: tuple[tuple[int, int, int], ...] = ()
     mst_edges: tuple[tuple[int, int, int], ...] = ()
+    rejected_edges: tuple[tuple[int, int, int], ...] = ()
+    disjoint_sets: tuple[tuple[int, ...], ...] = ()
     mst_total_weight: int | None = None
     mst_disconnected: bool = False
 
@@ -393,7 +396,10 @@ def build_visualization_state(
         topological_order = _int_tuple(metadata.get("topological_order"))
         topological_sort_possible = _bool_or_none(metadata.get("topological_sort_possible"))
         candidate_edges = _weighted_edge_tuple(metadata.get("candidate_edges"))
+        sorted_edges = _weighted_edge_tuple(metadata.get("sorted_edges"))
         mst_edges = _weighted_edge_tuple(metadata.get("mst_edges"))
+        rejected_edges = _weighted_edge_tuple(metadata.get("rejected_edges"))
+        disjoint_sets = _components_tuple(metadata.get("disjoint_sets"))
         mst_edge_pairs = {(source, destination) for source, destination, _weight in mst_edges}
         mst_total_weight = _int_or_none(metadata.get("mst_total_weight"))
         mst_disconnected = metadata.get("mst_disconnected") is True
@@ -446,7 +452,10 @@ def build_visualization_state(
             topological_order=topological_order,
             topological_sort_possible=topological_sort_possible,
             candidate_edges=candidate_edges,
+            sorted_edges=sorted_edges,
             mst_edges=mst_edges,
+            rejected_edges=rejected_edges,
+            disjoint_sets=disjoint_sets,
             mst_total_weight=mst_total_weight,
             mst_disconnected=mst_disconnected,
         )

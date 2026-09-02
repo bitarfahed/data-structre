@@ -24,6 +24,7 @@ from data_structures_visual_lab.domain.algorithms.dfs import DFSResult, dfs
 from data_structures_visual_lab.domain.algorithms.dijkstra import DijkstraResult, dijkstra
 from data_structures_visual_lab.domain.algorithms.heap_sort import heap_sort
 from data_structures_visual_lab.domain.algorithms.insertion_sort import insertion_sort
+from data_structures_visual_lab.domain.algorithms.kruskal_mst import KruskalMSTResult, kruskal_mst
 from data_structures_visual_lab.domain.algorithms.merge_sort import merge_sort
 from data_structures_visual_lab.domain.algorithms.prim_mst import PrimMSTResult, prim_mst
 from data_structures_visual_lab.domain.algorithms.quick_sort import quick_sort
@@ -41,6 +42,7 @@ __all__ = [
     "CycleDetectionResult",
     "DFSResult",
     "DijkstraResult",
+    "KruskalMSTResult",
     "PrimMSTResult",
     "SortResult",
     "TopologicalSortResult",
@@ -53,6 +55,7 @@ __all__ = [
     "dijkstra",
     "heap_sort",
     "insertion_sort",
+    "kruskal_mst",
     "make_algorithm_step",
     "merge_sort",
     "parse_integer_array_text",

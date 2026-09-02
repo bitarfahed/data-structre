@@ -17,6 +17,7 @@ from data_structures_visual_lab.domain.algorithms import detect_cycle
 from data_structures_visual_lab.domain.algorithms import dfs
 from data_structures_visual_lab.domain.algorithms import dijkstra
 from data_structures_visual_lab.domain.algorithms import heap_sort
+from data_structures_visual_lab.domain.algorithms import kruskal_mst
 from data_structures_visual_lab.domain.algorithms import merge_sort
 from data_structures_visual_lab.domain.algorithms import prim_mst
 from data_structures_visual_lab.domain.algorithms import quick_sort
@@ -391,6 +392,28 @@ def test_graph_visualization_state_includes_prim_mst() -> None:
     assert [node.value for node in state.graph_nodes if node.visited] == [1, 2, 3]
     assert [(edge.source, edge.destination) for edge in state.graph_edges if edge.mst] == [(1, 2), (2, 3)]
     assert [(edge.source, edge.destination) for edge in state.graph_edges if edge.highlighted] == [(2, 3)]
+
+
+def test_graph_visualization_state_includes_kruskal_mst() -> None:
+    graph = Graph()
+    for vertex in (1, 2, 3, 4):
+        graph.add_vertex(vertex)
+    graph.add_edge(1, 2, 1)
+    graph.add_edge(2, 3, 1)
+    graph.add_edge(1, 3, 2)
+    graph.add_edge(3, 4, 3)
+    result = kruskal_mst(graph)
+    rejected_step = [step for step in result.steps if step.state.metadata.get("rejected_edge") == (1, 3)][0]
+
+    state = build_visualization_state("Graph", graph, rejected_step)
+
+    assert state.sorted_edges == ((1, 2, 1), (2, 3, 1), (1, 3, 2), (3, 4, 3))
+    assert state.rejected_edges == ((1, 3, 2),)
+    assert state.disjoint_sets == ((1, 2, 3), (4,))
+    assert state.mst_edges == ((1, 2, 1), (2, 3, 1))
+    assert state.mst_total_weight == 2
+    assert [(edge.source, edge.destination) for edge in state.graph_edges if edge.mst] == [(1, 2), (2, 3)]
+    assert [(edge.source, edge.destination) for edge in state.graph_edges if edge.highlighted] == [(1, 3)]
 
 
 def test_graph_visualization_state_includes_dfs_stack_and_order() -> None:

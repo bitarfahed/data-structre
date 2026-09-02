@@ -77,6 +77,7 @@ def test_controller_lists_structures_and_operations() -> None:
         "cycle_detection",
         "topological_sort",
         "prim_mst",
+        "kruskal_mst",
     ]
     assert [operation.key for operation in controller.operations_for(StructureKey.BINARY_SEARCH)] == [
         "load_array",
@@ -723,6 +724,39 @@ def test_controller_rejects_graph_prim_mst_invalid_inputs() -> None:
     assert invalid.message == "Start must be an integer."
     assert not directed.ok
     assert directed.message == "Prim's MST supports undirected graphs only."
+    assert directed.steps == []
+
+
+def test_controller_runs_graph_kruskal_mst() -> None:
+    controller = VisualLabController()
+    for vertex in ("1", "2", "3"):
+        controller.run_graph_operation("add_vertex", vertex_text=vertex)
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="2", weight_text="1")
+    controller.run_graph_operation("add_edge", source_text="2", destination_text="3", weight_text="2")
+    controller.run_graph_operation("add_edge", source_text="1", destination_text="3", weight_text="5")
+
+    result = controller.run_graph_operation("kruskal_mst")
+    snapshot = controller.snapshot(StructureKey.GRAPH, result.steps[-1])
+
+    assert result.ok
+    assert result.message == "Kruskal's MST complete. Total weight: 3."
+    assert snapshot.sorted_edges == ((1, 2, 1), (2, 3, 2), (1, 3, 5))
+    assert snapshot.mst_edges == ((1, 2, 1), (2, 3, 2))
+    assert snapshot.mst_total_weight == 3
+
+
+def test_controller_rejects_graph_kruskal_mst_invalid_graphs() -> None:
+    controller = VisualLabController()
+
+    empty = controller.run_graph_operation("kruskal_mst")
+    controller.set_graph_directed(True)
+    controller.run_graph_operation("add_vertex", vertex_text="1")
+    directed = controller.run_graph_operation("kruskal_mst")
+
+    assert not empty.ok
+    assert empty.message == "Kruskal's MST skipped because the graph is empty."
+    assert not directed.ok
+    assert directed.message == "Kruskal's MST supports undirected graphs only."
     assert directed.steps == []
 
 

@@ -202,13 +202,13 @@ Verified coverage includes:
 
 Known limitations:
 
-- Graph algorithms beyond BFS, DFS, Dijkstra, Connected Components, Cycle Detection, and Topological Sort are not implemented yet.
+- Graph algorithms beyond BFS, DFS, Dijkstra, Connected Components, Cycle Detection, Topological Sort, Prim, and Kruskal are not implemented yet.
 - Dijkstra intentionally does not support negative edge weights; Bellman-Ford is the relevant alternative for that case and is outside the current scope.
 - Connected Components is intentionally undirected-only; directed strongly/weakly connected components are outside the current scope.
 
 ## Round 5 Status
 
-Round 5 extends the existing Graph workspace with Cycle Detection, Topological Sort, and Prim's Minimum Spanning Tree.
+Round 5 extends the existing Graph workspace with Cycle Detection, Topological Sort, Prim's Minimum Spanning Tree, and Kruskal's Minimum Spanning Tree.
 
 Implemented:
 
@@ -230,11 +230,15 @@ Implemented:
 - Disconnected-graph handling that reports no full spanning tree exists
 - Prim GUI operation
 - Simple MST visualization with included vertices, candidate edges, selected MST edges, and total weight
+- Kruskal's MST domain algorithm for weighted undirected graphs
+- Union-Find based cycle prevention while processing globally sorted edges
+- Kruskal GUI operation
+- Simple MST visualization with sorted edges, disjoint sets, accepted/rejected edges, and total weight
 
 Known limitations:
 
 - Cycle Detection returns one detected cycle, not all cycles.
 - Topological Sort returns one valid order, not every possible valid order.
 - Prim supports undirected graphs only and returns one deterministic MST for the selected start vertex.
-- Kruskal remains deferred as a separate MST approach.
+- Kruskal supports undirected graphs only and returns one deterministic MST when equal-weight alternatives exist.
 - The graph domain still intentionally rejects self-loops and parallel edges.

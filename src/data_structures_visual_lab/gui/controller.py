@@ -12,6 +12,7 @@ from data_structures_visual_lab.domain.algorithms import (
     detect_cycle,
     heap_sort,
     insertion_sort,
+    kruskal_mst,
     merge_sort,
     parse_integer_array_text,
     prim_mst,
@@ -241,6 +242,7 @@ OPERATIONS: dict[StructureKey, tuple[OperationSpec, ...]] = {
         OperationSpec("cycle_detection", "Cycle Detection"),
         OperationSpec("topological_sort", "Topological Sort"),
         OperationSpec("prim_mst", "Prim MST", needs_value=True, value_label="Start"),
+        OperationSpec("kruskal_mst", "Kruskal MST"),
     ),
     StructureKey.BINARY_SEARCH: (
         OperationSpec(
@@ -442,6 +444,9 @@ class VisualLabController:
                 if isinstance(start, str):
                     return OperationResult(False, start, [])
                 result = prim_mst(graph, start)
+                return OperationResult(result.ok, result.message, result.steps)
+            if operation_key == "kruskal_mst":
+                result = kruskal_mst(graph)
                 return OperationResult(result.ok, result.message, result.steps)
 
             source = self._parse_required_integer(source_text, "Source")

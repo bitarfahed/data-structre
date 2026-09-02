@@ -288,7 +288,7 @@ class VisualLabApp(tk.Tk):
                 self.graph_target_label.configure(text="Target")
                 self.graph_target_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
                 self.graph_target_entry.grid(row=1, column=3, padx=(0, 10), pady=(6, 0))
-        elif operation_key not in {"connected_components", "cycle_detection", "topological_sort"}:
+        elif operation_key not in {"connected_components", "cycle_detection", "topological_sort", "kruskal_mst"}:
             self.graph_source_label.grid(row=1, column=0, padx=(0, 4), pady=(6, 0))
             self.graph_source_entry.grid(row=1, column=1, padx=(0, 10), pady=(6, 0))
             self.graph_destination_label.grid(row=1, column=2, padx=(0, 4), pady=(6, 0))
@@ -804,8 +804,15 @@ class VisualLabApp(tk.Tk):
             info_lines.append(("topological sort impossible: cycle detected", "#9f2d20"))
         if state.candidate_edges:
             info_lines.append((f"candidate queue: {list(state.candidate_edges)}", "#2b4c7e"))
+        if state.sorted_edges:
+            info_lines.append((f"sorted edges: {list(state.sorted_edges)}", "#2b4c7e"))
+        if state.disjoint_sets:
+            sets = "; ".join(str(list(component)) for component in state.disjoint_sets)
+            info_lines.append((f"sets: {sets}", "#333"))
         if state.mst_edges:
             info_lines.append((f"MST edges: {list(state.mst_edges)}", "#1f6f43"))
+        if state.rejected_edges:
+            info_lines.append((f"rejected: {list(state.rejected_edges)}", "#9f2d20"))
         if state.mst_total_weight is not None:
             info_lines.append((f"MST weight: {state.mst_total_weight}", "#333"))
         if state.mst_disconnected:
