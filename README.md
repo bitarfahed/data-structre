@@ -189,4 +189,4 @@ docs/                     # Planning, requirements, educational notes, and proce
 
 ## Current Status
 
-Rounds 1-5 are implemented and QA-verified. The repository is functionally complete for the current educational scope and ready for final portfolio preparation: documentation polish, screenshots, demo material, final QA, and presentation cleanup.
+Rounds 1-5 are implemented and QA-verified. The repository is functionally complete for the current educational scope and ready for portfolio presentation work such as screenshots, demo material, and release polish.

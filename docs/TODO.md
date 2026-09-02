@@ -64,7 +64,6 @@ Documentation:
 
 ## Remaining Before Portfolio Release
 
-- [ ] Run a final full automated test pass immediately before publishing.
 - [ ] Capture screenshots or a short demo video of the GUI.
 - [ ] Review README wording and screenshots together for GitHub presentation.
 - [ ] Optionally add a small `docs/DEMO.md` or linked media section if screenshots/video are prepared.
@@ -100,4 +99,4 @@ These are not required for the current project to be functionally complete:
 
 ## Current Status
 
-Rounds 1-5 are implemented and QA-verified. The project should be considered functionally complete for the current educational scope. Remaining work should focus on final QA, documentation review, screenshots/demo material, cleanup, and portfolio presentation.
+Rounds 1-5 are implemented, QA-verified, and functionally complete for the current educational scope. Remaining work should focus on screenshots/demo material, repository presentation, and final release polish rather than new implementation scope.

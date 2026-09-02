@@ -387,3 +387,7 @@ Deferred intentionally:
 
 - Returning every cycle in a graph
 - Returning every possible topological ordering
+
+## Final Project Status
+
+The project is functionally complete for the current Rounds 1-5 educational scope. Future changes should focus on bug fixes, screenshots or demo media, minor documentation improvements, repository presentation, and packaging or release polish if desired.

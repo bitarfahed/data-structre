@@ -1,4 +1,4 @@
-from data_structures_visual_lab.domain.algorithms import AlgorithmEventType, prim_mst
+from data_structures_visual_lab.domain.algorithms import AlgorithmEventType, kruskal_mst, prim_mst
 from data_structures_visual_lab.domain.data_structures import Graph
 
 
@@ -93,6 +93,30 @@ def test_prim_mst_edges_are_connected_and_acyclic() -> None:
     assert len(result.edges) == graph.vertex_count() - 1
     assert _is_connected_acyclic(graph.vertices(), result.edges)
     assert result.total_weight == 8
+
+
+def test_prim_and_kruskal_have_same_total_weight_on_same_graph() -> None:
+    graph = Graph()
+    for vertex in (1, 2, 3, 4, 5):
+        graph.add_vertex(vertex)
+    for source, destination, weight in (
+        (1, 2, 2),
+        (1, 3, 3),
+        (2, 3, 1),
+        (2, 4, 4),
+        (3, 5, 5),
+        (4, 5, 1),
+    ):
+        graph.add_edge(source, destination, weight)
+
+    prim_result = prim_mst(graph, 1)
+    kruskal_result = kruskal_mst(graph)
+
+    assert prim_result.ok
+    assert kruskal_result.ok
+    assert _is_connected_acyclic(graph.vertices(), prim_result.edges)
+    assert _is_connected_acyclic(graph.vertices(), kruskal_result.edges)
+    assert prim_result.total_weight == kruskal_result.total_weight == 8
 
 
 def test_prim_mst_steps_expose_queue_selected_and_rejected_edges() -> None:

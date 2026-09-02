@@ -36,6 +36,13 @@ Visualization:
 - Values are shown vertically.
 - The top position is highlighted where useful.
 
+Invariant and complexity:
+
+- Only the top value is added or removed.
+- `push`: `O(1)` amortized time.
+- `pop`: `O(1)` time.
+- Space: `O(n)` for stored values.
+
 ### Queue
 
 Purpose: demonstrate First-In, First-Out behavior.
@@ -57,6 +64,13 @@ Visualization:
 
 - Values are shown horizontally from front to back.
 - Front and back positions are labeled where useful.
+
+Invariant and complexity:
+
+- Values leave in the same order they entered.
+- `enqueue`: `O(1)` time.
+- `dequeue`: `O(1)` time.
+- Space: `O(n)` for stored values.
 
 ### Singly Linked List
 
@@ -85,6 +99,13 @@ Visualization:
 - Next references are shown as arrows.
 - Traversal and affected nodes are highlighted where practical.
 
+Invariant and complexity:
+
+- Each node references only the next node.
+- `push` at index `0`: `O(1)` time.
+- `push`, `pop`, or `change_value` at index `i`: `O(i)` traversal time.
+- Space: `O(n)` for nodes.
+
 ### Dynamic Array
 
 Purpose: demonstrate contiguous indexed storage, capacity, and resizing.
@@ -110,6 +131,14 @@ Visualization:
 - Indexed cells show stored values.
 - Size and capacity are shown clearly.
 - Growth and shrink behavior is represented through capacity changes.
+
+Invariant and complexity:
+
+- `0 <= size <= capacity`.
+- Values occupy indices `0` through `size - 1`.
+- `add`: `O(1)` amortized time, `O(n)` when resizing.
+- `delete`: `O(n)` time because later values shift left.
+- Space: `O(capacity)`.
 
 ## Round 2 Structures
 
@@ -142,6 +171,16 @@ Visualization:
 - Balance factors are shown near nodes.
 - Unbalanced nodes and pending-rebalance status are highlighted.
 
+Invariant and complexity:
+
+- When balanced, every node has balance factor between `-1` and `1`.
+- Pending-rebalance mode may temporarily violate AVL balance after BST-style insertion.
+- `search`, `min`, and `max`: `O(log n)` when balanced.
+- `insert`: `O(h)` for BST insertion before explicit balancing.
+- `balance`: `O(n log n)` in this educational implementation because it rebuilds from sorted values.
+- `delete`: `O(log n)` typical search/removal plus balancing work.
+- Space: `O(n)` for nodes.
+
 ### Min-Heap
 
 Purpose: demonstrate heap storage and repair as separate educational phases.
@@ -171,6 +210,17 @@ Visualization:
 - The underlying array representation is also shown.
 - Repair-required status and repair index are highlighted where practical.
 
+Invariant and complexity:
+
+- When valid, each parent is less than or equal to its children.
+- Pending-repair mode may temporarily violate heap order after raw mutation.
+- `add_raw`: `O(1)` amortized time.
+- `sift_up`: `O(log n)` time.
+- `extract_raw`: `O(1)` for the raw replacement step.
+- `heapify_down`: `O(log n)` time.
+- `peek_min`: `O(1)` time.
+- Space: `O(n)`.
+
 ### Hash Table
 
 Purpose: demonstrate hashing, buckets, collisions, and separate chaining.
@@ -199,6 +249,14 @@ Visualization:
 - Entries are shown in bucket chains.
 - Calculated bucket index, collisions, and affected entries are highlighted where practical.
 
+Invariant and complexity:
+
+- Every entry is stored in the bucket calculated from its key.
+- Duplicate keys may appear multiple times in the same bucket.
+- Average `insert`, `search`, and `delete`: `O(1 + k)` for bucket-chain length `k`.
+- Worst-case `insert`, `search`, and `delete`: `O(n)` when many entries land in one bucket.
+- Space: `O(bucket_count + n)`.
+
 ### 2-3 Tree
 
 Purpose: demonstrate multi-key search trees and split/promotion repair.
@@ -224,6 +282,15 @@ Visualization:
 - Nodes show one or two normal keys, or a temporary overflow state.
 - Parent-child edges are drawn.
 - Repair-required status and overflowing nodes are highlighted.
+
+Invariant and complexity:
+
+- When valid, internal nodes have two or three children and all leaves are at the same depth.
+- Pending-repair mode may temporarily allow an overflowing node.
+- `insert_raw`: `O(log n)` traversal when the tree is valid.
+- `repair`: `O(log n)` for split/promotion propagation.
+- `search`: `O(log n)` when valid.
+- Space: `O(n)` for nodes and keys.
 
 ## Round 4 Graph Structure
 
@@ -263,6 +330,17 @@ Visualization:
 - Directed edges show direction.
 - Weights are displayed on edges.
 - Node placement is deterministic and intentionally simple.
+
+Invariant and complexity:
+
+- Each vertex owns an adjacency entry.
+- Undirected edges are stored in both directions and rendered once.
+- Directed edges are stored only from source to destination.
+- `add_vertex`, `has_vertex`, and `vertex_count`: `O(1)` or `O(V)` depending on snapshot needs.
+- `add_edge`, `remove_edge`, and `has_edge`: `O(d)` for the source adjacency degree.
+- `neighbors(vertex)`: `O(d)` to return that vertex's neighbors.
+- `edge_count`: `O(V + E)` for counting from adjacency data.
+- Space: `O(V + E)`.
 
 ## Educational Boundaries
 
