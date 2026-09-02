@@ -1,6 +1,6 @@
 # Round 4 Graph Design
 
-Round 4 starts the graph foundation for future graph visualizations and algorithms. This phase adds domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, Dijkstra shortest paths, and Connected Components. It does not implement other graph algorithms yet.
+Round 4 started the graph foundation for graph visualizations and algorithms. This phase added domain infrastructure, a simple graph builder GUI, BFS traversal, DFS traversal, Dijkstra shortest paths, and Connected Components. Later graph algorithms are documented separately in `docs/ROUND_5_GRAPHS.md`.
 
 ## Implemented Domain Model
 
@@ -130,7 +130,7 @@ Our Round 4 graph decisions are:
 
 ## Known Limitations
 
-- Graph algorithms beyond BFS, DFS, Dijkstra, and Connected Components are not implemented yet.
+- Round 4 itself stops at BFS, DFS, Dijkstra, and Connected Components; later graph algorithms are covered in the Round 5 documentation.
 - The graph does not resize, compact, or optimize storage for large inputs.
 - Edge weights can be inspected and updated only by removing and re-adding an edge.
 

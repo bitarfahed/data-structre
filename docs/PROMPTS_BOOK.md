@@ -1107,3 +1107,24 @@ Remaining limitations:
 - Prim and Kruskal support weighted undirected graphs only.
 - Prim and Kruskal may return different valid edge sets when multiple MSTs share the same minimum total weight.
 - Visualization remains simple sequential playback without manual step controls.
+
+## Core Project Documentation
+
+Prompt goal: create and complete core documentation for the current Data Structures Visual Lab repository without adding new algorithms, data structures, GUI features, or architectural layers.
+
+Work completed:
+
+- Inspected the current repository structure, package configuration, source modules, controller operations, existing documentation, and tests.
+- Rewrote `README.md` as a portfolio-oriented project overview.
+- Added `docs/PRD.md` to describe product goals, users, requirements, architecture boundaries, supported scope, excluded scope, and success criteria.
+- Added `docs/TODO.md` to distinguish completed implementation work from remaining portfolio-release polish and optional future extensions.
+- Added `docs/ALGORITHMS.md` as a reference for implemented searching, sorting, and graph algorithms.
+- Added `docs/DATA_STRUCTURES.md` as a reference for implemented structures, operations, validation rules, duplicate policies, and visualization behavior.
+- Updated `docs/PLAN.md` to reflect that the original future expansion through trees, heaps, hash tables, array algorithms, and graph algorithms has been completed through Round 5.
+- Cross-checked documentation against actual package names, run commands, controller-supported operations, and known educational limitations.
+
+Important documentation direction:
+
+- Documentation should describe the current implemented project rather than a speculative future version.
+- Portfolio-facing docs should make the architecture boundary clear: domain logic, event/algorithm state, visualization state, and GUI orchestration remain separate.
+- Known limitations should be documented as intentional educational scope decisions, not hidden.

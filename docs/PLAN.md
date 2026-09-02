@@ -50,7 +50,7 @@ Round 1 focuses on clear, testable domain logic with a simple GUI shell layered 
 
 ## Deferred Work
 
-Future expansion may include trees, hash tables, heaps, and graph algorithms. Those areas are intentionally deferred until the early architecture has been validated by Round 1.
+The original future-expansion path for trees, hash tables, heaps, array algorithms, and graph algorithms has now been completed through Round 5. Future work should be treated as optional extension or presentation polish rather than required foundation work.
 
 The project should avoid adding AI, databases, authentication, networking, backend services, cloud infrastructure, or unrelated technologies.
 
