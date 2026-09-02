@@ -98,6 +98,12 @@ Kruskal grows the MST by globally selecting low-weight edges. Prim grows the MST
 
 The Kruskal execution steps expose the sorted edge list, the current edge under consideration, current disjoint sets, accepted MST edges, rejected cycle edges, current total weight, completion state, and disconnected-graph state.
 
+## Prim and Kruskal Comparison
+
+Prim and Kruskal both compute a minimum spanning tree for a connected weighted undirected graph, so their final total weight should match on the same graph.
+
+They do not have to select the exact same edge set when multiple MSTs are valid. Equal-weight alternatives can allow several different spanning trees with the same minimum total weight. That is acceptable as long as the selected edges connect all vertices, avoid cycles, and have the minimum total weight.
+
 ## GUI Visualization
 
 The Graph workspace includes Cycle Detection, Topological Sort, and Kruskal's MST as no-input operations. Prim's MST uses a Start vertex input.
@@ -159,6 +165,21 @@ Round 5 keeps graph algorithms focused on the existing graph model:
 - One deterministic MST result is enough when equal-weight alternatives exist.
 - Kruskal is also limited to weighted undirected graphs.
 - Union-Find is kept internal to Kruskal because no other current algorithm needs it.
+
+## Round 5 QA Result
+
+Round 5 is stable enough to close.
+
+Verified in final QA:
+
+- Cycle Detection for undirected cyclic graphs, undirected acyclic graphs, directed cyclic graphs, directed DAGs, disconnected graphs with one cyclic component, empty graphs, and GUI cycle highlighting.
+- Topological Sort for simple DAGs, disconnected DAGs, multiple-valid-order DAGs, directed cycles, undirected rejection, empty directed graphs, and indegree/queue/order visualization.
+- Prim for connected weighted undirected graphs, equal-weight edges, selected MST edges, total weight, single-vertex graphs, disconnected graphs, invalid starts, directed rejection, and MST visualization.
+- Kruskal for connected weighted undirected graphs, equal-weight edges, cycle-causing edge rejection, selected MST edges, total weight, single-vertex graphs, disconnected graphs, directed rejection, and accepted/rejected-edge visualization.
+- Prim and Kruskal on the same connected weighted undirected graph, both producing MST total weight `8`.
+- Existing graph builder behavior, BFS, DFS, Dijkstra, Connected Components, directed/undirected graph behavior, weighted edges, restart, and validation rules.
+- Compatibility with Round 1, Round 2, Round 3, and Round 4 automated tests and representative GUI flows.
+- Graph algorithms remaining independent from GUI code.
 
 ## Deferred Production-Oriented Alternatives
 

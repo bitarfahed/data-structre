@@ -208,6 +208,8 @@ Known limitations:
 
 ## Round 5 Status
 
+Round 5 is stable enough to close.
+
 Round 5 extends the existing Graph workspace with Cycle Detection, Topological Sort, Prim's Minimum Spanning Tree, and Kruskal's Minimum Spanning Tree.
 
 Implemented:
@@ -235,10 +237,20 @@ Implemented:
 - Kruskal GUI operation
 - Simple MST visualization with sorted edges, disjoint sets, accepted/rejected edges, and total weight
 
+Verified coverage includes:
+
+- Cycle Detection directed and undirected behavior, cyclic and acyclic graphs, disconnected graphs, empty graphs, and cycle highlighting
+- Topological Sort DAGs, disconnected DAGs, multiple-valid-order cases, cycle rejection, undirected rejection, empty graphs, and indegree/queue/order visualization
+- Prim connected weighted graphs, equal-weight edges, selected MST edges, total weight, single vertex, disconnected graphs, invalid starts, directed rejection, and MST visualization
+- Kruskal connected weighted graphs, equal-weight edges, cycle-causing edge rejection, selected MST edges, total weight, single vertex, disconnected graphs, directed rejection, and accepted/rejected-edge visualization
+- Prim and Kruskal both producing the same minimum total weight on the same connected weighted graph
+- Compatibility with previous graph algorithms and Rounds 1-4
+
 Known limitations:
 
 - Cycle Detection returns one detected cycle, not all cycles.
 - Topological Sort returns one valid order, not every possible valid order.
 - Prim supports undirected graphs only and returns one deterministic MST for the selected start vertex.
 - Kruskal supports undirected graphs only and returns one deterministic MST when equal-weight alternatives exist.
+- Prim and Kruskal may select different valid edge sets when several MSTs share the same minimum total weight.
 - The graph domain still intentionally rejects self-loops and parallel edges.

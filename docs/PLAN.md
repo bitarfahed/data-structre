@@ -336,6 +336,8 @@ Verified in final QA:
 
 ## Round 5 Scope
 
+Round 5 is stable enough to close.
+
 Round 5 extends the existing Graph workspace with Cycle Detection, Topological Sort, Prim's Minimum Spanning Tree, and Kruskal's Minimum Spanning Tree. Other graph algorithms are intentionally deferred.
 
 Implemented:
@@ -366,6 +368,18 @@ Implemented:
 - Clear directed-graph, empty-graph, and disconnected-graph validation
 - MST edge set and total weight result
 - Kruskal GUI operation with sorted edges, disjoint sets, accepted MST edges, rejected cycle edges, total weight, and disconnected-graph message
+
+Prim and Kruskal both produce minimum spanning trees for connected weighted undirected graphs. Their total weights should match on the same graph, but their exact selected edge sets may differ when equal-weight alternatives allow multiple valid MSTs.
+
+Verified in final QA:
+
+- Cycle Detection directed/undirected cyclic and acyclic cases, disconnected graphs, empty graphs, and cycle highlighting
+- Topological Sort DAGs, disconnected DAGs, multiple-valid-order cases, cycle rejection, undirected rejection, empty graphs, and indegree/queue/order visualization
+- Prim connected, equal-weight, single-vertex, disconnected, invalid-start, directed-rejection, selected-edge, total-weight, and visualization behavior
+- Kruskal connected, equal-weight, cycle-rejection, single-vertex, disconnected, directed-rejection, selected-edge, total-weight, and visualization behavior
+- Graph builder constraints, BFS, DFS, Dijkstra, Connected Components, restart, weighted edges, and directed/undirected behavior
+- Rounds 1-4 automated tests and representative GUI flows
+- Domain algorithm independence from GUI code
 
 Round 5 design decisions and deferred production-oriented alternatives are documented in `docs/ROUND_5_GRAPHS.md`.
 

@@ -1076,3 +1076,34 @@ Important implementation direction:
 - Equal-weight edges are processed deterministically by weight, source vertex, and destination vertex.
 - Union-Find remains internal because no other current algorithm needs it.
 - Kruskal differs from Prim by selecting globally sorted edges rather than growing from a selected start vertex.
+
+## Round 5 Final QA and Stabilization
+
+Prompt goal: verify and stabilize Cycle Detection, Topological Sort, Prim's MST, Kruskal's MST, their Graph GUI integration, and compatibility with Rounds 1-4.
+
+Work completed:
+
+- Ran the full automated test suite.
+- Manually verified Cycle Detection GUI behavior for undirected cyclic graphs, undirected acyclic graphs, directed cyclic graphs, directed DAGs, disconnected graphs with one cyclic component, empty graphs, and cycle highlighting.
+- Manually verified Topological Sort GUI behavior for simple DAGs, disconnected DAGs, multiple-valid-order DAGs, directed cycles, undirected rejection, empty directed graphs, and indegree/queue/order visualization.
+- Manually verified Prim GUI behavior for connected weighted undirected graphs, equal-weight edges, selected MST edges, total weight, single-vertex graphs, disconnected graphs, invalid starts, directed rejection, and MST visualization.
+- Manually verified Kruskal GUI behavior for connected weighted undirected graphs, equal-weight edges, cycle-causing edge rejection, selected MST edges, total weight, single-vertex graphs, disconnected graphs, directed rejection, and accepted/rejected-edge visualization.
+- Cross-checked Prim and Kruskal on the same connected weighted undirected graph and confirmed both produced minimum total weight `8`.
+- Verified graph builder behavior, BFS, DFS, Dijkstra, Connected Components, directed/undirected graph behavior, weighted edges, restart, and validation rules.
+- Verified representative Round 1, Round 2, and Round 3 GUI flows.
+- Confirmed graph algorithm modules remain independent from GUI code and the GUI routes graph algorithms through the controller/domain modules.
+- Updated README, plan documentation, Round 5 documentation, and this prompts book to record Round 5 closure.
+
+QA result:
+
+- No product bugs were found during this pass.
+- No dead code or unnecessary duplication was removed.
+- Round 5 is stable enough to close.
+
+Remaining limitations:
+
+- Cycle Detection returns one detected cycle, not every cycle.
+- Topological Sort returns one valid order, not every possible valid order.
+- Prim and Kruskal support weighted undirected graphs only.
+- Prim and Kruskal may return different valid edge sets when multiple MSTs share the same minimum total weight.
+- Visualization remains simple sequential playback without manual step controls.
